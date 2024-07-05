@@ -1,0 +1,139 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    h1 {
+      font-family: "Instrument Sans", serif;
+      font-size: 1.5rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 700;
+
+      color: var(--dark-grey);
+    }
+
+    h2 {
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 400;
+
+      color: var(--grey);
+    }
+  }
+
+  .form_container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    .input_group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      position: relative;
+
+
+      font-family: "Instrument Sans", serif;
+      font-size: 0.75rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 400;
+
+      color: var(--dark-grey);
+
+      .input_container {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        flex-grow: 1;
+
+        input {
+          padding-inline: 2.75rem 1rem;
+          padding-block: 0.75rem;
+          border: none;
+          border-radius: 0.5rem;
+          outline: 1px solid var(--borders);
+          width: 100%;
+
+          font-family: "Instrument Sans", serif;
+          font-size: 1rem;
+          line-height: 150%;
+          letter-spacing: 0;
+          font-weight: 400;
+
+          color: var(--dark-grey);
+
+        }
+
+        img {
+          height: 1rem;
+          width: 1rem;
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+        }
+      }
+
+      .input_error {
+        input {
+          outline-color: var(--red);
+        }
+      }
+
+      .error {
+        position: absolute;
+        bottom: -1.125rem;
+        color: var(--red);
+      }
+    }
+
+    .button {
+      padding: 0.688rem 1.688rem;
+      border-radius: 0.5rem;
+      border: none;
+      background-color: var(--purple);
+
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 600;
+
+      color: white;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--purple-hover);
+      }
+    }
+
+    .footer_group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .dont_have_account {
+        color: var(--grey);
+      }
+
+      .create_account {
+        color: var(--purple);
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(150%);
+        }
+      }
+    }
+  }
+
+
+}

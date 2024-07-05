@@ -1,48 +1,64 @@
-import type { MetaFunction } from "@remix-run/node";
+import { MetaFunction, useLoaderData, redirect } from "@remix-run/react";
+import { LoaderFunction, json } from "@remix-run/node";
+import styles from "../styles/index.module.css";
+import React, { useEffect, useMemo } from "react";
+import { sessionCookie } from "~/utils/sessionCookie";
+import Login from "~/components/pages/login_page/Login";
+import Navigation from "~/components/navigation/Navigation";
+import { useLinksStore } from '~/store/LinksStore';
+import CreateAccount from "~/components/pages/create_account/CreateAccount";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
+    { title: "Social Link App" },
     { name: "description", content: "Welcome to Remix!" },
   ];
 };
 
+export const loader: LoaderFunction = async ({ request }) => {
+  /* Handle Cookies */
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+
+  if (session) {
+    return redirect("/dashboard/links");
+  } else {
+    const homePage = 'login';
+    return json({
+      homePage,
+      session,
+    });
+  }
+};
+
 export default function Index() {
+  const { homePage } = useLoaderData<typeof loader>();
+
+  const { currentPage, setCurrentPage } = useLinksStore(state => ({
+    currentPage: state.currentPage,
+    setCurrentPage: state.setCurrentPage,
+  }));
+
+  useEffect(() => {
+    // Set the current page to the home page on initial load
+    setCurrentPage(homePage);
+  }, [homePage, setCurrentPage]);
+
+  const renderPage = useMemo(() => {
+    switch (currentPage) {
+      case 'create-account':
+        return <CreateAccount />;
+      default:
+        return <Login />;
+    }
+  }, [currentPage]);
+
   return (
-    <div className="font-sans p-4">
-      <h1 className="text-3xl">Welcome to Remix</h1>
-      <ul className="list-disc mt-4 pl-6 space-y-2">
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/quickstart"
-            rel="noreferrer"
-          >
-            5m Quick Start
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/tutorial"
-            rel="noreferrer"
-          >
-            30m Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/docs"
-            rel="noreferrer"
-          >
-            Remix Docs
-          </a>
-        </li>
-      </ul>
-    </div>
+      <div className={styles.container}>
+        <Navigation />
+        <div className={styles.content}>
+          {renderPage}
+        </div>
+      </div>
   );
 }

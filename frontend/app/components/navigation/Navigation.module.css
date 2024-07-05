@@ -1,0 +1,63 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  padding-block: 1rem;
+  margin-inline: auto;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 19.438rem;
+
+
+
+  .link_group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .icon_container {
+      padding: 0.688rem 1.688rem;
+      border-radius: 0.5rem;
+      
+      &:hover {
+        cursor: pointer;
+        background-color: var(--light-pink);
+
+        path {
+          fill: var(--purple);
+        }
+      }
+    }
+
+    .svg_img {
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+
+    path {
+      fill: var(--grey);
+    }
+
+    .active {
+      background-color: var(--light-pink);
+
+      path {
+        fill: var(--purple);
+      }
+    }
+  }
+  .preview_icon_container {
+    padding: 0.688rem 1rem;
+    border-radius: 0.5rem;
+    outline: 1px solid var(--purple);
+
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--light-pink);
+    }
+  }
+}
+
+
