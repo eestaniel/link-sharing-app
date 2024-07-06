@@ -3,6 +3,7 @@
   --grey: #737373;
   --dark-grey: #333333;
   --light-pink: #EFEBFF;
+  --light-purple: #EFEBFF;
   --purple: #633CFF;
   --purple-hover: #BEADFF;
   --red: #FF3939;
@@ -20,4 +21,5 @@
 
 body {
   background-color: var(--light-grey);
+  min-height: 100vh;
 }
