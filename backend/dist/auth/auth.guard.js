@@ -20,7 +20,7 @@ let AuthGuard = class AuthGuard {
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const token = request.body.sessionId;
+        const token = request.body.session;
         if (!token) {
             return false;
         }

@@ -16,7 +16,8 @@ export declare class AuthController {
         email: string;
         password: string;
     }): Promise<string | {
-        sessionId: string;
+        accessToken: string;
+        refreshToken: string;
     }>;
     getProfile(req: any): any;
     signOut(req: any): Promise<{

@@ -35,8 +35,10 @@ let AuthService = class AuthService {
             .signInWithPassword({ email, password });
         if (error)
             return JSON.stringify({ error: "Invalid email or password" });
-        await this.usersService.findOrCreateUser(data.user.id, email);
-        return { sessionId: data.session.access_token };
+        return {
+            accessToken: data.session.access_token,
+            refreshToken: data.session.refresh_token
+        };
     }
     async signOut(token) {
         const { error } = await this.supabaseService

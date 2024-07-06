@@ -40,7 +40,6 @@ const CreateAccount = () => {
   const fetcher = useFetcher();
 
   const onSubmit = (data: CreateFormInput) => {
-    console.log(data);
     const formData = new FormData();
     formData.append("action", "create-account");
     formData.append("email", data.email);

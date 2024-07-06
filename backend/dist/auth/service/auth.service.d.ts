@@ -12,7 +12,8 @@ export declare class AuthService {
         session: null;
     }>;
     signIn(email: string, password: string): Promise<string | {
-        sessionId: string;
+        accessToken: string;
+        refreshToken: string;
     }>;
     signOut(token: string): Promise<{
         message: string;

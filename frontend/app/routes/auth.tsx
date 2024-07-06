@@ -1,7 +1,6 @@
 import {ActionFunction, json, LoaderFunction, redirect} from "@remix-run/node";
-import supabase from '~/services/supabaseClient';
+import {supabase} from "~/services/supabaseClient";
 import { sessionCookie } from "~/utils/sessionCookie";
-
 
 
 export const loader: LoaderFunction = async ( ) => {
@@ -11,12 +10,11 @@ export const loader: LoaderFunction = async ( ) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const actionType = formData.get('action');
-
   switch (actionType) {
     case 'anon':
       return await createAnonSession();
     case 'logout':
-      return await signOut(request);
+      return await signOut(formData);
     case 'login':
       return await login(formData);
 
@@ -45,21 +43,22 @@ const createAccount = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  console.log(email, password)
-
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
 
-  console.log(data)
 
   if (error) {
-    console.log(error.message)
     return json({ error: error.message }, { status: 401 });
   }
 
   return json({message: 'Please confirm email to login'}, { status: 200 });
+}
+
+interface TokenPayload {
+  accessToken: string;
+  refreshToken: string;
 }
 
 const login = async (formData: FormData) => {
@@ -74,34 +73,44 @@ const login = async (formData: FormData) => {
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await response.json();
+  const res: TokenPayload & { error?: string } = await response.json();
 
-
-  if (data.error) {
-     rreturn json({ error: data.error }, { status: 401 });
+  if (res.error) {
+    return json({ error: res.error }, { status: 401 });
   }
 
-  console.log(data)
+  const { accessToken, refreshToken } = res;
+
+  // Set session data
+  const { data, error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken
+  });
 
 
-  const { sessionId } = data;
+  if (error) {
+    return json({ error: error.message }, { status: 500 });
+  }
 
   // Create a session cookie with the access token
-  const cookieHeader = await sessionCookie.serialize({ sessionId });
+  const cookieHeader = await sessionCookie.serialize({ accessToken });
 
 
-
-  return json({ sessionID: cookieHeader }, {
+  return json({ session:  accessToken}, {
     headers: { "Set-Cookie": cookieHeader },
   });
 };
 
-const signOut = async (request: Request) => {
+
+const signOut = async (formData: FormData) => {
+
   const { error } = await supabase.auth.signOut()
 
   if (error) {
     return json({ error: error.message }, { status: 500 });
   }
+
+  const { data: { user } } = await supabase.auth.getUser()
 
   // Clear the session cookie
   return redirect('/', {
@@ -112,8 +121,7 @@ const signOut = async (request: Request) => {
 };
 
 const serializeSession = async (accessToken: string) => {
-  const sessionValue = { accessToken };
-
+  const sessionValue = { accessToken }
   // Serializing the cookie with the session value and maxAge set for 1 week
   const cookieHeader = await sessionCookie.serialize(sessionValue, {
     maxAge: 60 * 60 * 24 * 7 // 1 week in seconds

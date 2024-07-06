@@ -6,5 +6,5 @@ export declare class DashboardController {
         message: string;
         user: any;
     };
-    verifyAccess(req: any): any;
+    verifyAccess(req: any): boolean;
 }

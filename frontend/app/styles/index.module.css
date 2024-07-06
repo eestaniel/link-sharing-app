@@ -1,7 +1,6 @@
 .container{
   display: flex;
   flex-direction: column;
-  background-color: white;
 
   min-height: 100vh;
   justify-content: start;
@@ -12,11 +11,13 @@
   .content {
     display: flex;
     flex-direction: column;
-    width: fit-content;
+    width: 100%;
     flex-grow: 1;
-    margin-inline: auto;
     padding-top: 4rem;
-    margin-inline: auto;
-    max-width: 19.438rem;
+
   }
+}
+
+.home_page {
+  background-color: white;
 }

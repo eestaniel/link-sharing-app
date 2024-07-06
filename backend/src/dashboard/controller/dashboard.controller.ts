@@ -20,7 +20,7 @@ export class DashboardController {
   @UseGuards(AuthGuard)
   verifyAccess(@Req() req) {
 
-    return this.dashboardService.getLink();
+    return this.dashboardService.verifyAccess();
   }
 
 }

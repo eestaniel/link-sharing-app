@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
 
-export const createSupabaseClient = (configService: ConfigService) => {
+const createSupabaseClient = (configService: ConfigService) => {
   const supabaseUrl = configService.get<string>('SUPABASE_URL');
   const supabaseKey = configService.get<string>('SUPABASE_KEY');
 
@@ -10,3 +10,9 @@ export const createSupabaseClient = (configService: ConfigService) => {
 
   return createClient(supabaseUrl, supabaseKey);
 };
+
+// Create a single instance of ConfigService
+const configService = new ConfigService();
+
+// Create a single instance of Supabase client
+export const supabase = createSupabaseClient(configService);

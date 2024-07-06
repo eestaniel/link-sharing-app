@@ -28,7 +28,7 @@ let DashboardController = class DashboardController {
         };
     }
     verifyAccess(req) {
-        return this.dashboardService.getLink();
+        return this.dashboardService.verifyAccess();
     }
 };
 exports.DashboardController = DashboardController;

@@ -1,4 +1,5 @@
 :root {
+  --light-grey: #FAFAFA;
   --grey: #737373;
   --dark-grey: #333333;
   --light-pink: #EFEBFF;
@@ -12,7 +13,11 @@
 
 @font-face {
   font-family: 'Instrument Sans';
-  src: url("app/assets/fonts/InstrumentSans-VariableFont_wdth,wght.ttf");
+  src: url("../assets/fonts/InstrumentSans-VariableFont_wdth,wght.ttf");
   font-weight: 100 900;
   font-style: normal;
+}
+
+body {
+  background-color: var(--light-grey);
 }

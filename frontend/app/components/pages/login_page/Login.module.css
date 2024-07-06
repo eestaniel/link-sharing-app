@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  max-width: 19.438rem;
+  margin-inline: auto;
+  background-color: white;
 
   .header {
     display: flex;

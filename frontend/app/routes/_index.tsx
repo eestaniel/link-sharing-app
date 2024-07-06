@@ -7,6 +7,8 @@ import Login from "~/components/pages/login_page/Login";
 import Navigation from "~/components/navigation/Navigation";
 import { useLinksStore } from '~/store/LinksStore';
 import CreateAccount from "~/components/pages/create_account/CreateAccount";
+import { useLocation } from "react-router";
+import {style} from "@vanilla-extract/css";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,23 +18,37 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  /* Handle Cookies */
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
+  const url = new URL(request.url);
+  const currentPath = url.pathname;
 
-  if (session) {
-    return redirect("/dashboard/links");
+  // Redirect logic ensuring no infinite loops
+  if (session?.accessToken) {
+    // User is authenticated
+    if (currentPath !== "/dashboard/links") {
+      return redirect("/dashboard/links");
+    }
   } else {
-    const homePage = 'login';
-    return json({
-      homePage,
-      session,
-    });
+    // User is not authenticated
+    if (currentPath !== "/") {
+      return redirect("/");
+    }
   }
+
+  // Data for authenticated or default entry page
+  return json({
+    homePage: 'login',
+    session,
+  });
 };
+
+
 
 export default function Index() {
   const { homePage } = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const path = location.pathname;
 
   const { currentPage, setCurrentPage } = useLinksStore(state => ({
     currentPage: state.currentPage,
@@ -49,12 +65,13 @@ export default function Index() {
       case 'create-account':
         return <CreateAccount />;
       default:
+        // 'login' is the default page
         return <Login />;
     }
   }, [currentPage]);
 
   return (
-      <div className={styles.container}>
+      <div className={`${styles.container} ${path === '/'&& styles.home_page} `}>
         <Navigation />
         <div className={styles.content}>
           {renderPage}

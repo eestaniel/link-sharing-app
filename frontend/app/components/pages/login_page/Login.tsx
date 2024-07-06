@@ -57,8 +57,6 @@ const Login = () => {
         type: 'manual',
         message: fetcher.data.error
       })
-
-
     }
   }, [fetcher]);
 

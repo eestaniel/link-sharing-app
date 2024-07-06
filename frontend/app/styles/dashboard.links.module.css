@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: wheat;
+  padding: 1.5rem;
+
+  .header {
+    h1 {
+      /* font */
+      font-family: "Instrument Sans", serif;
+      font-size: 1.5rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 700;
+
+      color: var(--dark-grey);
+    }
+
+    p {
+      /* font */
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 400;
+
+      color: var(--grey);
+    }
+  }
+
+  .content {
+    .add_link_button {
+      padding-block: 0.688rem;
+      border: none;
+      outline: 1px solid var(--purple);
+      border-radius: 0.5rem;
+      width: 100%;
+      background-color: white;
+
+      /* font */
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 600;
+
+      color: var(--purple);
+    }
+  }
+}

@@ -10,8 +10,7 @@ exports.DashboardService = void 0;
 const common_1 = require("@nestjs/common");
 let DashboardService = class DashboardService {
     verifyAccess() {
-        return trueun;
-        dev;
+        return true;
     }
 };
 exports.DashboardService = DashboardService;
