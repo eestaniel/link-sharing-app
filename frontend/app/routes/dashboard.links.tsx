@@ -105,14 +105,12 @@ const DashboardLinks = () => {
   // update global state with the fetched links from the database on initial load
   useEffect(() => {
     if (links) {
-      console.log('updating zustand links', links)
       setUserLinks(links)
     }
   }, []);
 
   // print userLinks on change
   useEffect(() => {
-    console.log('Update to userLink: ', userLinks)
   }, [userLinks]);
 
 
@@ -150,7 +148,7 @@ const DashboardLinks = () => {
   };
 
   const handleSaveLinks = async (data: LinkFormInputs) => {
-    console.log('data', data)
+
     try {
       const formData = new FormData();
       formData.append("action", "save-links");

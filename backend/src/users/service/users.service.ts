@@ -78,7 +78,6 @@ export class UsersService {
       }
     })
 
-    console.log('returning array:', newArray)
     // Map data fields directly since they already match the Link interface
     return {links: newArray || []};
   }
@@ -115,7 +114,7 @@ export class UsersService {
 
     // Determine links to delete
     const linksToDelete = existingLinks.filter(existingLink => !links.some(link => link.url === existingLink.url));
-    console.log('linksToDelete:', linksToDelete)
+
 
     // delete missing links based on id
     if (linksToDelete.length > 0) {
@@ -139,7 +138,6 @@ export class UsersService {
       return JSON.stringify({error: error.message});
     }
 
-    console.log('returning links:', links)
 
     return JSON.stringify({
       links: links

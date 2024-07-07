@@ -12,6 +12,26 @@ export const loader: LoaderFunction = async ({request}) => {
   return {message: "This is a secret message from the server!"};
 }
 
+export const action = async ({request}: any) => {
+  const formData = await request.formData();
+  const page = formData.get('page') as string;
+
+  console.log(page)
+
+  switch (page) {
+    case 'edit-links':
+      return redirect('/dashboard/links')
+    case 'edit-profile':
+      return redirect('/dashboard/profile')
+    case 'preview-links':
+      return redirect('/dashboard/preview')
+    default:
+      return redirect('/dashboard/links')
+  }
+
+
+}
+
 const Dashboard = () => {
   return (
       <div className={styles.page_container}>
