@@ -143,4 +143,27 @@ export class UsersService {
       links: links
     });
   }
+
+  async saveProfile(accessToken: string, profile: { first_name: string, last_name: string, email: string, profile_picture: string }): Promise<string> {
+    //get userID from supabase using accessToken
+    const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
+    const user_id = user.id
+
+    if (!user_id) {
+      return JSON.stringify({error: "Invalid user"});
+    }
+
+    const {error} = await this.supabaseService
+                              .getClient()
+                              .from('users')
+                              .upsert([{id: user_id, ...profile}]);
+
+    if (error) {
+      return JSON.stringify({error: error.message});
+    }
+
+    return JSON.stringify({
+      profile: profile
+    });
+  }
 }

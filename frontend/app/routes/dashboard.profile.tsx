@@ -3,6 +3,9 @@ import {FormProvider, useForm} from "react-hook-form"
 import {z} from "zod"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs"
+import {useLinksStore} from "~/store/LinksStore"
+import {useEffect} from "react"
+import {useFetcher} from "@remix-run/react"
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -28,12 +31,35 @@ const DashboardProfile = () => {
 
   const {handleSubmit, register, formState: {errors}} = methods;
 
+  const {userDetails, editUserDetails} = useLinksStore((state) => ({
+    userDetails: state.userDetails,
+    editUserDetails: state.editUserDetails
+  }));
+
+  const fetcher = useFetcher();
 
   const handleTestButton = () => {
-    console.log("Test button clicked");
     const data = methods.getValues(); // Directly access form values
-    console.log(data);
+    console.log('form data: ', data);
+    editUserDetails(data);
+
+    const formData = new FormData();
+    formData.append("action", "save-profile");
+    formData.append("first_name", data.first_name);
+    formData.append("last_name", data.last_name);
+    formData.append("email", data.email);
+    formData.append("profile_picture_url", data.profile_picture);
+
+    fetcher.submit(formData, {
+      method: "POST",
+      action: "/auth"
+    })
+
   }
+
+  useEffect(() => {
+    console.log("Zustand user details updated: ", userDetails);
+  }, [userDetails]);
 
   return (
     <div className={styles.profile_container}>

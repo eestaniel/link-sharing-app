@@ -43,4 +43,9 @@ export class UsersController {
   async saveLinks(@Body() body: { accessToken: string, links: { id: string, platform: string, url: string }[] }): Promise<string> {
     return this.usersService.saveLinks(body.accessToken, body.links);
   }
+
+  @Post('save-profile')
+  async saveProfile(@Body() body: { accessToken: string, profile: { first_name: string, last_name: string, email: string, profile_picture_url: string } }): Promise<string> {
+    return this.usersService.saveProfile(body.accessToken, body.profile);
+  }
 }

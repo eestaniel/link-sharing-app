@@ -6,11 +6,19 @@ interface LinkObject {
   url: string;  // URL associated with the platform
 }
 
+interface UserObject {
+  first_name: string;
+  last_name: string;
+  email: string;
+  profile_picture_url?: string;
+}
+
 interface LinksStore {
   sessionId: string;
   setSessionId: (sessionId: string) => void;
   currentPage: string;
   setCurrentPage: (currentPage: string) => void;
+  userDetails: UserObject;
   userLinks: LinkObject[];  // Array of link objects
   setUserLinks: (links: { id: string; platform: string; url: string }[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
@@ -23,6 +31,13 @@ export const useLinksStore = create<LinksStore>((set) => ({
   sessionId: '',
   currentPage: '',
   userLinks: [],
+  userDetails: {
+    first_name: '',
+    last_name: '',
+    email: ''
+  },
+
+  editUserDetails: (details) => set({ userDetails: details }),
 
   setSessionId: (sessionId) => set({ sessionId }),
   setCurrentPage: (currentPage) => set({ currentPage }),
