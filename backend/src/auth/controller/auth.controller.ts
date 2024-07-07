@@ -6,6 +6,17 @@ import { AuthGuard } from '../auth.guard';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // Default post method to validate user
+  @Post('validate')
+  @UseGuards(AuthGuard)
+  validateUser(@Body() req: { user: any; token: string }) {
+    console.log('req', req)
+    return {
+      user: req.user,
+      token: req.token,
+    }
+  }
+
   @Post('signup')
   signUp(@Body() signUpDto: { email: string; password: string }) {
     return this.authService.signUp(signUpDto.email, signUpDto.password);

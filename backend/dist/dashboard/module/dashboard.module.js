@@ -13,13 +13,14 @@ const dashboard_controller_1 = require("../controller/dashboard.controller");
 const auth_guard_1 = require("../../auth/auth.guard");
 const SupabaseService_1 = require("../../supabase/service/SupabaseService");
 const users_service_1 = require("../../users/service/users.service");
+const auth_service_1 = require("../../auth/service/auth.service");
 let DashboardModule = class DashboardModule {
 };
 exports.DashboardModule = DashboardModule;
 exports.DashboardModule = DashboardModule = __decorate([
     (0, common_1.Module)({
         controllers: [dashboard_controller_1.DashboardController],
-        providers: [dashboard_service_1.DashboardService, auth_guard_1.AuthGuard, SupabaseService_1.SupabaseService, users_service_1.UsersService],
+        providers: [dashboard_service_1.DashboardService, auth_guard_1.AuthGuard, auth_service_1.AuthService, SupabaseService_1.SupabaseService, users_service_1.UsersService],
     })
 ], DashboardModule);
 //# sourceMappingURL=dashboard.module.js.map

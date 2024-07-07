@@ -12,6 +12,7 @@ interface LinksStore {
   currentPage: string;
   setCurrentPage: (currentPage: string) => void;
   userLinks: LinkObject[];  // Array of link objects
+  setUserLinks: (links: { id: string; platform: string; url: string }[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
   editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL update by ID
@@ -24,6 +25,8 @@ export const useLinksStore = create<LinksStore>((set) => ({
 
   setSessionId: (sessionId) => set({ sessionId }),
   setCurrentPage: (currentPage) => set({ currentPage }),
+
+  setUserLinks: (links) => set({ userLinks: links }),
 
   addLink: (link) => set((state) => ({
     userLinks: [...state.userLinks, link]

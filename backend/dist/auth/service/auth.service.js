@@ -18,6 +18,12 @@ let AuthService = class AuthService {
         this.supabaseService = supabaseService;
         this.usersService = usersService;
     }
+    async validateUser(accessToken) {
+        const { data: { user } } = await this.supabaseService
+            .getClient()
+            .auth.getUser(accessToken);
+        return user;
+    }
     async signUp(email, password) {
         const { data, error } = await this.supabaseService
             .getClient()

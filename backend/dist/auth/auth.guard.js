@@ -11,41 +11,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthGuard = void 0;
 const common_1 = require("@nestjs/common");
-const SupabaseService_1 = require("../supabase/service/SupabaseService");
-const users_service_1 = require("../users/service/users.service");
+const auth_service_1 = require("./service/auth.service");
 let AuthGuard = class AuthGuard {
-    constructor(supabaseService, usersService) {
-        this.supabaseService = supabaseService;
-        this.usersService = usersService;
+    constructor(authService) {
+        this.authService = authService;
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const token = request.body.session;
-        if (!token) {
+        const { accessToken } = request.body;
+        if (!accessToken) {
             return false;
         }
         try {
-            const { data: { user }, error } = await this.supabaseService
-                .getClient()
-                .auth
-                .getUser(token);
-            if (error)
-                throw error;
+            const user = await this.authService.validateUser(accessToken);
+            console.log(user);
+            if (!user.id) {
+                return false;
+            }
+            request.body.user = user;
+            request.body.token = accessToken;
             return true;
         }
         catch (error) {
             return false;
         }
     }
-    extractTokenFromHeader(request) {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
-    }
 };
 exports.AuthGuard = AuthGuard;
 exports.AuthGuard = AuthGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [SupabaseService_1.SupabaseService,
-        users_service_1.UsersService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthGuard);
 //# sourceMappingURL=auth.guard.js.map

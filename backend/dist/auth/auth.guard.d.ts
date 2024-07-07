@@ -1,10 +1,7 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { SupabaseService } from '../supabase/service/SupabaseService';
-import { UsersService } from '../users/service/users.service';
+import { AuthService } from './service/auth.service';
 export declare class AuthGuard implements CanActivate {
-    private supabaseService;
-    private usersService;
-    constructor(supabaseService: SupabaseService, usersService: UsersService);
+    private authService;
+    constructor(authService: AuthService);
     canActivate(context: ExecutionContext): Promise<boolean>;
-    private extractTokenFromHeader;
 }

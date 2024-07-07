@@ -2,19 +2,30 @@ import {Injectable} from '@nestjs/common';
 import {SupabaseService} from '../../supabase/service/SupabaseService';
 import {UsersService} from '../../users/service/users.service';
 
+
 @Injectable()
 export class AuthService {
   constructor(
-      private supabaseService: SupabaseService,
-      private usersService: UsersService
+    private supabaseService: SupabaseService,
+    private usersService: UsersService
   ) {
   }
 
+
+  async validateUser(accessToken: string) {
+
+    const {data: {user}} = await this.supabaseService
+                                    .getClient()
+                                    .auth.getUser(accessToken);
+    return user
+  }
+
+
   async signUp(email: string, password: string) {
     const {data, error} = await this.supabaseService
-        .getClient()
-        .auth
-        .signUp({email, password});
+                                    .getClient()
+                                    .auth
+                                    .signUp({email, password});
 
     if (error) throw error;
 
@@ -24,11 +35,12 @@ export class AuthService {
     return data;
   }
 
+
   async signIn(email: string, password: string) {
     const {data, error} = await this.supabaseService
-        .getClient()
-        .auth
-        .signInWithPassword({email, password});
+                                    .getClient()
+                                    .auth
+                                    .signInWithPassword({email, password});
 
 
     if (error) return JSON.stringify({error: "Invalid email or password"});
@@ -40,11 +52,12 @@ export class AuthService {
 
   }
 
+
   async signOut(token: string) {
     const {error} = await this.supabaseService
-        .getClient()
-        .auth
-        .signOut();
+                              .getClient()
+                              .auth
+                              .signOut();
 
     if (error) throw error;
 

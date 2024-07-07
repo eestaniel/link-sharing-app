@@ -6,4 +6,10 @@ export declare class UsersService {
     findOrCreateUser(id: string, email: string): Promise<string>;
     findAllUsers(): Promise<string>;
     findOne(id: string): Promise<string>;
+    getLinks(user_id: string): Promise<string>;
+    saveLinks(accessToken: string, links: {
+        id: string;
+        platform: string;
+        url: string;
+    }[]): Promise<string>;
 }

@@ -12,13 +12,14 @@ const auth_service_1 = require("../service/auth.service");
 const auth_controller_1 = require("../controller/auth.controller");
 const SupabaseService_1 = require("../../supabase/service/SupabaseService");
 const users_service_1 = require("../../users/service/users.service");
+const auth_guard_1 = require("../auth.guard");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, SupabaseService_1.SupabaseService, users_service_1.UsersService],
+        providers: [auth_service_1.AuthService, SupabaseService_1.SupabaseService, users_service_1.UsersService, auth_guard_1.AuthGuard],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

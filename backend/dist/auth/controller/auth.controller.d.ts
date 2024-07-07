@@ -2,6 +2,13 @@ import { AuthService } from '../service/auth.service';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
+    validateUser(req: {
+        user: any;
+        token: string;
+    }): {
+        user: any;
+        token: string;
+    };
     signUp(signUpDto: {
         email: string;
         password: string;

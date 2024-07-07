@@ -57,6 +57,21 @@ let UsersService = class UsersService {
         }
         return JSON.stringify(data);
     }
+    async getLinks(user_id) {
+        return JSON.stringify({
+            user_id: user_id,
+            links: [{ id: '1', platform: 'twitter', url: 'https://x.com' }]
+        });
+    }
+    async saveLinks(accessToken, links) {
+        const { data: { user } } = await this.supabaseService.getClient().auth.getUser(accessToken);
+        const user_id = user.id;
+        console.log('user_id', user_id);
+        return JSON.stringify({
+            user_id: user_id,
+            links: links
+        });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

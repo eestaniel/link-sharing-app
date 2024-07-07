@@ -41,7 +41,6 @@ __decorate([
 ], DashboardController.prototype, "getDashboard", null);
 __decorate([
     (0, common_1.Post)('links'),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -49,6 +48,7 @@ __decorate([
 ], DashboardController.prototype, "verifyAccess", null);
 exports.DashboardController = DashboardController = __decorate([
     (0, common_1.Controller)('dashboard'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [dashboard_service_1.DashboardService])
 ], DashboardController);
 //# sourceMappingURL=dashboard.controller.js.map

@@ -5,8 +5,11 @@ import {AuthGuard} from '../../auth/auth.guard'
 
 
 @Controller('dashboard')
+@UseGuards(AuthGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
+
+
   @Get()
   getDashboard(@Req() req) {
     const user = req.user;
@@ -16,8 +19,9 @@ export class DashboardController {
     };
   }
 
+
+
   @Post('links')
-  @UseGuards(AuthGuard)
   verifyAccess(@Req() req) {
 
     return this.dashboardService.verifyAccess();

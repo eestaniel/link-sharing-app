@@ -1,38 +1,34 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { SupabaseService } from '../supabase/service/SupabaseService';
-import { UsersService } from '../users/service/users.service';
+import {CanActivate, ExecutionContext, Injectable} from '@nestjs/common';
+import {AuthService} from './service/auth.service';
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-      private supabaseService: SupabaseService,
-      private usersService: UsersService
-  ) {}
+  constructor(private authService: AuthService) {
+  }
+
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.body.session
+    const {accessToken} = request.body;
 
-    if (!token) {
+
+    if (!accessToken) {
       return false;
     }
 
     try {
-      const { data: { user }, error } = await this.supabaseService
-          .getClient()
-          .auth
-          .getUser(token);
+      const user = await this.authService.validateUser(accessToken);
+      console.log(user)
+      if (!user.id) {
+        return false;
+      }
 
-      if (error) throw error;
-
+      request.body.user = user;
+      request.body.token = accessToken;
       return true;
     } catch (error) {
       return false;
     }
-  }
-
-  private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

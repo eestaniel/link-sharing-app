@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../service/users.service");
+const auth_guard_1 = require("../../auth/auth.guard");
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -30,6 +31,12 @@ let UsersController = class UsersController {
     }
     async findOne(body) {
         return this.usersService.findOne(body.id);
+    }
+    async getLinks(body) {
+        return this.usersService.getLinks(body.user_id);
+    }
+    async saveLinks(body) {
+        return this.usersService.saveLinks(body.accessToken, body.links);
     }
 };
 exports.UsersController = UsersController;
@@ -60,8 +67,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Post)('get-links'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getLinks", null);
+__decorate([
+    (0, common_1.Post)('save-links'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "saveLinks", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

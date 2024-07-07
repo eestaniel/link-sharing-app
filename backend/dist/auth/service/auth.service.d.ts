@@ -4,6 +4,7 @@ export declare class AuthService {
     private supabaseService;
     private usersService;
     constructor(supabaseService: SupabaseService, usersService: UsersService);
+    validateUser(accessToken: string): Promise<import("@supabase/auth-js").User>;
     signUp(email: string, password: string): Promise<{
         user: import("@supabase/auth-js").User | null;
         session: import("@supabase/auth-js").Session | null;

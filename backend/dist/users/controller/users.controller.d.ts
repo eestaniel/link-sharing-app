@@ -8,4 +8,15 @@ export declare class UsersController {
     findOne(body: {
         id: string;
     }): Promise<string>;
+    getLinks(body: {
+        user_id: string;
+    }): Promise<string>;
+    saveLinks(body: {
+        accessToken: string;
+        links: {
+            id: string;
+            platform: string;
+            url: string;
+        }[];
+    }): Promise<string>;
 }

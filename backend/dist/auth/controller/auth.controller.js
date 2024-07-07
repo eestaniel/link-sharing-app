@@ -20,6 +20,13 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
+    validateUser(req) {
+        console.log('req', req);
+        return {
+            user: req.user,
+            token: req.token,
+        };
+    }
     signUp(signUpDto) {
         return this.authService.signUp(signUpDto.email, signUpDto.password);
     }
@@ -34,6 +41,14 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.Post)('validate'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "validateUser", null);
 __decorate([
     (0, common_1.Post)('signup'),
     __param(0, (0, common_1.Body)()),
