@@ -3,8 +3,19 @@ import {UsersService} from "../service/users.service";
 import {CreateUserDto} from "../dtos/CreateUserDto";
 import {AuthGuard} from "../../auth/auth.guard"
 
+interface Link {
+  id: string;
+  platform: string;
+  url: string;
+}
 
-@Controller('users')
+
+interface UserLinkResponse {
+  links: Link[];
+  error?: string;
+}
+
+@Controller('api/users')
 @UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {
@@ -22,21 +33,11 @@ export class UsersController {
     return this.usersService.findOrCreateUser(id, email);
   }
 
-  // get all users
-  @Get()
-  async findAllUsers(): Promise<string> {
-    return this.usersService.findAllUsers();
-  }
-
-  @Post('findOne')
-  async findOne(@Body() body: { id: string }): Promise<string> {
-    return this.usersService.findOne(body.id);
-  }
 
   // Get links for a user by user ID (POST)
   @Post('get-links')
-  async getLinks(@Body() body: { user_id: string }): Promise<string> {
-    return this.usersService.getLinks(body.user_id);
+  async getLinks(@Body() body: { accessToken: string }): Promise<UserLinkResponse> {
+    return this.usersService.getLinks(body.accessToken);
   }
 
   @Post('save-links')

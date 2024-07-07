@@ -7,7 +7,7 @@ import Login from "~/components/pages/login_page/Login";
 import Navigation from "~/components/navigation/Navigation";
 import { useLinksStore } from '~/store/LinksStore';
 import CreateAccount from "~/components/pages/create_account/CreateAccount";
-import {style} from "@vanilla-extract/css";
+
 
 export const meta: MetaFunction = () => {
   return [

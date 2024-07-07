@@ -17,9 +17,11 @@ export const action: ActionFunction = async ({request}) => {
       return await signOut();
     case 'login':
       return await login(formData);
-
     case 'create-account':
       return await createAccount(formData);
+
+    case 'save-links':
+      return await saveLinks(formData, request);
     default:
       return json({error: 'Unsupported action'}, {status: 400});
   }
@@ -109,12 +111,44 @@ const signOut = async () => {
     return json({error: error.message}, {status: 500});
   }
 
-  const newCookieHeader = await sessionCookie.serialize("", { maxAge: 0 });
+  const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
   return redirect("/", {
-    headers: { "Set-Cookie": newCookieHeader },
+    headers: {"Set-Cookie": newCookieHeader},
   });
 };
 
+
+const saveLinks = async (formData: FormData, request: any) => {
+  // Get the access token from the session cookie
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
+
+  // if no access token throw redirect /
+  if (!accessToken) {
+    return redirect("/");
+  }
+
+  const response = await fetch('http://localhost:3000/api/users/save-links', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      accessToken: accessToken,
+      links: JSON.parse(formData.get('links') as string),
+    }),
+  });
+
+  let responseBody = await response.json();
+  if (responseBody.error) {
+    return json({error: responseBody.error}, {status: 401});
+  }
+
+  return json({message: responseBody});
+
+
+}
 
 const serializeSession = async (accessToken: string) => {
   const sessionValue = {accessToken}

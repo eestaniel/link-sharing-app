@@ -1,16 +1,21 @@
 import { UsersService } from "../service/users.service";
+interface Link {
+    id: string;
+    platform: string;
+    url: string;
+}
+interface UserLinkResponse {
+    links: Link[];
+    error?: string;
+}
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
     createUserEntry(id: string, email: string): Promise<string>;
     findOrCreateUser(id: string, email: string): Promise<string>;
-    findAllUsers(): Promise<string>;
-    findOne(body: {
-        id: string;
-    }): Promise<string>;
     getLinks(body: {
-        user_id: string;
-    }): Promise<string>;
+        accessToken: string;
+    }): Promise<UserLinkResponse>;
     saveLinks(body: {
         accessToken: string;
         links: {
@@ -20,3 +25,4 @@ export declare class UsersController {
         }[];
     }): Promise<string>;
 }
+export {};

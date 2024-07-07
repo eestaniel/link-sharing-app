@@ -36,39 +36,65 @@ let UsersService = class UsersService {
         }
         return JSON.stringify(data);
     }
-    async findAllUsers() {
-        const { data, error } = await this.supabaseService
-            .getClient()
-            .from('users')
-            .select('*');
-        if (error) {
-            throw error;
+    async getLinks(accessToken) {
+        const { data: userResponse, error: userError } = await this.supabaseService.getClient().auth.getUser(accessToken);
+        if (userError || !userResponse.user?.id) {
+            return { links: [], error: "Invalid user" };
         }
-        return JSON.stringify(data);
-    }
-    async findOne(id) {
+        const userId = userResponse.user.id;
         const { data, error } = await this.supabaseService
             .getClient()
-            .from('users')
+            .from('user_links')
             .select('*')
-            .eq('id', id);
+            .eq('user_id', userId);
         if (error) {
-            throw error;
+            throw new Error(error.message);
         }
-        return JSON.stringify(data);
-    }
-    async getLinks(user_id) {
-        return JSON.stringify({
-            user_id: user_id,
-            links: [{ id: '1', platform: 'twitter', url: 'https://x.com' }]
+        let newArray = data.map((link) => {
+            return {
+                id: link.id,
+                platform: link.platform,
+                url: link.url
+            };
         });
+        console.log('returning array:', newArray);
+        return { links: newArray || [] };
     }
     async saveLinks(accessToken, links) {
         const { data: { user } } = await this.supabaseService.getClient().auth.getUser(accessToken);
         const user_id = user.id;
-        console.log('user_id', user_id);
+        if (!user_id) {
+            return JSON.stringify({ error: "Invalid user" });
+        }
+        const { data: existingLinks, error: existingLinksError } = await this.supabaseService
+            .getClient()
+            .from('user_links')
+            .select('*')
+            .eq('user_id', user_id);
+        if (existingLinksError) {
+            return JSON.stringify({ error: existingLinksError.message });
+        }
+        const linksToDelete = existingLinks.filter(existingLink => !links.some(link => link.url === existingLink.url));
+        console.log('linksToDelete:', linksToDelete);
+        if (linksToDelete.length > 0) {
+            const { error } = await this.supabaseService
+                .getClient()
+                .from('user_links')
+                .delete()
+                .in('id', linksToDelete.map(link => link.id));
+            if (error) {
+                return JSON.stringify({ error: error.message });
+            }
+        }
+        const { error } = await this.supabaseService
+            .getClient()
+            .from('user_links')
+            .upsert(links.map(link => ({ ...link, user_id })));
+        if (error) {
+            return JSON.stringify({ error: error.message });
+        }
+        console.log('returning links:', links);
         return JSON.stringify({
-            user_id: user_id,
             links: links
         });
     }

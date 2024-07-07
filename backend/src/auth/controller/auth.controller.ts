@@ -10,7 +10,6 @@ export class AuthController {
   @Post('validate')
   @UseGuards(AuthGuard)
   validateUser(@Body() req: { user: any; token: string }) {
-    console.log('req', req)
     return {
       user: req.user,
       token: req.token,

@@ -26,14 +26,8 @@ let UsersController = class UsersController {
     async findOrCreateUser(id, email) {
         return this.usersService.findOrCreateUser(id, email);
     }
-    async findAllUsers() {
-        return this.usersService.findAllUsers();
-    }
-    async findOne(body) {
-        return this.usersService.findOne(body.id);
-    }
     async getLinks(body) {
-        return this.usersService.getLinks(body.user_id);
+        return this.usersService.getLinks(body.accessToken);
     }
     async saveLinks(body) {
         return this.usersService.saveLinks(body.accessToken, body.links);
@@ -55,19 +49,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOrCreateUser", null);
 __decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "findAllUsers", null);
-__decorate([
-    (0, common_1.Post)('findOne'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "findOne", null);
-__decorate([
     (0, common_1.Post)('get-links'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -82,7 +63,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "saveLinks", null);
 exports.UsersController = UsersController = __decorate([
-    (0, common_1.Controller)('users'),
+    (0, common_1.Controller)('api/users'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], UsersController);

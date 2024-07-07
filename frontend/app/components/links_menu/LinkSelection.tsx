@@ -1,7 +1,9 @@
 import styles from "./LinkSelection.module.css";
 import { LinkMenuIcons } from "~/components/links_menu/LinkMenuIcons";
 import { LinkKey, linkMenuList } from "~/components/links_menu/LinkMenu";
-import React, { useState, useEffect } from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import React, { useState } from "react";
+import {useLinksStore} from "~/store/LinksStore"
 
 interface LinkSelectionProps {
   index: number;
@@ -14,27 +16,27 @@ interface LinkSelectionProps {
 }
 
 const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
+  const { control, formState: { errors } } = useFormContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [platform, setPlatform] = useState<LinkKey>(object.platform as LinkKey);
-  const [linkValue, setLinkValue] = useState(object.url);
+  const { editLinkUrl } = useLinksStore((state) => ({
+    editLinkUrl: state.editLinkUrl,
+  }));
 
-  // Handle dropdown toggle
+
   const handleOpenDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // Handle link removal
   const handleRemoveElement = () => {
     onRemove(object.id);
   };
 
-  // Handle link change locally
-  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLinkValue(e.target.value);
-  };
-
-
+  const handleInputChange = (value: string, onChange: any) => {
+    onChange(value)
+    editLinkUrl(object.id, value);
+  }
 
   return (
-    <form className={styles.form_container} onSubmit={(e) => e.preventDefault()}>
+    <div className={styles.form_container}>
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="6" fill="none" viewBox="0 0 12 6">
@@ -63,12 +65,23 @@ const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
       <div className={styles.form_group}>
         <p className={styles.form_label}>Link</p>
         <div className={styles.input_container}>
-          <input
-            type="text"
-            className={styles.form_container}
-            value={linkValue}
-            onChange={handleLinkChange}
+          <Controller
+            name={`links.${index}.url`}
+            control={control}
+            defaultValue={object.url}
+            render={({ field }) => (
+              <input
+                type="text"
+                className={styles.form_container}
+                onChange={(e) => handleInputChange(e.target.value, field.onChange)} // Ensure field updates are handled
+                onBlur={field.onBlur}
+                value={field.value}
+              />
+            )}
           />
+          {errors.links?.[index]?.url && (
+            <p className={styles.error_text}>{errors.links[index].url.message}</p>
+          )}
           <div className={styles.svg_container}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
               <path fill="#737373"
@@ -78,7 +91,7 @@ const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

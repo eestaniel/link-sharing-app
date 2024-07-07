@@ -21,7 +21,6 @@ let AuthController = class AuthController {
         this.authService = authService;
     }
     validateUser(req) {
-        console.log('req', req);
         return {
             user: req.user,
             token: req.token,

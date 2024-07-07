@@ -24,7 +24,6 @@ let AuthGuard = class AuthGuard {
         }
         try {
             const user = await this.authService.validateUser(accessToken);
-            console.log(user);
             if (!user.id) {
                 return false;
             }
