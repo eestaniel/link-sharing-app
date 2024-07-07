@@ -144,7 +144,12 @@ export class UsersService {
     });
   }
 
-  async saveProfile(accessToken: string, profile: { first_name: string, last_name: string, email: string, profile_picture: string }): Promise<string> {
+  async saveProfile(accessToken: string, profile: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    profile_picture_url: string
+  }): Promise<string> {
     //get userID from supabase using accessToken
     const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
     const user_id = user.id
@@ -164,6 +169,37 @@ export class UsersService {
 
     return JSON.stringify({
       profile: profile
+    });
+  }
+
+  async getProfile(accessToken: string): Promise<string> {
+    //get userID from supabase using accessToken
+    const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
+    const user_id = user.id
+
+    if (!user_id) {
+      return JSON.stringify({error: "Invalid user"});
+    }
+
+    const {data, error} = await this.supabaseService
+                                    .getClient()
+                                    .from('users')
+                                    .select('*')
+                                    .eq('id', user_id);
+
+    if (error) {
+      return JSON.stringify({error: error.message});
+    }
+
+
+
+    return JSON.stringify({
+      profile: {
+        first_name: data[0].first_name,
+        last_name: data[0].last_name,
+        email: data[0].email,
+        profile_picture_url: data[0].profile_picture_url
+      }
     });
   }
 }

@@ -48,4 +48,9 @@ export class UsersController {
   async saveProfile(@Body() body: { accessToken: string, profile: { first_name: string, last_name: string, email: string, profile_picture_url: string } }): Promise<string> {
     return this.usersService.saveProfile(body.accessToken, body.profile);
   }
+
+  @Post('get-profile')
+  async getProfile(@Body() body: { accessToken : string }): Promise<string> {
+    return this.usersService.getProfile(body.accessToken);
+  }
 }

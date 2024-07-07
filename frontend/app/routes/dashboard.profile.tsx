@@ -5,7 +5,9 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs"
 import {useLinksStore} from "~/store/LinksStore"
 import {useEffect} from "react"
-import {useFetcher} from "@remix-run/react"
+import {useFetcher, useLoaderData} from "@remix-run/react"
+import {json, LoaderFunction, redirect} from "@remix-run/node";
+import {sessionCookie} from "~/utils/sessionCookie";
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -18,6 +20,60 @@ const profileSchema = z.object({
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 
+export const loader: LoaderFunction = async ({request}) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
+
+  if (!accessToken) {
+    throw redirect("/");
+  }
+
+  // Validate the access token
+  const res = await fetch("http://localhost:3000/api/auth/validate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({accessToken}),
+  });
+
+  // If the access token is invalid, redirect to the home page and clear the session cookie
+  const resBody = await res.json();
+  if (resBody.error) {
+    const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
+    return redirect("/", {
+      headers: {"Set-Cookie": newCookieHeader},
+    });
+  }
+
+  // Fetch the user's profile details from the database
+  const fetchUserProfile = async () => {
+    const response = await fetch('http://localhost:3000/api/users/get-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        accessToken: accessToken,
+      }),
+    });
+
+    const responseBody = await response.json();
+    if (responseBody.error) {
+      return redirect("/");
+    }
+
+    return responseBody.profile;
+  }
+
+  const userProfile = await fetchUserProfile();
+  console.log('user profile: ', userProfile)
+
+  return json({userProfile});
+
+}
+
 const DashboardProfile = () => {
   const methods = useForm<ProfileFormInputs>({
     resolver: zodResolver(profileSchema),
@@ -28,12 +84,13 @@ const DashboardProfile = () => {
       profile_picture: "",
     }
   });
-
+  const {userProfile} = useLoaderData();
   const {handleSubmit, register, formState: {errors}} = methods;
 
-  const {userDetails, editUserDetails} = useLinksStore((state) => ({
+  const {userDetails, editUserDetails, setUserDetails} = useLinksStore((state) => ({
     userDetails: state.userDetails,
-    editUserDetails: state.editUserDetails
+    editUserDetails: state.editUserDetails,
+    setUserDetails: state.setUserDetails
   }));
 
   const fetcher = useFetcher();
@@ -54,9 +111,19 @@ const DashboardProfile = () => {
       method: "POST",
       action: "/auth"
     })
-
   }
 
+  useEffect(() => {
+    if (userProfile) {
+      setUserDetails(userProfile)
+      //update the form with the user profile details
+      methods.setValue('first_name', userProfile.first_name);
+      methods.setValue('last_name', userProfile.last_name);
+      methods.setValue('email', userProfile.email);
+      methods.setValue('profile_picture', userProfile.profile_picture_url);
+
+    }
+  }, [userProfile]);
   useEffect(() => {
     console.log("Zustand user details updated: ", userDetails);
   }, [userDetails]);
