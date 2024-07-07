@@ -16,6 +16,7 @@ interface LinksStore {
   addLink: (link: LinkObject) => void;
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
   editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL update by ID
+  editLinkPlatform: (id: string, platform: string) => void;  // New function to handle platform update by ID
 }
 
 export const useLinksStore = create<LinksStore>((set) => ({
@@ -46,4 +47,15 @@ export const useLinksStore = create<LinksStore>((set) => ({
       return link;
     })
   })),
+
+  // Edit link platform by ID
+  editLinkPlatform: (id, platform) => set((state) => ({
+    userLinks: state.userLinks.map((link) => {
+      if (link.id === id) {
+        return { ...link, platform };
+      }
+      return link;
+    })
+  }))
 }));
+

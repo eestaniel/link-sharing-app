@@ -1,0 +1,38 @@
+.link_menu_list_container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  background-color: palegoldenrod;
+  width: 100%;
+  max-height: 35vh;
+  margin-top: 0.25rem;
+  padding-inline: 1rem;
+  border-radius: 0.5rem;
+  z-index: 1;
+  overflow-y: auto;
+
+  .link_menu_item {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: center;
+    padding-block: 0.75rem;
+    border-bottom: 1px solid var(--borders);
+    margin-bottom: -1px;
+
+    cursor: pointer;
+
+    &:hover {
+      color: var(--purple);
+
+
+      svg path {
+        fill: var(--purple)
+      }
+    }
+  }
+
+  .link_menu_item:last-child {
+    border-bottom: none;
+  }
+}

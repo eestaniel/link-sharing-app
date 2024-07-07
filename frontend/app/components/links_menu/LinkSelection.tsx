@@ -1,9 +1,12 @@
 import styles from "./LinkSelection.module.css";
-import { LinkMenuIcons } from "~/components/links_menu/LinkMenuIcons";
-import { LinkKey, linkMenuList } from "~/components/links_menu/LinkMenu";
-import { Controller, useFormContext } from "react-hook-form";
-import React, { useState } from "react";
+import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons";
+import {LinkKey, linkMenuList} from "~/components/links_menu/LinkMenu";
+import {Controller, useFormContext} from "react-hook-form";
+import React, {useCallback, useEffect, useState} from "react";
 import {useLinksStore} from "~/store/LinksStore"
+import Dropdown from "./dropdown/Dropdown"
+import dropdown from "./dropdown/Dropdown"
+
 
 interface LinkSelectionProps {
   index: number;
@@ -15,12 +18,14 @@ interface LinkSelectionProps {
   onRemove: (id: string) => void;
 }
 
-const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
-  const { control, formState: { errors } } = useFormContext();
+
+const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
+  const {control, formState: {errors}, setValue} = useFormContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [platform, setPlatform] = useState<LinkKey>(object.platform as LinkKey);
-  const { editLinkUrl } = useLinksStore((state) => ({
+  const {editLinkUrl, editLinkPlatform} = useLinksStore((state) => ({
     editLinkUrl: state.editLinkUrl,
+    editLinkPlatform: state.editLinkPlatform
   }));
 
 
@@ -35,32 +40,60 @@ const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
     editLinkUrl(object.id, value);
   }
 
+  const handleItemSelection = useCallback((key: LinkKey) => {
+    setPlatform(key);
+    editLinkPlatform(object.id, key);
+    // use setValue to update the form platform value
+    setValue(`links.${index}.platform`, key);
+    setIsDropdownOpen(false);
+  }, [editLinkPlatform, object.id]);
+
+
   return (
     <div className={styles.form_container}>
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="6" fill="none" viewBox="0 0 12 6">
-            <path fill="#737373" d="M0 0h12v1H0zM0 5h12v1H0z" />
+            <path fill="#737373" d="M0 0h12v1H0zM0 5h12v1H0z"/>
           </svg>
           <p className={styles.drag_p}>Link #{index + 1}</p>
         </div>
         <p className={styles.remove_text} onClick={handleRemoveElement}>Remove</p>
       </div>
 
+
       <div className={styles.form_group}>
         <p className={styles.form_label}>Platform</p>
-        <div className={styles.form_container} onClick={handleOpenDropdown}>
-          <div className={styles.icon_img_group}>
-            {LinkMenuIcons[platform]}
-            {linkMenuList[platform]}
+        <div className={styles.input_container}
+             onClick={handleOpenDropdown}
+        >
+          <Controller
+            name={`links.${index}.platform`}
+            control={control}
+            defaultValue={object.platform}
+            render={({field}) => (
+              <input
+                type="text"
+                className={`${styles.form_container}`}
+                onChange={field.onChange} // Ensure field updates are handled
+                onBlur={field.onBlur}
+                value={`${linkMenuList[platform]}`}
+                readOnly={true}
+              />
+            )}
+          />
+          <div className={styles.svg_container}>
+            {LinkMenuIcons[object.platform as LinkKey]}
           </div>
-          <div className={`${styles.cheveron_container} ${isDropdownOpen ? styles.is_open : styles.is_closed}`}>
+          <div className={`${styles.chevron_container} ${isDropdownOpen ? styles.is_open : styles.is_closed}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="9" fill="none" viewBox="0 0 14 9">
-              <path stroke="#633CFF" strokeWidth="2" d="m1 1 6 6 6-6" />
+              <path stroke="#633CFF" strokeWidth="2" d="m1 1 6 6 6-6"/>
             </svg>
           </div>
+          {isDropdownOpen && <Dropdown handleItemSelection={handleItemSelection}/>}
         </div>
       </div>
+
 
       <div className={styles.form_group}>
         <p className={styles.form_label}>Link</p>
@@ -69,7 +102,7 @@ const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
             name={`links.${index}.url`}
             control={control}
             defaultValue={object.url}
-            render={({ field }) => (
+            render={({field}) => (
               <input
                 type="text"
                 className={styles.form_container}
@@ -79,9 +112,11 @@ const LinkSelection = ({ index, object, onRemove }: LinkSelectionProps) => {
               />
             )}
           />
-          {errors.links?.[index]?.url && (
-            <p className={styles.error_text}>{errors.links[index].url.message}</p>
-          )}
+          {// @ts-ignore
+            errors.links?.[index]?.url && (
+              // @ts-ignore
+              <p className={styles.error_text}>{errors.links[index].url.message}</p>
+            )}
           <div className={styles.svg_container}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
               <path fill="#737373"
