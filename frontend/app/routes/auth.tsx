@@ -1,4 +1,9 @@
-import {ActionFunction, json, LoaderFunction, redirect} from "@remix-run/node";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect
+} from "@remix-run/node";
 import {supabase} from "~/services/supabaseClient";
 import {sessionCookie} from "~/utils/sessionCookie";
 
@@ -20,6 +25,12 @@ export const action: ActionFunction = async ({request}) => {
     case 'create-account':
       return await createAccount(formData);
 
+    case 'get-links':
+      return await getLinks(formData, request);
+
+    case 'get-profile':
+      return await getProfile(formData, request);
+
     case 'save-links':
       return await saveLinks(formData, request);
     case 'save-profile':
@@ -29,6 +40,74 @@ export const action: ActionFunction = async ({request}) => {
   }
 };
 
+const getLinks = async (formData: FormData, request: any) => {
+  // Get the access token from the session cookie
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
+
+  // if no access token throw redirect /
+  if (!accessToken) {
+    return redirect("/");
+  }
+
+
+  const response = await fetch('http://localhost:3000/api/users/get-links', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      user_id: formData.get('user_id'),
+    }),
+  });
+
+  let responseBody = await response.json();
+  if (responseBody.error) {
+    return json({error: responseBody.error}, {status: 401});
+  }
+
+  /* Return the links
+  * example:
+  * */
+  return json(responseBody);
+
+}
+
+const getProfile = async (formData: FormData, request: any) => {
+  // Get the access token from the session cookie
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
+
+  // if no access token throw redirect /
+  if (!accessToken) {
+    return redirect("/");
+  }
+
+  const response = await fetch('http://localhost:3000/api/users/get-profile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      user_id: formData.get('user_id'),
+    }),
+  });
+
+  let responseBody = await response.json();
+  if (responseBody.error) {
+    return json({error: responseBody.error}, {status: 401});
+  }
+
+  /* Return the profile data
+  * example:
+  * */
+  return json(responseBody);
+
+}
 
 const createAnonSession = async () => {
   const {data, error} = await supabase.auth.signInAnonymously();
@@ -113,6 +192,8 @@ const signOut = async () => {
     return json({error: error.message}, {status: 500});
   }
 
+
+
   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
   return redirect("/", {
     headers: {"Set-Cookie": newCookieHeader},
@@ -178,7 +259,8 @@ const saveProfile = async (formData: FormData, request: Request) => {
 
 const serializeSession = async (accessToken: string) => {
   const sessionValue = {accessToken}
-  // Serializing the cookie with the session value and maxAge set for 1 week
+  // Serializing the cookie with the session value and maxAge set for 1
+  // week
   const cookieHeader = await sessionCookie.serialize(sessionValue, {
     maxAge: 60 * 60 * 24 * 7 // 1 week in seconds
   });

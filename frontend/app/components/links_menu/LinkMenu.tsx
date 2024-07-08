@@ -27,7 +27,7 @@ export const linkMenuList: Record<LinkKey, string> = {
 };
 
 export const LinkMenuStyles = (platform: string) => {
-  console.log(platform)
+
   switch (platform) {
     case 'github':
       return styles.github;

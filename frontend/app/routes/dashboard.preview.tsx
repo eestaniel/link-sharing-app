@@ -1,97 +1,93 @@
-import styles from "../styles/Dashboard.Preview.module.css"
-import {useLinksStore} from "~/store/LinksStore"
+import styles from "../styles/Dashboard.Preview.module.css";
+import { useLinksStore } from "~/store/LinksStore";
 import {
   linkMenuList,
   LinkMenuStyles
-} from "~/components/links_menu/LinkMenu"
-import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
-import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
-import {json, LoaderFunction, redirect} from "@remix-run/node"
-import {sessionCookie} from "~/utils/sessionCookie"
-import {useLoaderData} from "@remix-run/react"
-import {useEffect} from "react"
+} from "~/components/links_menu/LinkMenu";
+import { LinkMenuIcons } from "~/components/links_menu/LinkMenuIcons";
+import { RightArrowIcon } from "~/assets/svgs/IconSVGs";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { sessionCookie } from "~/utils/sessionCookie";
+import { useFetcher } from "@remix-run/react";
+import { useEffect } from "react";
 
-
-export const loader: LoaderFunction = async ({request}) => {
-  // time this function
-  let start = Date.now();
-
+export const loader: LoaderFunction = async ({ request }) => {
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    throw redirect("/");
-
+    return redirect("/");
   }
 
-  // Fetch the user's profile details from the database
-  const fetchUserProfile = async () => {
-    const response = await fetch('http://localhost:3000/api/users/get-profile', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
+  // Verify the access token without fetching user data
+  const response = await fetch("http://localhost:3000/api/auth/validate", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${accessToken}` },
+  });
+  const responseBody = await response.json();
+  if (responseBody.error) {
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
-
-    const responseBody = await response.json();
-    if (responseBody.error) {
-      console.log(`Error fetching user profile: ${responseBody.error}`)
-      return redirect("/");
-    }
-    return responseBody.profile;
   }
 
-  // Fetch the user's links from the database
-  const fetchUserLinks = async () => {
-    // Get user links from the database
-    const res = await fetch("http://localhost:3000/api/users/get-links", {
-      method: "POST",
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-
-    /* TODO: Implement refresh token server side on jwt expire */
-    const resBody = await res.json();
-    if (resBody.error) {
-      throw redirect("/");
-    }
-    return resBody.links;
-  }
-
-  const links = await fetchUserLinks()
-  const userProfile = await fetchUserProfile();
-
-  const newObject = {
-    links,
-    userProfile
-  }
-
-  console.log(`Time to load data ${Date.now() - start}ms`);
-  return json(newObject);
-
-
-}
-
+  // Only authenticate, no data return needed
+  return null;
+};
 
 const DashboardPreview = () => {
-  const {userDetails, userLinks, setUserLinks, setUserDetails} = useLinksStore((state) => ({
+  const {
+    userDetails,
+    userLinks,
+    setUserLinks,
+    setUserDetails
+  } = useLinksStore((state) => ({
     userDetails: state.userDetails,
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     setUserDetails: state.setUserDetails
   }));
-  const {links, userProfile} = useLoaderData<{ links: any, userProfile: any }>();
+  const fetcher = useFetcher();
 
   useEffect(() => {
-    if (links){
-      setUserLinks(links)
+    // Check Local Storage for user details
+    const storedUserDetails = localStorage.getItem('user_details');
+    if (storedUserDetails) {
+      setUserDetails(JSON.parse(storedUserDetails));
+    } else {
+      // Fetch user details if not in local storage
+      const formData = new FormData();
+      formData.append('action', 'get-profile');
+      fetcher.submit(formData, { method: 'post', action: '/auth' });
     }
-    if (userProfile){
-      setUserDetails(userProfile)
+
+    // Check Local Storage for user links
+    const storedUserLinks = localStorage.getItem('user_links');
+    if (storedUserLinks) {
+      setUserLinks(JSON.parse(storedUserLinks));
+    } else {
+      // Fetch user links if not in local storage
+      const formData = new FormData();
+      formData.append('action', 'get-links');
+      fetcher.submit(formData, { method: 'post', action: '/auth' });
     }
   }, []);
+
+  useEffect(() => {
+    console.log(fetcher.data)
+    // Handle fetcher data for user details
+    if (fetcher.data?.profile) {
+      setUserDetails(fetcher.data.profile);
+      localStorage.setItem('user_details', JSON.stringify(fetcher.data.profile));
+    }
+
+    // Handle fetcher data for user links
+    if (fetcher.data?.links) {
+      setUserLinks(fetcher.data.links);
+      localStorage.setItem('user_links', JSON.stringify(fetcher.data.links));
+    }
+  }, [fetcher.data, setUserLinks, setUserDetails]);
 
   const renderLinksContent = () => {
     if (userLinks.length === 0) {
@@ -99,11 +95,12 @@ const DashboardPreview = () => {
         <div className={styles.empty_links_container}>
           <p>No links added yet</p>
         </div>
-      )
+      );
     } else {
       return (
         userLinks.map((link, index) => (
           <div
+            key={index}
             className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}>
             <div
               className={`${styles.icon_label_group} ${LinkMenuStyles(link.platform)}`}>
@@ -114,19 +111,19 @@ const DashboardPreview = () => {
             </div>
             <div
               className={`${styles.right_arrow_container} ${LinkMenuStyles(link.platform)}`}>
-              <RightArrowIcon/>
+              <RightArrowIcon />
             </div>
           </div>
-        )))
+        ))
+      );
     }
-  }
+  };
 
   return (
     <div className={styles.preview_container}>
       <section className={styles.picture_header_container}>
         <div className={styles.picture_container}>
-          <img src={userDetails?.url?.publicUrl}
-               alt="dashboard preview"/>
+          <img src={userDetails?.url?.publicUrl} alt="dashboard preview" />
         </div>
         <header className={styles.header_group}>
           <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>
@@ -136,8 +133,6 @@ const DashboardPreview = () => {
       <section className={styles.links_container}>
         {renderLinksContent()}
       </section>
-
-
     </div>
   );
 };

@@ -5,8 +5,8 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs"
 import {useLinksStore} from "~/store/LinksStore"
 import {useEffect, useRef, useState} from "react";
-import {useFetcher, useLoaderData} from "@remix-run/react"
-import {json, LoaderFunction, redirect} from "@remix-run/node";
+import {useFetcher} from "@remix-run/react"
+import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 
 // Define zod schema for profile details
@@ -44,54 +44,26 @@ export const loader: LoaderFunction = async ({request}) => {
     throw redirect("/");
   }
 
-  /*   // Validate the access token
-   const res = await fetch("http://localhost:3000/api/auth/validate", {
-   method: "POST",
-   headers: {
-   "Content-Type": "application/json",
-   },
-   body: JSON.stringify({accessToken}),
-   });
+  // Validate the access token
+  const res = await fetch("http://localhost:3000/api/auth/validate", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
 
-   // If the access token is invalid, redirect to the home page and clear the session cookie
-   const resBody = await res.json();
-   if (resBody.error) {
-   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
-   return redirect("/", {
-   headers: {"Set-Cookie": newCookieHeader},
-   });
-   }
-   console.log(`Time to validate access Token ${Date.now() - start}ms`); */
-
-  // Fetch the user's profile details from the database
-  const fetchUserProfile = async () => {
-    const response = await fetch('http://localhost:3000/api/users/get-profile', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
+  // If the access token is invalid, redirect to the home page and
+  // clear the session cookie
+  const resBody = await res.json();
+  const url = new URL(request.url);
+  if (resBody.error && url.pathname === "/dashboard/profile") {
+    const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
+    return redirect("/", {
+      headers: {"Set-Cookie": newCookieHeader},
     });
-
-    const responseBody = await response.json();
-    if (responseBody.error) {
-      console.log(`Error fetching user profile: ${responseBody.error}`)
-      return redirect("/");
-    }
-    return responseBody.profile;
   }
-
-  const userProfile = await fetchUserProfile();
-
-
-  if (userProfile.profile_picture_url) {
-
-  }
-
-
-  console.log(userProfile)
-
-  console.log(`Loaded user profile in ${Date.now() - start}ms`);
-  return json({userProfile});
+  console.log(`Time to validate access Token ${Date.now() - start}ms`);
+  return null;
 
 }
 
@@ -117,9 +89,71 @@ const DashboardProfile = () => {
       file: ''
     }
   });
+  const fetcher = useFetcher();
+
+  const {userDetails, setUserDetails} = useLinksStore((state) => ({
+    userDetails: state.userDetails,
+    setUserDetails: state.setUserDetails
+  }));
+
+  useEffect(() => {
+    const storedDetails = localStorage.getItem('user_details');
+    if (storedDetails) {
+      const details = JSON.parse(storedDetails);
+      setUserDetails(details);  // Update Zustand store
+      methods.reset(details);  // Reset form values using react-hook-form
+    } else {
+      const formData = new FormData();
+      formData.append("action", "get-profile");
+      fetcher.submit(formData, {method: "POST", action: "/auth"});
+    }
+    }, []);
 
 
-  const {userProfile}: ProfileLoaderData = useLoaderData();
+  interface ProfileLoaderData {
+    profile: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      url: {
+        publicUrl: string;
+      }
+    }
+
+  }
+  useEffect(() => {
+    if (fetcher.data) {
+      const { profile } = fetcher.data as ProfileLoaderData;
+      setUserDetails(profile);  // Update Zustand store
+      localStorage.setItem('user_details', JSON.stringify(profile));  // Cache new data
+      methods.reset(profile);  // Reset form with new data
+    }
+  }, [fetcher.data]);  // Depend on fetcher.data
+
+
+
+  useEffect(() => {
+    if (!userDetails.first_name && !userDetails.last_name && !userDetails.email) {
+      const formData = new FormData();
+      formData.append("action", "get-profile");
+      fetcher.submit(formData, {method: "POST", action: "/auth"})
+    }
+  } , []);  // Depend on userDetails state
+
+  useEffect(() => {
+    // This only runs if userDetails changes outside of form interactions
+    if (userDetails) {
+      methods.reset(userDetails);
+    }
+  }, []);  // Depend on userDetails state
+
+
+  // create dumme userProfile
+  const userProfile = {
+    first_name: "John",
+    last_name: "Doe",
+    email: "",
+  }
   const {handleSubmit, register, formState: {errors}} = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageData, setImageData] = useState<{
@@ -127,13 +161,6 @@ const DashboardProfile = () => {
     file: any
   } | string | null>(null);
 
-
-  const {userDetails, setUserDetails} = useLinksStore((state) => ({
-    userDetails: state.userDetails,
-    setUserDetails: state.setUserDetails
-  }));
-
-  const fetcher = useFetcher();
 
   const handleSaveForm = async () => {
     const data = methods.getValues(); // Directly access form values
@@ -191,20 +218,6 @@ const DashboardProfile = () => {
     }
   }
 
-
-  useEffect(() => {
-    if (userProfile) {
-      setUserDetails(userProfile)
-      //update the form with the user profile details
-      methods.setValue('first_name', userProfile.first_name);
-      methods.setValue('last_name', userProfile.last_name);
-      methods.setValue('email', userProfile.email);
-      methods.setValue('file', userProfile?.url?.publicUrl);
-
-      console.log(userDetails?.url?.publicUrl)
-
-    }
-  }, [userProfile]);
 
   return (
     <div className={styles.profile_container}>
@@ -268,7 +281,8 @@ const DashboardProfile = () => {
                     onClick={handleSaveForm}
                     disabled={!imageData}
 
-            >Save</button>
+            >Save
+            </button>
             <button type="button" onClick={handleTestButton}>Test
             </button>
           </form>

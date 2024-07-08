@@ -1,14 +1,14 @@
-import {json, LoaderFunction, redirect} from "@remix-run/node";
-import {useFetcher, useLoaderData} from "@remix-run/react";
-import {sessionCookie} from "~/utils/sessionCookie";
-import {useEffect, useMemo} from "react";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
+import { sessionCookie } from "~/utils/sessionCookie";
+import { useEffect, useMemo } from "react";
 import styles from "app/styles/dashboard.links.module.css";
-import {useLinksStore} from "~/store/LinksStore";
+import { useLinksStore } from "~/store/LinksStore";
 import LinkSelection from "~/components/links_menu/LinkSelection";
-import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
-import {z} from 'zod';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {FormProvider, useForm} from 'react-hook-form';
+import { EmptyLinksIcon } from "~/assets/svgs/IconSVGs";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
 
 // Define zod schema for link URLs
 const linkSchema = z.object({
@@ -27,170 +27,136 @@ const generateUUID = () => {
   return crypto.randomUUID();
 }
 
-
-export const loader: LoaderFunction = async ({request}) => {
-  let start = Date.now();
+export const loader: LoaderFunction = async ({ request }) => {
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    throw redirect("/");
+    return redirect("/");
   }
 
-  /*   // Validate the access token
-   const res = await fetch("http://localhost:3000/api/auth/validate", {
-   method: "POST",
-   headers: {
-   "Content-Type": "application/json",
-   },
-   body: JSON.stringify({accessToken}),
-   });
-
-   // If the access token is invalid, redirect to the home page and clear the session cookie
-   const resBody = await res.json();
-   if (resBody.error) {
-   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
-   return redirect("/", {
-   headers: {"Set-Cookie": newCookieHeader},
-   });
-   } */
-
-  // Fetch the user's links from the database
-  const fetchUserLinks = async () => {
-    // Get user links from the database
-    const res = await fetch("http://localhost:3000/api/users/get-links", {
-      method: "POST",
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
+  // Validate the access token
+  const res = await fetch("http://localhost:3000/api/auth/validate", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+  const resBody = await res.json();
+  if (resBody.error) {
+    const newCookieHeader = await sessionCookie.serialize("", { maxAge: 0 });
+    return redirect("/", {
+      headers: { "Set-Cookie": newCookieHeader },
     });
-
-    /* TODO: Implement refresh token server side on jwt expire */
-    const resBody = await res.json();
-    if (resBody.error) {
-      throw redirect("/");
-    }
-    return resBody.links;
   }
 
-
-  const links = await fetchUserLinks();
-  console.log(`Time to load data ${Date.now() - start}ms`);
-  return json({links});
+  return null;
 };
 
-
-interface Link {
-  id: string;
-  platform: string;
-  url: string;
-}
-
-
 const DashboardLinks = () => {
-  const {
-    userLinks,
-    setUserLinks,
-    addLink,
-    removeLink,
-    editLinkUrl
-  } = useLinksStore(state => ({
+  const { userLinks, setUserLinks, addLink, removeLink, editLinkUrl } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     addLink: state.addLink,
     removeLink: state.removeLink,
     editLinkUrl: state.editLinkUrl
   }));
-
-  useEffect(() => {
-  }, [userLinks]);
-
-  const {links} = useLoaderData<{ links: Link[] }>();
   const fetcher = useFetcher();
-
-
-  // update global state with the fetched links from the database on
-  // initial load
-  useEffect(() => {
-    if (links) {
-      setUserLinks(links)
-    }
-  }, []);
-
-  // print userLinks on change
-  useEffect(() => {
-  }, [userLinks]);
-
 
   const methods = useForm<LinkFormInputs>({
     resolver: zodResolver(linkSchema),
     defaultValues: {
-      links: links.map(link => ({
-        id: link.id || generateUUID(), // Ensure each link has an ID
-        platform: link.platform,      // Ensure platform is defined
-        url: link.url                 // Ensure URL is defined
-      })),
-    } as LinkFormInputs
+      links: []  // Initialize form with empty array
+    }
   });
 
+  // UseEffect to initialize state from local storage or fetch from server
+  useEffect(() => {
+    const storedLinks = localStorage.getItem('user_links');
+    if (storedLinks) {
+      const links = JSON.parse(storedLinks);
+      setUserLinks(links);  // Update Zustand state from local storage
+      methods.reset({ links });  // Reset form state with local storage data
+    } else {
+      const formData = new FormData();
+      formData.append('action', 'get-links');
+      fetcher.submit(formData, { method: 'post', action: '/auth' });
+    }
+  }, []); // Empty dependency array ensures this runs only on mount
+
+  // UseEffect to update state from server response
+  useEffect(() => {
+    if (fetcher.data) {
+      const { links } = fetcher.data as { links: any[] };
+      setUserLinks(links);  // Update Zustand state
+      localStorage.setItem('user_links', JSON.stringify(links));  // Cache in local storage
+      methods.reset({ links });  // Reset form state with fetched data
+    }
+  }, [fetcher.data, setUserLinks, methods]);
+
+  // UseEffect to reset form state when userLinks changes
+  useEffect(() => {
+    methods.reset({ links: userLinks });
+  }, [userLinks, methods]);
 
   const {
     handleSubmit,
     setValue,
     getValues,
-    formState: {errors}
+    formState: { errors }
   } = methods;
 
   const handleSignOut = async () => {
+    //clear local storage
+    const localStorageKeys = ['user_details', 'user_links'];
+    localStorageKeys.forEach(key => localStorage.removeItem(key));
+
     const formData = new FormData();
     formData.append('action', 'logout');
-    fetcher.submit(formData, {method: 'post', action: '/auth'});
+    fetcher.submit(formData, { method: 'post', action: '/auth' });
   };
 
   const handleDisplayNewLink = () => {
     const id = generateUUID();
-    const newLink = {id, platform: "github", url: ""};
-    addLink(newLink); // Update global state
-    // reset the form with the new link
-    setValue('links', [...getValues('links'), newLink]);
+    const newLink = { id, platform: "github", url: "" };
+    addLink(newLink); // Update Zustand state
+    setValue('links', [...getValues('links'), newLink]);  // Update form state
   };
 
   const handleRemoveLink = (id: string) => {
-    removeLink(id); // Update global state
-    setValue('links', getValues('links').filter((link: Link) => link.id !== id));
+    removeLink(id); // Update Zustand state
+    setValue('links', getValues('links').filter((link: LinkFormInputs['links'][number]) => link.id !== id));  // Update form state
   };
 
   const handleSaveLinks = async (data: LinkFormInputs) => {
-
     try {
       const formData = new FormData();
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
-      fetcher.submit(formData, {method: "post", action: "/auth"});
+      fetcher.submit(formData, { method: "post", action: "/auth" });
     } catch (error) {
       console.error("Form submission error:", error);
     }
   };
 
-
   const handleTest = async (data: LinkFormInputs) => {
-    console.log(userLinks)
-    console.log('current form data', data)
-  }
+    console.log(userLinks);
+    console.log('current form data', data);
+  };
 
   const renderLinksContent = useMemo(() => {
     if (userLinks.length === 0) {
       return (
         <div className={styles.empty_links}>
-          <EmptyLinksIcon/>
+          <EmptyLinksIcon />
           <p>No links added yet</p>
         </div>
       );
     } else {
       return userLinks.map((object, index) => (
         <LinkSelection key={object.id} object={object} index={index}
-                       onRemove={handleRemoveLink}/>
+                       onRemove={handleRemoveLink} />
       ));
     }
   }, [userLinks]);

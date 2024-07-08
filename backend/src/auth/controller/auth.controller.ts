@@ -1,6 +1,8 @@
 import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
 import { AuthGuard } from '../auth.guard';
+import {Request} from 'express'
+
 
 @Controller('api/auth')
 export class AuthController {
@@ -9,11 +11,9 @@ export class AuthController {
   // Default post method to validate user
   @Post('validate')
   @UseGuards(AuthGuard)
-  validateUser(@Body() req: { user: any; token: string }) {
-    return {
-      user: req.user,
-      token: req.token,
-    }
+  async validate(@Req() req: Request) {
+
+    return {message: 'User validated'};
   }
 
   @Post('signup')

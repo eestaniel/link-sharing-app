@@ -21,12 +21,12 @@ interface LinksStore {
   setCurrentPage: (currentPage: string) => void;
   userDetails: UserObject;
   userLinks: LinkObject[];  // Array of link objects
-  setUserLinks: (links: { id: string; platform: string; url: string }[]) => void;  // Updated to handle setting links
+  setUserLinks: (links: Link[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
   editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL update by ID
   editLinkPlatform: (id: string, platform: string) => void;  // New function to handle platform update by ID
-  setUserDetails: (details: UserObject) => void;
+  setUserDetails: (details: ProfileLoaderData) => void;
 }
 
 export const useLinksStore = create<LinksStore>((set) => ({

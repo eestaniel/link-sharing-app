@@ -197,7 +197,6 @@ export class UsersService {
                                .getPublicUrl(`${data[0].profile_picture_url}`)
 
       publicUrl = link
-      console.log('publicUrl', publicUrl)
     }
 
     return JSON.stringify({
@@ -212,7 +211,7 @@ export class UsersService {
 
 
   async uploadFile(file: Express.Multer.File, body: any, req: any): Promise<string> {
-    console.log('user_id', req.user_id)
+
 
     // user pictures from public/$user_id/
     const {
@@ -278,8 +277,6 @@ export class UsersService {
     if (updatedError) {
       return JSON.stringify({error: updatedError.message});
     }
-
-    console.log('updatedData', updatedData)
 
     return JSON.stringify({message: "Profile picture uploaded successfully"});
   }
