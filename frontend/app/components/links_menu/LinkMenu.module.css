@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 100%;
   list-style-type: none;
-  padding:0;
+  padding: 0;
 
 
   .menu_item {
@@ -12,11 +12,73 @@
     gap: 0.75rem;
 
     & svg {
-      height: 1rem ;
-      width: 1rem ;
+      height: 1rem;
+      width: 1rem;
     }
   }
+}
 
+.github {
+  background-color: #1A1A1A !important;
+}
 
+.frontend_mentor {
+  background-color: #FFFFFF !important;
+  color: var(--dark-grey) !important;
 
+}
+
+.twitter {
+  background-color: #43B7E9 !important;
+}
+
+.linkedIn {
+  background-color: #2D68FF !important;
+}
+
+.youtube {
+  background-color: #EE3939 !important;
+}
+
+.facebook {
+  background-color: #2442AC !important;
+}
+
+.twitch {
+  background-color: #EE3FC8 !important;
+}
+
+.dev_to {
+  background-color: #333333 !important;
+}
+
+.codewars {
+  background-color: #8A1A50 !important;
+}
+
+.codepen {
+  background-color: #8A1A50 !important;
+}
+
+.freecodecamp {
+  background-color: #302267 !important;
+}
+
+.gitlab {
+  background-color: #EB4925 !important;
+}
+
+.hashnode {
+  background-color: #0330D1 !important;
+}
+
+.stackoverflow {
+  background-color: #EC7100 !important;
+}
+
+.github, .twitter, .linkedIn, .youtube, .facebook, .twitch, .dev_to, .codewars, .freecodecamp, .gitlab, .hashnode, .stackoverflow {
+  path {
+    fill: white;
+    color: white;
+  }
 }

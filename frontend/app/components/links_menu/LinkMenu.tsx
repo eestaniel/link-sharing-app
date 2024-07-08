@@ -26,6 +26,42 @@ export const linkMenuList: Record<LinkKey, string> = {
   stackoverflow: 'StackOverflow',
 };
 
+export const LinkMenuStyles = (platform: string) => {
+  console.log(platform)
+  switch (platform) {
+    case 'github':
+      return styles.github;
+    case 'frontend_mentor':
+      return styles.frontend_mentor;
+    case 'twitter':
+      return styles.twitter;
+    case 'linkedIn':
+      return styles.linkedIn;
+    case 'youtube':
+      return styles.youtube;
+    case 'facebook':
+      return styles.facebook;
+    case 'twitch':
+      return styles.twitch;
+    case 'dev_to':
+      return styles.dev_to;
+    case 'codewars':
+      return styles.codewars;
+    case 'codepen':
+      return styles.codepen;
+    case 'freecodecamp':
+      return styles.freecodecamp;
+    case 'gitlab':
+      return styles.gitlab;
+    case 'hashnode':
+      return styles.hashnode;
+    case 'stackoverflow':
+      return styles.stackoverflow;
+    default:
+      return styles.default;
+  }
+}
+
 export const LinkMenu = () => {
 
   return (

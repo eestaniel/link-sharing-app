@@ -74,7 +74,9 @@ export const loader: LoaderFunction = async ({request}) => {
     return resBody.links;
   }
 
+
   const links = await fetchUserLinks();
+  console.log(`Time to load data ${Date.now() - start}ms`);
   return json({links});
 };
 
