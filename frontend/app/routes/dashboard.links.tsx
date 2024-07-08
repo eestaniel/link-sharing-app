@@ -73,8 +73,9 @@ const DashboardLinks = () => {
 
   // UseEffect to initialize state from local storage or fetch from server
   useEffect(() => {
-    const storedLinks = localStorage.getItem('user_links');
-    if (storedLinks) {
+    const storedLinks: string | null = localStorage.getItem('user_links');
+
+    if (storedLinks !== null && storedLinks !== 'undefined' && storedLinks) {
       const links = JSON.parse(storedLinks);
       setUserLinks(links);  // Update Zustand state from local storage
       methods.reset({ links });  // Reset form state with local storage data

@@ -53,7 +53,7 @@ const DashboardPreview = () => {
   useEffect(() => {
     // Check Local Storage for user details
     const storedUserDetails = localStorage.getItem('user_details');
-    if (storedUserDetails) {
+    if (storedUserDetails && storedUserDetails !== 'undefined' && storedUserDetails !== null) {
       setUserDetails(JSON.parse(storedUserDetails));
     } else {
       // Fetch user details if not in local storage
@@ -64,7 +64,7 @@ const DashboardPreview = () => {
 
     // Check Local Storage for user links
     const storedUserLinks = localStorage.getItem('user_links');
-    if (storedUserLinks) {
+    if (storedUserLinks && storedUserLinks !== 'undefined' && storedUserLinks !== null) {
       setUserLinks(JSON.parse(storedUserLinks));
     } else {
       // Fetch user links if not in local storage
@@ -75,7 +75,6 @@ const DashboardPreview = () => {
   }, []);
 
   useEffect(() => {
-    console.log(fetcher.data)
     // Handle fetcher data for user details
     if (fetcher.data?.profile) {
       setUserDetails(fetcher.data.profile);
