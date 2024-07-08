@@ -5,7 +5,6 @@ import {SupabaseService} from "../../supabase/service/SupabaseService";
 import {AuthGuard} from "../../auth/auth.guard"
 import {AuthService} from "../../auth/service/auth.service"
 
-
 @Module({
   controllers: [UsersController],
   providers: [UsersService, SupabaseService, AuthGuard, AuthService],

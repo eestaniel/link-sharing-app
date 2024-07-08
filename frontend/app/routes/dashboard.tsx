@@ -16,7 +16,6 @@ export const action = async ({request}: any) => {
   const formData = await request.formData();
   const page = formData.get('page') as string;
 
-  console.log(page)
 
   switch (page) {
     case 'edit-links':

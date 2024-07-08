@@ -135,9 +135,9 @@ const saveLinks = async (formData: FormData, request: any) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
-      accessToken: accessToken,
       links: JSON.parse(formData.get('links') as string),
     }),
   });
@@ -150,13 +150,13 @@ const saveLinks = async (formData: FormData, request: any) => {
   return json({message: responseBody});
 }
 
-const saveProfile = async (formData: FormData, request: any) => {
+const saveProfile = async (formData: FormData, request: Request) => {
   // Get the access token from the session cookie
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
 
-  // if no access token throw redirect /
+  // if no access token, throw redirect /
   if (!accessToken) {
     throw redirect("/");
   }
@@ -164,27 +164,17 @@ const saveProfile = async (formData: FormData, request: any) => {
   const response = await fetch('http://localhost:3000/api/users/save-profile', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+
     },
-    body: JSON.stringify({
-      accessToken: accessToken,
-      profile: {
-        first_name: formData.get('first_name'),
-        last_name: formData.get('last_name'),
-        email: formData.get('email'),
-        profile_picture_url: formData.get('profile_picture_url'),
-      },
-    }),
+    body: formData,
+
   });
 
-  let responseBody = await response.json();
-  if (responseBody.error) {
-    console.log('error: ', responseBody.error)
-    return json({error: responseBody.error}, {status: 401});
-  }
 
-  return json({message: responseBody});
-}
+  return {message: 'Profile saved'};
+};
+
 
 const serializeSession = async (accessToken: string) => {
   const sessionValue = {accessToken}

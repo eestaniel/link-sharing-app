@@ -29,6 +29,7 @@ const generateUUID = () => {
 
 
 export const loader: LoaderFunction = async ({request}) => {
+  let start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
@@ -37,23 +38,23 @@ export const loader: LoaderFunction = async ({request}) => {
     throw redirect("/");
   }
 
-  // Validate the access token
-  const res = await fetch("http://localhost:3000/api/auth/validate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({accessToken}),
-  });
+  /*   // Validate the access token
+   const res = await fetch("http://localhost:3000/api/auth/validate", {
+   method: "POST",
+   headers: {
+   "Content-Type": "application/json",
+   },
+   body: JSON.stringify({accessToken}),
+   });
 
-  // If the access token is invalid, redirect to the home page and clear the session cookie
-  const resBody = await res.json();
-  if (resBody.error) {
-    const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
-    return redirect("/", {
-      headers: {"Set-Cookie": newCookieHeader},
-    });
-  }
+   // If the access token is invalid, redirect to the home page and clear the session cookie
+   const resBody = await res.json();
+   if (resBody.error) {
+   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
+   return redirect("/", {
+   headers: {"Set-Cookie": newCookieHeader},
+   });
+   } */
 
   // Fetch the user's links from the database
   const fetchUserLinks = async () => {
@@ -61,20 +62,19 @@ export const loader: LoaderFunction = async ({request}) => {
     const res = await fetch("http://localhost:3000/api/users/get-links", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({accessToken}),
     });
 
+    /* TODO: Implement refresh token server side on jwt expire */
     const resBody = await res.json();
     if (resBody.error) {
-      throw json({error: resBody.error}, {status: 401});
+      throw redirect("/");
     }
     return resBody.links;
   }
 
   const links = await fetchUserLinks();
-
   return json({links});
 };
 
@@ -87,7 +87,13 @@ interface Link {
 
 
 const DashboardLinks = () => {
-  const {userLinks, setUserLinks, addLink, removeLink, editLinkUrl} = useLinksStore(state => ({
+  const {
+    userLinks,
+    setUserLinks,
+    addLink,
+    removeLink,
+    editLinkUrl
+  } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     addLink: state.addLink,
@@ -102,7 +108,8 @@ const DashboardLinks = () => {
   const fetcher = useFetcher();
 
 
-  // update global state with the fetched links from the database on initial load
+  // update global state with the fetched links from the database on
+  // initial load
   useEffect(() => {
     if (links) {
       setUserLinks(links)
@@ -126,7 +133,12 @@ const DashboardLinks = () => {
   });
 
 
-  const {handleSubmit, setValue, getValues, formState: {errors}} = methods;
+  const {
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: {errors}
+  } = methods;
 
   const handleSignOut = async () => {
     const formData = new FormData();
@@ -136,7 +148,7 @@ const DashboardLinks = () => {
 
   const handleDisplayNewLink = () => {
     const id = generateUUID();
-    const newLink = { id, platform: "github", url: "" };
+    const newLink = {id, platform: "github", url: ""};
     addLink(newLink); // Update global state
     // reset the form with the new link
     setValue('links', [...getValues('links'), newLink]);
@@ -153,14 +165,14 @@ const DashboardLinks = () => {
       const formData = new FormData();
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
-      fetcher.submit(formData, { method: "post", action: "/auth" });
+      fetcher.submit(formData, {method: "post", action: "/auth"});
     } catch (error) {
       console.error("Form submission error:", error);
     }
   };
 
 
-  const handleTest = async (data:LinkFormInputs) => {
+  const handleTest = async (data: LinkFormInputs) => {
     console.log(userLinks)
     console.log('current form data', data)
   }
@@ -175,7 +187,8 @@ const DashboardLinks = () => {
       );
     } else {
       return userLinks.map((object, index) => (
-        <LinkSelection key={object.id} object={object} index={index} onRemove={handleRemoveLink}/>
+        <LinkSelection key={object.id} object={object} index={index}
+                       onRemove={handleRemoveLink}/>
       ));
     }
   }, [userLinks]);
@@ -187,16 +200,22 @@ const DashboardLinks = () => {
           <section className={styles.content}>
             <header className={styles.header}>
               <h1>Customize your links</h1>
-              <p>Add/edit/remove links below and then share all your profiles with the world!</p>
+              <p>Add/edit/remove links below and then share all your
+                profiles with the world!</p>
             </header>
-            <button type="button" className={styles.add_link_button} onClick={handleDisplayNewLink}>+ Add new link
+            <button type="button" className={styles.add_link_button}
+                    onClick={handleDisplayNewLink}>+ Add new link
             </button>
             {renderLinksContent}
           </section>
           <footer>
             <button type="submit">Save</button>
-            <button type="button" onClick={handleSubmit(handleTest)}>Test</button>
-            <button type="button" className={styles.sign_out} onClick={handleSignOut}>Sign Out</button>
+            <button type="button"
+                    onClick={handleSubmit(handleTest)}>Test
+            </button>
+            <button type="button" className={styles.sign_out}
+                    onClick={handleSignOut}>Sign Out
+            </button>
           </footer>
         </div>
       </form>

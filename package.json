@@ -5,6 +5,7 @@
     "client": "cd ./frontend && npm run dev"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.11",
     "concurrently": "^8.2.2"
   }
 }

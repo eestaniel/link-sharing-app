@@ -49,28 +49,20 @@ export class UsersService {
 
 
   // Get links for a user using the access token
-  async getLinks(accessToken: string): Promise<UserLinkResponse> {
-    // Retrieve user from Supabase using accessToken
-    const {data: userResponse, error: userError} = await this.supabaseService.getClient().auth.getUser(accessToken);
-
-    if (userError || !userResponse.user?.id) {
-      return {links: [], error: "Invalid user"};
-    }
-
-    const userId = userResponse.user.id;
+  async getLinks(user_id: string): Promise<any> {
 
     // Retrieve links associated with the user ID
-    const {data, error} = await this.supabaseService
-                                    .getClient()
+
+    const {data, error} = await this.supabaseService.getClient()
                                     .from('user_links')
                                     .select('*')
-                                    .eq('user_id', userId);
+                                    .eq('user_id', user_id);
 
     if (error) {
-      throw new Error(error.message);
+      return JSON.stringify({error: error.message});
     }
 
-    let newArray = data.map((link) => {
+    const newArray = data.map((link: any) => {
       return {
         id: link.id,
         platform: link.platform,
@@ -78,17 +70,18 @@ export class UsersService {
       }
     })
 
-    // Map data fields directly since they already match the Link interface
-    return {links: newArray || []};
+    // Map data fields directly since they already match the Link
+    // interface
+    /* return {links: newArray || []}; */
+    return JSON.stringify({links: newArray || []});
   }
 
 
   // save links
-  async saveLinks(accessToken: string, links: { platform: string, url: string }[]): Promise<string> {
-    //get userID from supabase using accessToken
-    const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
-    const user_id = user.id
-
+  async saveLinks(user_id: string, links: {
+    platform: string,
+    url: string
+  }[]): Promise<any> {
     if (!user_id) {
       return JSON.stringify({error: "Invalid user"});
     }
@@ -119,10 +112,10 @@ export class UsersService {
     // delete missing links based on id
     if (linksToDelete.length > 0) {
       const {error} = await this.supabaseService
-                            .getClient()
-                            .from('user_links')
-                            .delete()
-                            .in('id', linksToDelete.map(link => link.id));
+                                .getClient()
+                                .from('user_links')
+                                .delete()
+                                .in('id', linksToDelete.map(link => link.id));
 
       if (error) {
         return JSON.stringify({error: error.message});
@@ -132,7 +125,10 @@ export class UsersService {
     const {error} = await this.supabaseService
                               .getClient()
                               .from('user_links')
-                              .upsert(links.map(link => ({...link, user_id})));
+                              .upsert(links.map(link => ({
+                                ...link,
+                                user_id
+                              })));
 
     if (error) {
       return JSON.stringify({error: error.message});
@@ -144,6 +140,7 @@ export class UsersService {
     });
   }
 
+
   async saveProfile(accessToken: string, profile: {
     first_name: string;
     last_name: string;
@@ -153,6 +150,7 @@ export class UsersService {
     //get userID from supabase using accessToken
     const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
     const user_id = user.id
+
 
     if (!user_id) {
       return JSON.stringify({error: "Invalid user"});
@@ -172,10 +170,10 @@ export class UsersService {
     });
   }
 
-  async getProfile(accessToken: string): Promise<string> {
+
+  async getProfile(user_id: string): Promise<string> {
     //get userID from supabase using accessToken
-    const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
-    const user_id = user.id
+
 
     if (!user_id) {
       return JSON.stringify({error: "Invalid user"});
@@ -190,16 +188,99 @@ export class UsersService {
     if (error) {
       return JSON.stringify({error: error.message});
     }
+    let publicUrl: any = ''
+    if (data[0].profile_picture_url) {
+      const {data: link} = this.supabaseService
+                               .getClient()
+                               .storage
+                               .from('profile_pictures')
+                               .getPublicUrl(`${data[0].profile_picture_url}`)
 
-
+      publicUrl = link
+      console.log('publicUrl', publicUrl)
+    }
 
     return JSON.stringify({
       profile: {
         first_name: data[0].first_name,
         last_name: data[0].last_name,
         email: data[0].email,
-        profile_picture_url: data[0].profile_picture_url
+        url: publicUrl
       }
     });
+  }
+
+
+  async uploadFile(file: Express.Multer.File, body: any, req: any): Promise<string> {
+    console.log('user_id', req.user_id)
+
+    // user pictures from public/$user_id/
+    const {
+      data: storageData,
+      error: storageError
+    } = await this.supabaseService
+                  .getClient()
+                  .storage
+                  .from('profile_pictures')
+                  .list(`images/${req.user_id}/`);
+    if (storageError) {
+      return JSON.stringify({error: storageError.message});
+    }
+
+    // map through storageData and delete all the files
+    await Promise.all(storageData.map(async (file: any) => {
+      await this.supabaseService
+                .getClient()
+                .storage
+                .from('profile_pictures')
+                .remove([`images/${req.user_id}/${file.name}`]);
+    }))
+
+
+    // upload file to storage
+    const {
+      data: newStorage,
+      error: newStorageError
+    } = await this.supabaseService
+                  .getClient()
+                  .storage
+                  .from('profile_pictures')
+                  .upload(`images/${req.user_id}/${file.originalname}`, file.buffer,
+                    {
+                      cacheControl: '3600',
+                      upsert: true
+                    }
+                  );
+
+    if (newStorageError) {
+      return JSON.stringify({error: newStorageError.message});
+    }
+
+    // update profile_picture_url in users table
+    body.profile_picture_url = newStorage.path
+
+    const {
+      data: updatedData,
+      error: updatedError
+    } = await this.supabaseService
+                  .getClient()
+                  .from('users')
+                  .upsert({
+                    id: req.user_id,
+                    first_name: body.first_name,
+                    last_name: body.last_name,
+                    email: body.email,
+                    profile_picture_url: body.profile_picture_url
+                  }, {
+                    onConflict: "id"
+                  })
+                  .select()
+    if (updatedError) {
+      return JSON.stringify({error: updatedError.message});
+    }
+
+    console.log('updatedData', updatedData)
+
+    return JSON.stringify({message: "Profile picture uploaded successfully"});
   }
 }

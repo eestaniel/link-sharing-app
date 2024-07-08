@@ -10,10 +10,11 @@ interface UserObject {
   first_name: string;
   last_name: string;
   email: string;
-  profile_picture_url?: string;
+  file?: any
 }
 
 interface LinksStore {
+  editUserDetails: any
   sessionId: string;
   setSessionId: (sessionId: string) => void;
   currentPage: string;
@@ -38,7 +39,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
     email: ''
   },
 
-  editUserDetails: (details) => set({ userDetails: details }),
+  editUserDetails: (details: any) => set({ userDetails: details }),
 
   setSessionId: (sessionId) => set({ sessionId }),
   setCurrentPage: (currentPage) => set({ currentPage }),
