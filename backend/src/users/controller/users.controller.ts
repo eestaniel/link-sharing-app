@@ -70,7 +70,6 @@ export class UsersController {
   @Post('get-profile')
   async getProfile(@Req() req: Request): Promise<any> {
     const userCache = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
-    console.log(userCache)
     if (!userCache || !userCache.user_profile.first_name && !userCache.user_profile.last_name && !userCache.user_profile.email){
       console.log('returning user profile from database')
       return this.usersService.getProfile(req.body.user_id);
