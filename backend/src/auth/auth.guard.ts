@@ -21,7 +21,6 @@ export class AuthGuard implements CanActivate {
 
     if (!token) {
       // unmap user_id from request
-
       return false;
     }
 
@@ -48,7 +47,8 @@ export class AuthGuard implements CanActivate {
 
       // if not in cache, validate token in supabase
       const user = await this.authService.validateUser(token);
-      if (!user.id) {
+      if (user === null || !user) {
+        console.log('User not found')
         return false;
       }
 
@@ -64,6 +64,8 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (error) {
+      console.log('Error validating token')
+      console.log('error: ', error)
       return false;
     }
   }

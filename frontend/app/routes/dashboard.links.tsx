@@ -36,13 +36,19 @@ export const loader: LoaderFunction = async ({request}) => {
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    return redirect("/");
+    // remove cookie
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+    });
   }
 
   const userLinks = await getUserLinks(accessToken);
 
   if (userLinks.error) {
-    return redirect("/");
+    // remove cookie
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+    });
   }
 
   console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);

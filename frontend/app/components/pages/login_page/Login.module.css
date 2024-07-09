@@ -118,6 +118,10 @@
       }
     }
 
+    .is_loading {
+      filter: brightness(50%);
+    }
+
     .footer_group {
       display: flex;
       flex-direction: column;

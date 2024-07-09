@@ -43,14 +43,20 @@ export const loader: LoaderFunction = async ({request}) => {
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    throw redirect("/");
+    // remove cookie
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+    });
   }
 
   const userProfile = await getProfile(accessToken);
 
 
   if (userProfile.error) {
-    throw redirect("/");
+    // remove cookie
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+    });
   }
 
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);

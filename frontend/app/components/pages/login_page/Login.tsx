@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {setErrorMap, z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -14,10 +14,13 @@ const loginSchema = z.object({
 
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
+
 const Login = () => {
   const {setCurrentPage, currentPage} = useLinksStore(state => ({
     setCurrentPage: state.setCurrentPage
   }));
+  const [isLoading, setIsLoading] = useState(false);
+
 
 
   // Initialize the form with react-hook-form and zodResolver
@@ -34,6 +37,7 @@ const Login = () => {
 
   // Define the submit handler
   const onSubmit = async (data: LoginFormInputs) => {
+    setIsLoading(true);
     setError('password', {
       type: 'manual',
       message: ''
@@ -94,7 +98,7 @@ const Login = () => {
             </div>
             {errors.password && <span className={styles.error}>{errors.password.message}</span>}
           </label>
-          <button className={styles.button} type="submit">Log in</button>
+          <button className={`${styles.button} ${isLoading && styles.is_loading}`} disabled={isLoading} type="submit">{isLoading ? 'Loading...' : 'Log in'}</button>
           <button className={styles.button} onClick={handleAnon}>Sign in Anonymously</button>
 
           <div className={styles.footer_group}>

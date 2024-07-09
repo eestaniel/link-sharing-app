@@ -19,7 +19,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    return redirect("/");
+    // remove cookie
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+    });
   }
 
   // Verify the access token without fetching user data
