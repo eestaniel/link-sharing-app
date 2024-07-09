@@ -12,6 +12,8 @@ import { useFetcher } from "@remix-run/react";
 import { useEffect } from "react";
 
 export const loader: LoaderFunction = async ({ request }) => {
+
+  const start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
@@ -32,6 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
+  console.log(`Time to validate access Token for Preview Page: ${Date.now() - start}ms`);
   // Only authenticate, no data return needed
   return null;
 };

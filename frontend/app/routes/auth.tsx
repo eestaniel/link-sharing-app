@@ -19,7 +19,7 @@ export const action: ActionFunction = async ({request}) => {
     case 'anon':
       return await createAnonSession();
     case 'logout':
-      return await signOut();
+      return await signOut(request);
     case 'login':
       return await login(formData);
     case 'create-account':
@@ -184,14 +184,35 @@ const login = async (formData: FormData) => {
 };
 
 
-const signOut = async () => {
+const signOut = async (request: any) => {
+  // Get the access token from the session cookie
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
 
+  if (!accessToken) {
+    return redirect("/");
+  }
+
+  // Sign out the user from supabase
   const {error} = await supabase.auth.signOut()
 
   if (error) {
     return json({error: error.message}, {status: 500});
   }
 
+  // sign user out from backend
+  const response = await fetch('http://localhost:3000/api/auth/signout', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  const res = await response.json();
+  if (res.error) {
+    return json({error: res.error}, {status: 401});
+  }
 
 
   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});

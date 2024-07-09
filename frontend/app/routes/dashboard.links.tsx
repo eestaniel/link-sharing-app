@@ -1,14 +1,15 @@
-import { LoaderFunction, redirect } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
-import { sessionCookie } from "~/utils/sessionCookie";
-import { useEffect, useMemo } from "react";
+import {LoaderFunction, redirect} from "@remix-run/node";
+import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react";
+import {sessionCookie} from "~/utils/sessionCookie";
+import {useEffect, useMemo} from "react";
 import styles from "app/styles/dashboard.links.module.css";
-import { useLinksStore } from "~/store/LinksStore";
+import {useLinksStore} from "~/store/LinksStore";
 import LinkSelection from "~/components/links_menu/LinkSelection";
-import { EmptyLinksIcon } from "~/assets/svgs/IconSVGs";
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm } from 'react-hook-form';
+import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
+import {z} from 'zod';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {FormProvider, useForm} from 'react-hook-form';
+import {getUserLinks} from "~/services/user-services"
 
 // Define zod schema for link URLs
 const linkSchema = z.object({
@@ -27,7 +28,9 @@ const generateUUID = () => {
   return crypto.randomUUID();
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({request}) => {
+  // time this function
+  let start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
@@ -36,26 +39,25 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/");
   }
 
-  // Validate the access token
-  const res = await fetch("http://localhost:3000/api/auth/validate", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-    },
-  });
-  const resBody = await res.json();
-  if (resBody.error) {
-    const newCookieHeader = await sessionCookie.serialize("", { maxAge: 0 });
-    return redirect("/", {
-      headers: { "Set-Cookie": newCookieHeader },
-    });
+  const userLinks = await getUserLinks(accessToken);
+
+  if (userLinks.error) {
+    return redirect("/");
   }
 
-  return null;
+  console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);
+
+  return userLinks;
 };
 
 const DashboardLinks = () => {
-  const { userLinks, setUserLinks, addLink, removeLink, editLinkUrl } = useLinksStore(state => ({
+  const {
+    userLinks,
+    setUserLinks,
+    addLink,
+    removeLink,
+    editLinkUrl
+  } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     addLink: state.addLink,
@@ -71,41 +73,41 @@ const DashboardLinks = () => {
     }
   });
 
-  // UseEffect to initialize state from local storage or fetch from server
-  useEffect(() => {
-    const storedLinks: string | null = localStorage.getItem('user_links');
+  const transition = useNavigation();
+  const isLoad = transition.state === 'loading';
 
-    if (storedLinks !== null && storedLinks !== 'undefined' && storedLinks) {
-      const links = JSON.parse(storedLinks);
-      setUserLinks(links);  // Update Zustand state from local storage
-      methods.reset({ links });  // Reset form state with local storage data
-    } else {
-      const formData = new FormData();
-      formData.append('action', 'get-links');
-      fetcher.submit(formData, { method: 'post', action: '/auth' });
+
+  interface data {
+    links: {
+      id: string;
+      platform: string;
+      url: string;
+    }[];
+  }
+
+
+  const data = useLoaderData() as data;
+
+  useEffect(() => {
+    if (data) {
+      console.log('has data', data)
+      setUserLinks(data.links);
+      methods.reset(data.links)
     }
-  }, []); // Empty dependency array ensures this runs only on mount
+  }, []);
 
-  // UseEffect to update state from server response
+
   useEffect(() => {
-    if (fetcher.data) {
-      const { links } = fetcher.data as { links: any[] };
-      setUserLinks(links);  // Update Zustand state
-      localStorage.setItem('user_links', JSON.stringify(links));  // Cache in local storage
-      methods.reset({ links });  // Reset form state with fetched data
+    if (userLinks) {
+      console.log('userLinks', userLinks)
     }
-  }, [fetcher.data, setUserLinks, methods]);
-
-  // UseEffect to reset form state when userLinks changes
-  useEffect(() => {
-    methods.reset({ links: userLinks });
-  }, [userLinks, methods]);
+  }, [userLinks]);
 
   const {
     handleSubmit,
     setValue,
     getValues,
-    formState: { errors }
+    formState: {errors}
   } = methods;
 
   const handleSignOut = async () => {
@@ -115,12 +117,12 @@ const DashboardLinks = () => {
 
     const formData = new FormData();
     formData.append('action', 'logout');
-    fetcher.submit(formData, { method: 'post', action: '/auth' });
+    fetcher.submit(formData, {method: 'post', action: '/auth'});
   };
 
   const handleDisplayNewLink = () => {
     const id = generateUUID();
-    const newLink = { id, platform: "github", url: "" };
+    const newLink = {id, platform: "github", url: ""};
     addLink(newLink); // Update Zustand state
     setValue('links', [...getValues('links'), newLink]);  // Update form state
   };
@@ -135,7 +137,7 @@ const DashboardLinks = () => {
       const formData = new FormData();
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
-      fetcher.submit(formData, { method: "post", action: "/auth" });
+      fetcher.submit(formData, {method: "post", action: "/auth"});
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -147,48 +149,53 @@ const DashboardLinks = () => {
   };
 
   const renderLinksContent = useMemo(() => {
-    if (userLinks.length === 0) {
-      return (
-        <div className={styles.empty_links}>
-          <EmptyLinksIcon />
-          <p>No links added yet</p>
-        </div>
-      );
-    } else {
-      return userLinks.map((object, index) => (
-        <LinkSelection key={object.id} object={object} index={index}
-                       onRemove={handleRemoveLink} />
-      ));
+    if (userLinks) {
+      if (userLinks.length === 0) {
+        return (
+          <div className={styles.empty_links}>
+            <EmptyLinksIcon/>
+            <p>No links added yet</p>
+          </div>
+        );
+      } else {
+        return userLinks.map((object, index) => (
+          <LinkSelection key={object.id} object={object} index={index}
+                         onRemove={handleRemoveLink}/>
+        ));
+      }
     }
   }, [userLinks]);
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(handleSaveLinks)}>
-        <div className={styles.container}>
-          <section className={styles.content}>
-            <header className={styles.header}>
-              <h1>Customize your links</h1>
-              <p>Add/edit/remove links below and then share all your
-                profiles with the world!</p>
-            </header>
-            <button type="button" className={styles.add_link_button}
-                    onClick={handleDisplayNewLink}>+ Add new link
-            </button>
-            {renderLinksContent}
-          </section>
-          <footer>
-            <button type="submit">Save</button>
-            <button type="button"
-                    onClick={handleSubmit(handleTest)}>Test
-            </button>
-            <button type="button" className={styles.sign_out}
-                    onClick={handleSignOut}>Sign Out
-            </button>
-          </footer>
-        </div>
-      </form>
-    </FormProvider>
+    <>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(handleSaveLinks)}>
+          <div className={styles.container}>
+            <section className={styles.content}>
+              <header className={styles.header}>
+                <h1>Customize your links</h1>
+                <p>Add/edit/remove links below and then share all your
+                  profiles with the world!</p>
+              </header>
+              <button type="button" className={styles.add_link_button}
+                      onClick={handleDisplayNewLink}>+ Add new link
+              </button>
+              {renderLinksContent}
+            </section>
+            <footer>
+              <button type="submit">Save</button>
+              <button type="button"
+                      onClick={handleSubmit(handleTest)}>Test
+              </button>
+              <button type="button" className={styles.sign_out}
+                      onClick={handleSignOut}>Sign Out
+              </button>
+            </footer>
+          </div>
+        </form>
+      </FormProvider>
+    </>
+
   );
 };
 

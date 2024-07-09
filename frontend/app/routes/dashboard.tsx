@@ -2,7 +2,6 @@ import {Outlet} from "@remix-run/react"
 import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import {LoaderFunction} from "@remix-run/node";
-import {sessionCookie} from "~/utils/sessionCookie";
 import styles from '../styles/Dashboard.module.css';
 
 export const loader: LoaderFunction = async ({request}) => {
@@ -32,6 +31,10 @@ export const action = async ({request}: any) => {
 }
 
 const Dashboard = () => {
+
+
+  console.log()
+
   return (
       <div className={styles.page_container}>
         <Navigation/>

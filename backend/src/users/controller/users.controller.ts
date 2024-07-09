@@ -6,12 +6,15 @@ import {
   UseGuards,
   Req,
   UploadedFile,
-  UseInterceptors,
+  UseInterceptors, Inject,
 } from '@nestjs/common';
 import {UsersService} from "../service/users.service";
 import {AuthGuard} from "../../auth/auth.guard"
 import {Request} from 'express'
 import {FileInterceptor} from "@nestjs/platform-express"
+import {UserCacheDto} from "../dtos/user-dtos"
+import {CACHE_MANAGER} from "@nestjs/cache-manager"
+import {Cache} from "cache-manager"
 
 
 interface Link {
@@ -29,7 +32,8 @@ interface UserLinkResponse {
 @Controller('api/users')
 @UseGuards(AuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
+  constructor(private readonly usersService: UsersService,
+              @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
 
@@ -49,13 +53,31 @@ export class UsersController {
   // Get links for a user by user ID (POST)
   @Post('get-links')
   async getLinks(@Req() req: Request): Promise<any> {
-    return this.usersService.getLinks(req.body.user_id);
+
+    const userCache = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
+
+    if (!userCache || userCache.user_links.length === 0) {
+      console.log('returning user links from database')
+      return this.usersService.getLinks(req.body.user_id);
+    }
+    console.log('returning user links from cache')
+    return {links: userCache.user_links};
+
+
   }
 
 
   @Post('get-profile')
   async getProfile(@Req() req: Request): Promise<any> {
-    return this.usersService.getProfile(req.body.user_id);
+    const userCache = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
+    console.log(userCache)
+    if (!userCache || !userCache.user_profile.first_name && !userCache.user_profile.last_name && !userCache.user_profile.email){
+      console.log('returning user profile from database')
+      return this.usersService.getProfile(req.body.user_id);
+    }
+
+    console.log('returning user profile from cache')
+    return {profile: userCache.user_profile};
   }
 
 
@@ -68,6 +90,7 @@ export class UsersController {
     },
     @Req() req: Request
   ): Promise<any> {
+
     return this.usersService.saveLinks(req.body.user_id, body.links);
   }
 

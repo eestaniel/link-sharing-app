@@ -4,9 +4,12 @@ import { AuthController } from '../controller/auth.controller';
 import { SupabaseService } from '../../supabase/service/SupabaseService'
 import { UsersService } from '../../users/service/users.service'
 import { AuthGuard } from "../auth.guard"
-
+import {CacheModule} from "@nestjs/cache-manager"
 
 @Module({
+  imports: [CacheModule.register({
+    ttl: 3600000,
+  })],
   controllers: [AuthController],
   providers: [AuthService, SupabaseService, UsersService, AuthGuard],
 

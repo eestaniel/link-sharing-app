@@ -4,6 +4,8 @@ import { AuthGuard } from '../auth.guard';
 import {Request} from 'express'
 
 
+
+
 @Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -33,7 +35,13 @@ export class AuthController {
   }
 
   @Post('signout')
+  @UseGuards(AuthGuard)
   signOut(@Req() req) {
-    return this.authService.signOut(req.token);
+    return this.authService.signOut(req);
+  }
+
+  @Post('test')
+  test(@Req() req) {
+    return this.authService.test();
   }
 }

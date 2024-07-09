@@ -1,5 +1,8 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {SupabaseService} from "../../supabase/service/SupabaseService";
+import {CACHE_MANAGER} from "@nestjs/cache-manager"
+import {Cache} from "cache-manager"
+import {UserCacheDto} from "../dtos/user-dtos"
 
 
 interface Link {
@@ -18,7 +21,8 @@ interface UserLinkResponse {
 @Injectable()
 export class UsersService {
 
-  constructor(private readonly supabaseService: SupabaseService) {
+  constructor(private readonly supabaseService: SupabaseService,
+              @Inject(CACHE_MANAGER) private cacheManager: Cache) {
   }
 
 
@@ -61,7 +65,6 @@ export class UsersService {
     if (error) {
       return JSON.stringify({error: error.message});
     }
-
     const newArray = data.map((link: any) => {
       return {
         id: link.id,
@@ -69,11 +72,87 @@ export class UsersService {
         url: link.url
       }
     })
+    // get current user cache
+    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
 
-    // Map data fields directly since they already match the Link
-    // interface
-    /* return {links: newArray || []}; */
-    return JSON.stringify({links: newArray || []});
+    // update current user cache with new links
+    if (userCache) {
+      userCache.user_links = newArray
+      await this.cacheManager.set(user_id, userCache);
+    } else {
+      await this.cacheManager.set(user_id, {
+        refresh_token: '',
+        user_links: newArray,
+        user_profile: {
+          first_name: '',
+          last_name: '',
+          email: '',
+          url: ''
+        }
+      })
+    }
+
+
+      return JSON.stringify({links: newArray || []});
+  }
+
+  async getProfile(user_id: string): Promise<string> {
+    //get userID from supabase using accessToken
+
+    if (!user_id) {
+      return JSON.stringify({error: "Invalid user"});
+    }
+
+    const {data, error} = await this.supabaseService
+                                    .getClient()
+                                    .from('users')
+                                    .select('*')
+                                    .eq('id', user_id);
+
+    if (error) {
+      return JSON.stringify({error: error.message});
+    }
+    let publicUrl: any = ''
+    if (data[0].profile_picture_url) {
+      const {data: link} = this.supabaseService
+                               .getClient()
+                               .storage
+                               .from('profile_pictures')
+                               .getPublicUrl(`${data[0].profile_picture_url}`)
+
+      publicUrl = link
+    }
+
+    const profile = {
+      first_name: data[0].first_name,
+      last_name: data[0].last_name,
+      email: data[0].email,
+      url: publicUrl
+    }
+
+    // save to cache
+    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
+    if (userCache) {
+      userCache.user_profile = profile
+      await this.cacheManager.set(user_id, userCache);
+    } else {
+      await this.cacheManager.set(user_id, {
+        refresh_token: '',
+        user_links: [],
+        user_profile: profile
+      })
+
+    }
+
+
+    return JSON.stringify({
+      profile: {
+        first_name: data[0].first_name,
+        last_name: data[0].last_name,
+        email: data[0].email,
+        url: publicUrl
+      }
+    });
   }
 
 
@@ -141,78 +220,7 @@ export class UsersService {
   }
 
 
-  async saveProfile(accessToken: string, profile: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    profile_picture_url: string
-  }): Promise<string> {
-    //get userID from supabase using accessToken
-    const {data: {user}} = await this.supabaseService.getClient().auth.getUser(accessToken)
-    const user_id = user.id
-
-
-    if (!user_id) {
-      return JSON.stringify({error: "Invalid user"});
-    }
-
-    const {error} = await this.supabaseService
-                              .getClient()
-                              .from('users')
-                              .upsert([{id: user_id, ...profile}]);
-
-    if (error) {
-      return JSON.stringify({error: error.message});
-    }
-
-    return JSON.stringify({
-      profile: profile
-    });
-  }
-
-
-  async getProfile(user_id: string): Promise<string> {
-    //get userID from supabase using accessToken
-
-
-    if (!user_id) {
-      return JSON.stringify({error: "Invalid user"});
-    }
-
-    const {data, error} = await this.supabaseService
-                                    .getClient()
-                                    .from('users')
-                                    .select('*')
-                                    .eq('id', user_id);
-
-    if (error) {
-      return JSON.stringify({error: error.message});
-    }
-    let publicUrl: any = ''
-    if (data[0].profile_picture_url) {
-      const {data: link} = this.supabaseService
-                               .getClient()
-                               .storage
-                               .from('profile_pictures')
-                               .getPublicUrl(`${data[0].profile_picture_url}`)
-
-      publicUrl = link
-    }
-
-    return JSON.stringify({
-      profile: {
-        first_name: data[0].first_name,
-        last_name: data[0].last_name,
-        email: data[0].email,
-        url: publicUrl
-      }
-    });
-  }
-
-
   async uploadFile(file: Express.Multer.File, body: any, req: any): Promise<string> {
-
-
     // user pictures from public/$user_id/
     const {
       data: storageData,
@@ -280,4 +288,5 @@ export class UsersService {
 
     return JSON.stringify({message: "Profile picture uploaded successfully"});
   }
+
 }

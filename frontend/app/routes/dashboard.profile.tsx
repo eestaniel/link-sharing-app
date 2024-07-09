@@ -5,9 +5,12 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs"
 import {useLinksStore} from "~/store/LinksStore"
 import {useEffect, useRef, useState} from "react";
-import {useFetcher} from "@remix-run/react"
+import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react"
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
+import {getProfile} from "~/services/user-services"
+import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
+
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -39,43 +42,32 @@ export const loader: LoaderFunction = async ({request}) => {
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
 
-
   if (!accessToken) {
     throw redirect("/");
   }
 
-  // Validate the access token
-  const res = await fetch("http://localhost:3000/api/auth/validate", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-    },
-  });
+  const userProfile = await getProfile(accessToken);
 
-  // If the access token is invalid, redirect to the home page and
-  // clear the session cookie
-  const resBody = await res.json();
-  const url = new URL(request.url);
-  if (resBody.error && url.pathname === "/dashboard/profile") {
-    const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
-    return redirect("/", {
-      headers: {"Set-Cookie": newCookieHeader},
-    });
+
+  if (userProfile.error) {
+    throw redirect("/");
   }
-  console.log(`Time to validate access Token ${Date.now() - start}ms`);
-  return null;
+
+  console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
+
+
+  return userProfile;
 
 }
 
 
 interface ProfileLoaderData {
-  userProfile: {
+  profile: {
     first_name: string;
     last_name: string;
     email: string;
-    file?: any;
+    url?: string;
   }
-
 }
 
 
@@ -96,56 +88,17 @@ const DashboardProfile = () => {
     setUserDetails: state.setUserDetails
   }));
 
-  useEffect(() => {
-    const storedDetails = localStorage.getItem('user_details');
-    if (storedDetails) {
-      const details = JSON.parse(storedDetails);
-      setUserDetails(details);  // Update Zustand store
-      methods.reset(details);  // Reset form values using react-hook-form
-    } else {
-      const formData = new FormData();
-      formData.append("action", "get-profile");
-      fetcher.submit(formData, {method: "POST", action: "/auth"});
-    }
-    }, []);
+  const transition = useNavigation();
+  const isLoading = transition.state === 'loading';
 
-
-  interface ProfileLoaderData {
-    profile: {
-      first_name: string;
-      last_name: string;
-      email: string;
-      url: {
-        publicUrl: string;
-      }
-    }
-
-  }
-  useEffect(() => {
-    if (fetcher.data) {
-      const { profile } = fetcher.data as ProfileLoaderData;
-      setUserDetails(profile);  // Update Zustand store
-      localStorage.setItem('user_details', JSON.stringify(profile));  // Cache new data
-      methods.reset(profile);  // Reset form with new data
-    }
-  }, [fetcher.data]);  // Depend on fetcher.data
-
-
+  const data: Jsonify<ProfileLoaderData> = useLoaderData<ProfileLoaderData>();
 
   useEffect(() => {
-    if (!userDetails.first_name && !userDetails.last_name && !userDetails.email) {
-      const formData = new FormData();
-      formData.append("action", "get-profile");
-      fetcher.submit(formData, {method: "POST", action: "/auth"})
+    if (data.profile) {
+      setUserDetails(data.profile);
+      methods.reset(data.profile);
     }
-  } , []);  // Depend on userDetails state
-
-  useEffect(() => {
-    // This only runs if userDetails changes outside of form interactions
-    if (userDetails) {
-      methods.reset(userDetails);
-    }
-  }, []);  // Depend on userDetails state
+  }, []);
 
 
   // create dumme userProfile
@@ -279,7 +232,6 @@ const DashboardProfile = () => {
             </div>
             <button type="button"
                     onClick={handleSaveForm}
-                    disabled={!imageData}
 
             >Save
             </button>

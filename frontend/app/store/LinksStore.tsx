@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
 
 interface LinkObject {
   id: string;  // Unique identifier for each link
@@ -6,12 +7,8 @@ interface LinkObject {
   url: string;  // URL associated with the platform
 }
 
-interface UserObject {
-  first_name: string;
-  last_name: string;
-  email: string;
-  file?: any
-}
+
+
 
 interface LinksStore {
   editUserDetails: any
@@ -26,7 +23,7 @@ interface LinksStore {
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
   editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL update by ID
   editLinkPlatform: (id: string, platform: string) => void;  // New function to handle platform update by ID
-  setUserDetails: (details: ProfileLoaderData) => void;
+  setUserDetails: (details: Jsonify<ProfileLoaderData["profile"]>) => void;
 }
 
 export const useLinksStore = create<LinksStore>((set) => ({
