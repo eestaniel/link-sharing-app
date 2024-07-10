@@ -37,6 +37,8 @@ const Navigation = () => {
     fetcher.submit(formData, {method: 'post'});
   }
 
+  console.log('path', path)
+
   // Memoize the logo rendering based on sessionId
   const logo = useMemo(() => {
 
@@ -53,7 +55,7 @@ const Navigation = () => {
             </svg>
             <div className={styles.link_group}>
               <div
-                className={`${styles.icon_container} ${currentPage === 'edit-links' ? styles.active : ''}`}
+                className={`${styles.icon_container} ${path === '/dashboard/links' ? styles.active : ''}`}
                 onClick={() => handlePageChange('edit-links')}>
                 <svg className={styles.svg_img}
                      xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +66,7 @@ const Navigation = () => {
                 </svg>
               </div>
               <div
-                className={`${styles.icon_container} ${currentPage === 'edit-profile' ? styles.active : ''}`}
+                className={`${styles.icon_container} ${path === '/dashboard/profile' ? styles.active : ''}`}
                 onClick={() => handlePageChange('edit-profile')}>
                 <svg className={styles.svg_img}
                      xmlns="http://www.w3.org/2000/svg"
@@ -88,11 +90,11 @@ const Navigation = () => {
         )
       case '/dashboard/preview':
         return (
-          <>
-            <button onClick={handlePreviousPage}>Back to Editor</button>
-            <button>Share Link</button>
+          <div className={styles.preview_button_container}>
+            <button onClick={handlePreviousPage} className={styles.back}>Back to Editor</button>
+            <button className={styles.share}> Share Link</button>
 
-          </>
+          </div>
         )
       default:
         return (

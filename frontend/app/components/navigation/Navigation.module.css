@@ -7,8 +7,6 @@
   align-items: center;
   background-color: white;
 
-
-
   .link_group {
     display: flex;
     flex-direction: row;
@@ -21,7 +19,6 @@
       
       &:hover {
         cursor: pointer;
-        background-color: var(--light-pink);
 
         path {
           fill: var(--purple);
@@ -55,6 +52,59 @@
 
     &:hover {
       background-color: var(--light-pink);
+    }
+  }
+
+  .preview_button_container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 1rem;
+
+    button {
+      padding: 0.688rem 1.688rem;
+      border: none;
+      width: 50%;
+      border-radius: 0.5rem;
+
+      /* font */
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 600;
+
+      cursor: pointer;
+
+    }
+
+    .back {
+      outline: 1px solid var(--purple);
+      background-color: var(--light-grey);
+      color: var(--purple);
+
+      &:hover {
+        background-color: var(--purple-hover);
+        box-shadow: 0 0 2rem hsla(252, 100%, 62%, 25%);
+      }
+
+      &:disabled {
+        opacity: 25%;
+      }
+    }
+
+    .share {
+      background-color: var(--purple);
+      color: white;
+
+      &:hover {
+        background-color: hsla(252, 100%, 96%, 100%);
+        box-shadow: 0 0 2rem hsla(252, 100%, 62%, 25%);
+      }
+
+      &:disabled {
+        opacity: 25%;
+      }
     }
   }
 }

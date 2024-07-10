@@ -23,6 +23,7 @@
         width: 100%;
         border-radius: 32rem;
         outline: 0.25rem solid var(--purple);
+        object-fit: cover;
       }
     }
 
@@ -51,7 +52,7 @@
         letter-spacing: 0;
         font-weight: 400;
 
-        color: var(--light-grey);
+        color: var(--grey);
       }
     }
   }

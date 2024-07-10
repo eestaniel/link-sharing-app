@@ -113,16 +113,6 @@ export class UsersService {
     if (error) {
       return JSON.stringify({error: error.message});
     }
-    /*     let publicUrl: any = ''
-     if (data[0].profile_picture_url) {
-     const {data: link} = this.supabaseService
-     .getClient()
-     .storage
-     .from('profile_pictures')
-     .getPublicUrl(`${data[0].profile_picture_url}`)
-
-     publicUrl = link
-     }  */
 
     const profile = {
       first_name: data[0].first_name,

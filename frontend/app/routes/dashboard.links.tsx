@@ -1,7 +1,7 @@
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {Form, useFetcher, useLoaderData} from "@remix-run/react";
 import {sessionCookie} from "~/utils/sessionCookie";
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import styles from "app/styles/dashboard.links.module.css";
 import {useLinksStore} from "~/store/LinksStore";
 import LinkSelection from "~/components/links_menu/LinkSelection";
@@ -122,6 +122,25 @@ const DashboardLinks = () => {
     }
   };
 
+  const [isFormChanged, setIsFormChanged] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+
+  useEffect(() => {
+    console.log('userLinks: ', userLinks);
+    const subscription = methods.watch((value, { name, type }) => {
+      console.log('value: ', value.links);
+      const isDifferent = (
+        JSON.stringify(value.links) !== JSON.stringify(userLinks)
+      );
+      setIsFormChanged(isDifferent);
+    });
+    return () => subscription.unsubscribe();
+  }, [methods, userLinks] );
 
   const renderLinksContent = useMemo(() => {
     if (userLinks) {
@@ -168,11 +187,11 @@ const DashboardLinks = () => {
             </div>
           </section>
           <footer>
-            <button type="submit">Save</button>
-            {/*               <button type="button" className={styles.sign_out}
-             onClick={handleSignOut}>
-             Sign Out
-             </button> */}
+            <button type="submit"
+                    className={styles.save_button}
+                    disabled={!isFormChanged && isClient}
+
+            >Save</button>
           </footer>
 
           <input type="hidden" name="links"

@@ -59,12 +59,14 @@ const DashboardPreview = () => {
       setUserLinks(links);
       setUserDetails(profile);
 
+      console.log(links)
+
     }
   }, [links, profile]);
 
 
   const renderLinksContent = () => {
-    if (userLinks.length === 0) {
+    if (userLinks.length == 0) {
       return (
         <div className={styles.empty_links_container}>
           <p>No links added yet</p>
@@ -92,6 +94,8 @@ const DashboardPreview = () => {
       );
     }
   };
+
+
 
   return (
     <div className={styles.preview_container}>

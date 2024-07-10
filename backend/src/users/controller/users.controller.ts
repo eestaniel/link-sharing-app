@@ -16,7 +16,6 @@ import {UserCacheDto} from "../dtos/user-dtos"
 import {CACHE_MANAGER} from "@nestjs/cache-manager"
 import {Cache} from "cache-manager"
 
-
 @Controller('api/users')
 @UseGuards(AuthGuard)
 export class UsersController {
@@ -40,6 +39,8 @@ export class UsersController {
   @Get('get-preview')
   async getPreview(@Req() req: Request): Promise<any> {
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
+
+    console.log('userCache', userCache)
     if (!userCache) {
 
       // fetch user links and profile from database

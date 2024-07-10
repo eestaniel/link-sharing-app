@@ -1,42 +1,27 @@
-import styles from "../styles/Dashboard.Profile.module.css"
-import {FormProvider, useForm} from "react-hook-form"
-import {z} from "zod"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {UploadImageIcon} from "~/assets/svgs/IconSVGs"
-import {useLinksStore} from "~/store/LinksStore"
-import {useEffect, useRef, useState} from "react";
-import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react"
-import {LoaderFunction, redirect} from "@remix-run/node";
-import {sessionCookie} from "~/utils/sessionCookie";
-import {getData} from "~/services/user-services"
-import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
-import {supabase} from "~/services/supabaseClient"
-
+import styles from "../styles/Dashboard.Profile.module.css";
+import { FormProvider, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UploadImageIcon } from "~/assets/svgs/IconSVGs";
+import { useLinksStore } from "~/store/LinksStore";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher, useLoaderData, useNavigation } from "@remix-run/react";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { sessionCookie } from "~/utils/sessionCookie";
+import { getData } from "~/services/user-services";
+import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
 
 // Define zod schema for profile details
 const profileSchema = z.object({
   first_name: z.string().min(1, "Can't be empty"),
   last_name: z.string().min(1, "Can't be empty"),
   email: z.string().email("Invalid email"),
-  file: z.any().refine((file) => {
-    file?.size >= 5 * 1024 * 1024, `Max image size is 5MB.`
-  }).refine((file) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-      img.width <= 1024 && img.height <= 1024, `Image must be below 1024x1024px.`
-    }
-  }).refine((file) => {
-    file?.type === 'image/png' || file?.type === 'image/jpg' || file?.type === 'image/jpeg', `Use PNG or JPG format.`
-  })
+  file: z.any().optional(),
 });
-
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
-
-export const loader: LoaderFunction = async ({request}) => {
-  // time this function
+export const loader: LoaderFunction = async ({ request }) => {
   let start = Date.now();
 
   const cookieHeader = request.headers.get("Cookie");
@@ -44,26 +29,21 @@ export const loader: LoaderFunction = async ({request}) => {
   const accessToken = session?.accessToken ?? null;
 
   if (!accessToken) {
-    // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) },
     });
   }
-  const {profile, error} = await getData(accessToken);
-
+  const { profile, error } = await getData(accessToken);
 
   if (error) {
-    // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) },
     });
   }
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
   return profile;
-
-}
-
+};
 
 interface ProfileLoaderData {
   profile: {
@@ -71,9 +51,8 @@ interface ProfileLoaderData {
     last_name: string;
     email: string;
     url?: string;
-  }
+  };
 }
-
 
 const DashboardProfile = () => {
   const methods = useForm<ProfileFormInputs>({
@@ -82,46 +61,36 @@ const DashboardProfile = () => {
       first_name: "",
       last_name: "",
       email: "",
-      file: ''
-    }
+      file: undefined,
+    },
   });
   const fetcher = useFetcher();
 
-  const {userDetails, setUserDetails} = useLinksStore((state) => ({
+  const { userDetails, setUserDetails } = useLinksStore((state) => ({
     userDetails: state.userDetails,
-    setUserDetails: state.setUserDetails
+    setUserDetails: state.setUserDetails,
   }));
 
   const transition = useNavigation();
-  const isLoading = transition.state === 'loading';
 
   const profile: Jsonify<ProfileLoaderData> = useLoaderData<ProfileLoaderData>();
+
+  const [isFormChanged, setIsFormChanged] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setUserDetails(profile);
       methods.reset(profile);
     }
-  }, []);
+  }, [profile]);
 
-
-  // create dumme userProfile
-  const userProfile = {
-    first_name: "John",
-    last_name: "Doe",
-    email: "",
-  }
-  const {handleSubmit, register, formState: {errors}} = methods;
+  const { handleSubmit, register, formState: { errors }, watch } = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageData, setImageData] = useState<{
-    url: string,
-    file: any
-  } | string | null>(null);
-
+  const [imageData, setImageData] = useState<{ url: string; file: any } | string | null>(null);
 
   const handleSaveForm = async () => {
-    const data = methods.getValues(); // Directly access form values
-
+    const data = methods.getValues();
     setUserDetails(data);
 
     const formData = new FormData();
@@ -136,72 +105,84 @@ const DashboardProfile = () => {
     fetcher.submit(formData, {
       method: "POST",
       action: "/auth",
-      encType: "multipart/form-data"
-    })
-  }
-  const handleTestButton = () => {
-    // update the global state with the form values
-    setUserDetails(methods.getValues())
+      encType: "multipart/form-data",
+    });
+  };
 
-  }
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
+  const handleSignOut = async () => {
+    const formData = new FormData();
+    formData.append('action', 'logout');
+    fetcher.submit(formData, { method: 'post', action: '/auth' });
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file: any = event.target.files?.[0];
     if (file) {
-
-      // check if file is an image (jpg, jpeg, png)
       if (!file.type.includes('image')) {
         alert('Invalid file type. Allowed types are jpg, jpeg, png.');
-        return
+        return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
         alert('Max image size is 5MB.');
-        return
-      }
-
-      if (file.width > 1024 || file.height > 1024) {
-        alert('Image must be below 1024x1024px.');
-        return
+        return;
       }
 
       // Creating an object URL for efficient rendering
       const url = URL.createObjectURL(file);
-      setImageData({url, file: file});
+      setImageData({ url, file });
       methods.setValue('file', file);
     }
-  }
+  };
+
+  useEffect(() => {
+    const subscription = methods.watch((value, { name, type }) => {
+      const isDifferent = (
+        value.first_name !== userDetails.first_name ||
+        value.last_name !== userDetails.last_name ||
+        value.email !== userDetails.email ||
+        (value.file && (imageData?.file !== value.file))
+      );
+      setIsFormChanged(isDifferent);
+    });
+    return () => subscription.unsubscribe();
+  }, [methods, userDetails, imageData]);
 
   const renderImage = () => {
     if (userDetails?.url && !imageData) {
       return (
-        <img src={userDetails?.url} alt="profile picture"/>
-      )
+        <>
+          <img src={userDetails?.url} alt="profile picture" />
+          <span className={styles.layer}>
+            <UploadImageIcon />
+            <p>Change Image</p>
+          </span>
+        </>
+      );
     } else if (imageData) {
       return (
-        <img src={imageData?.url} alt="profile picture"/>
-      )
+        <img src={imageData?.url} alt="profile picture" />
+      );
     } else {
       return (
-        <UploadImageIcon/>
-      )
+        <UploadImageIcon />
+      );
     }
-  }
-
+  };
 
   return (
     <div className={styles.profile_container}>
       <div className={styles.profile_content}>
         <header className={styles.profile_header}>
           <h1>Profile Details</h1>
-          <p>Add your details to create a personal touch to your
-            profile.</p>
+          <p>Add your details to create a personal touch to your profile.</p>
         </header>
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(handleSaveForm)}
-                className={styles.form_container}
-          >
+          <form onSubmit={handleSubmit(handleSaveForm)} className={styles.form_container}>
             <div className={styles.picture_container}>
               <div className={styles.picture_content}>
                 <p>Profile picture</p>
@@ -215,49 +196,44 @@ const DashboardProfile = () => {
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
-                      style={{display: 'none'}}
+                      style={{ display: 'none' }}
                     />
                     <div className={styles.svg_group}>
                       {renderImage()}
-
                     </div>
                   </div>
-                  <p>Image must be below 1024x1024px. Use PNG or JPG
-                    format.</p>
+                  <p>Image must be below 1024x1024px. Use PNG or JPG format.</p>
                 </div>
               </div>
             </div>
             <div className={styles.details_container}>
               <div className={styles.input_container}>
                 <label htmlFor="first_name">First name*</label>
-                <input {...register('first_name')} type="text"/>
-                {errors.first_name && <p
-                  className={styles.error_text}>{errors.first_name.message}</p>}
+                <input {...register('first_name')} type="text" />
+                {errors.first_name && <p className={styles.error_text}>{errors.first_name.message}</p>}
               </div>
               <div className={styles.input_container}>
                 <label htmlFor="last_name">Last name*</label>
-                <input {...register('last_name')} type="text"/>
-                {errors.last_name && <p
-                  className={styles.error_text}>{errors.last_name.message}</p>}
+                <input {...register('last_name')} type="text" />
+                {errors.last_name && <p className={styles.error_text}>{errors.last_name.message}</p>}
               </div>
               <div className={styles.input_container}>
                 <label htmlFor="email">Email</label>
-                <input {...register('email')} type="email"/>
-                {errors.email &&
-                  <p
-                    className={styles.error_text}>{errors.email.message}</p>}
+                <input {...register('email')} type="email" />
+                {errors.email && <p className={styles.error_text}>{errors.email.message}</p>}
               </div>
             </div>
-            <button type="button"
-                    onClick={handleSaveForm}
-
-            >Save
-            </button>
-            <button type="button" onClick={handleTestButton}>Test
-            </button>
           </form>
         </FormProvider>
       </div>
+      <footer className={styles.footer}>
+        <button type="button" onClick={handleSaveForm} disabled={!isFormChanged && isClient}>
+          Save
+        </button>
+        <button type="submit" onClick={handleSignOut}>
+          Sign Out
+        </button>
+      </footer>
     </div>
   );
 };
