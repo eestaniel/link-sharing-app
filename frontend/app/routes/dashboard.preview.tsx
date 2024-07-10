@@ -37,13 +37,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  console.log(responseBody)
-
   console.log(`Time to validate access Token for Preview Page: ${Date.now() - start}ms`);
   // Only authenticate, no data return needed
+  const { links, profile } = responseBody;
   return {
-    loaderLinks: responseBody.links,
-    loaderDetails: responseBody.profile
+    links,
+    profile
   }
 };
 
@@ -59,15 +58,15 @@ const DashboardPreview = () => {
     setUserLinks: state.setUserLinks,
     setUserDetails: state.setUserDetails
   }));
-  const {loaderLinks, loaderDetails} = useLoaderData() as any;
+  const {links, profile} = useLoaderData() as any;
 
   useEffect(() => {
-    if (loaderLinks && loaderDetails) {
-      setUserLinks(loaderLinks);
-      setUserDetails(loaderDetails);
+    if (links && profile) {
+      setUserLinks(links);
+      setUserDetails(profile);
 
     }
-  }, [loaderLinks, loaderDetails]);
+  }, [links, profile]);
 
 
   const renderLinksContent = () => {

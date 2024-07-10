@@ -9,7 +9,7 @@ import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
-import {getUserLinks} from "~/services/user-services"
+import {getUserLinks, getAll} from "~/services/user-services"
 
 // Define zod schema for link URLs
 const linkSchema = z.object({
@@ -42,9 +42,9 @@ export const loader: LoaderFunction = async ({request}) => {
     });
   }
 
-  const userLinks = await getUserLinks(accessToken);
+  const {links, error} = await getAll(accessToken);
 
-  if (userLinks.error) {
+  if (error) {
     // remove cookie
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
@@ -52,8 +52,7 @@ export const loader: LoaderFunction = async ({request}) => {
   }
 
   console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);
-
-  return userLinks;
+  return links;
 };
 
 const DashboardLinks = () => {
@@ -83,22 +82,13 @@ const DashboardLinks = () => {
   const isLoad = transition.state === 'loading';
 
 
-  interface data {
-    links: {
-      id: string;
-      platform: string;
-      url: string;
-    }[];
-  }
-
-
-  const data = useLoaderData() as data;
+  const links = useLoaderData() as any;
 
   useEffect(() => {
-    if (data) {
-      console.log('has data', data)
-      setUserLinks(data.links);
-      methods.reset(data.links)
+    if (links) {
+      console.log("Links", links);
+      setUserLinks(links);
+      methods.reset(links)
     }
   }, []);
 
@@ -144,8 +134,7 @@ const DashboardLinks = () => {
   };
 
   const handleTest = async (data: LinkFormInputs) => {
-    console.log(userLinks);
-    console.log('current form data', data);
+
   };
 
   const renderLinksContent = useMemo(() => {

@@ -37,48 +37,19 @@ export class UsersController {
     return this.usersService.findOrCreateUser(id, email);
   }
 
-
-  // Get links for a user by user ID (POST)
-  @Post('get-links')
-  async getLinks(@Req() req: Request): Promise<any> {
-
-    const userCache = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
-
-    if (!userCache || userCache.user_links.length === 0) {
-      console.log('returning user links from database')
-      return this.usersService.getLinks(req.body.user_id);
-    }
-    console.log('returning user links from cache')
-    return {links: userCache.user_links};
-
-
-  }
-
-
-  @Post('get-profile')
-  async getProfile(@Req() req: Request): Promise<any> {
-    const userCache = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
-    if (!userCache || !userCache.user_profile.first_name && !userCache.user_profile.last_name && !userCache.user_profile.email) {
-      console.log('returning user profile from database')
-      return this.usersService.getProfile(req.body.user_id);
-    }
-    console.log(userCache)
-    console.log('returning user profile from cache')
-    return {profile: userCache.user_profile};
-  }
-
   @Get('get-preview')
   async getPreview(@Req() req: Request): Promise<any> {
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
-
     if (!userCache) {
+
       // fetch user links and profile from database
-      const links = await this.usersService.getLinks(req.body.user_id);
-      const profile = await this.usersService.getProfile(req.body.user_id);
+      const {links} = await this.usersService.getLinks(req.body.user_id);
+      const {profile} = await this.usersService.getProfile(req.body.user_id);
 
       // save user links and profile to cache
       await this.cacheManager.set(req.body.user_id, {user_links: links, user_profile: profile});
 
+      console.log('returning user links and profile from database')
 
       return {links, profile};
     }

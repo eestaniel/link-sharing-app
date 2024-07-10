@@ -1,8 +1,9 @@
-import {useMemo} from 'react';
+import {useMemo, useState} from 'react';
 import {useLinksStore} from '~/store/LinksStore';
 import styles from './Navigation.module.css';
 import {useLocation} from "react-router";
 import {useFetcher} from "@remix-run/react"
+import {redirect} from "@remix-run/node"
 
 
 const Navigation = () => {
@@ -10,15 +11,30 @@ const Navigation = () => {
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
   }));
+
+  const [previousPage, setPreviousPage] = useState('');
   const location = useLocation();
   const path = location.pathname;
   const fetcher = useFetcher();
 
 
-  const handlePageChange = async (page: string) => {
+  const handlePageChange = async (next_page: string) => {
     const formData = new FormData();
-    formData.append('page', page);
+    setPreviousPage(path);
+    formData.append('page', next_page);
     fetcher.submit(formData, {method: 'post'});
+  }
+
+  const handlePreviousPage = async () => {
+    console.log(previousPage)
+    if (previousPage) {
+      const formData = new FormData();
+      formData.append('page', previousPage);
+      formData.append('action', 'change-page');
+      fetcher.submit(formData, {method: 'post', action: '/auth'});
+    } else {
+
+    }
   }
 
   // Memoize the logo rendering based on sessionId
@@ -69,7 +85,13 @@ const Navigation = () => {
           </>
         )
       case '/dashboard/preview':
-        return <>Hellow world</>
+        return (
+          <>
+          <button onClick={handlePreviousPage}>Back to Editor</button>
+          <button>Share Link</button>
+
+          </>
+        )
       default:
         return (
           <svg xmlns="http://www.w3.org/2000/svg" width="183" height="40"

@@ -8,7 +8,7 @@ import {useEffect, useRef, useState} from "react";
 import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react"
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
-import {getProfile} from "~/services/user-services"
+import {getProfile, getAll} from "~/services/user-services"
 import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
 import {supabase} from "~/services/supabaseClient"
 
@@ -49,21 +49,18 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
+  const {profile, error} = await getAll(accessToken);
 
-  const userProfile = await getProfile(accessToken);
 
-
-  if (userProfile.error) {
+  if (error) {
     // remove cookie
     return redirect("/", {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
-  console.log('dashboard profile url:', userProfile.profile.url)
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
-
-  return userProfile;
+  return profile;
 
 }
 
@@ -98,12 +95,12 @@ const DashboardProfile = () => {
   const transition = useNavigation();
   const isLoading = transition.state === 'loading';
 
-  const data: Jsonify<ProfileLoaderData> = useLoaderData<ProfileLoaderData>();
+  const profile: Jsonify<ProfileLoaderData> = useLoaderData<ProfileLoaderData>();
 
   useEffect(() => {
-    if (data.profile) {
-      setUserDetails(data.profile);
-      methods.reset(data.profile);
+    if (profile) {
+      setUserDetails(profile);
+      methods.reset(profile);
     }
   }, []);
 

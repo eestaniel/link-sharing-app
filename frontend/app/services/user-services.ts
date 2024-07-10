@@ -14,20 +14,34 @@ export const validateAccessToken = async (accessToken: string) => {
   return data;
 }
 
-export const getProfile = async (accessToken: string) => {
-  const res = await fetch('http://localhost:3000/api/users/get-profile', {
-    method: 'POST',
+export const getAll = async (accessToken: string) => {
+  const res = await fetch('http://localhost:3000/api/users/get-preview', {
+    method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`
     }
   });
-  const data = await res.json();
+  const {links, profile, error} = await res.json();
 
-  if (data.error) {
-    return {error: data.error};
+  if (error) {
+    return {error: error};
   }
+  return {links: links, profile: profile};
+}
 
-  return data;
+export const getProfile = async (accessToken: string) => {
+  const res = await fetch('http://localhost:3000/api/users/get-profile', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+  const {profile, error} = await res.json();
+
+  if (error) {
+    return {error: error};
+  }
+  return {profile: profile};
 }
 
 

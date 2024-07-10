@@ -25,8 +25,6 @@ export class AuthGuard implements CanActivate {
     }
 
 
-
-
     try {
       // flag to check if token is in cache
       let updateCacheToken = false;

@@ -35,10 +35,22 @@ export const action: ActionFunction = async ({request}) => {
       return await saveLinks(formData, request);
     case 'save-profile':
       return await saveProfile(formData, request);
+    case 'change-page':
+      return changePage(formData, request);
     default:
       return json({error: 'Unsupported action'}, {status: 400});
   }
 };
+
+const changePage = async (formData: FormData, request: any) => {
+  const page = formData.get('page') as string;
+  console.log(page)
+  if (!page) {
+    return redirect('/dashboard/links')
+  }
+  return redirect(page);
+
+}
 
 const getLinks = async (formData: FormData, request: any) => {
   // Get the access token from the session cookie
@@ -80,21 +92,16 @@ const getProfile = async (formData: FormData, request: any) => {
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
-
   // if no access token throw redirect /
   if (!accessToken) {
     return redirect("/");
   }
 
   const response = await fetch('http://localhost:3000/api/users/get-profile', {
-    method: 'POST',
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({
-      user_id: formData.get('user_id'),
-    }),
   });
 
   let responseBody = await response.json();

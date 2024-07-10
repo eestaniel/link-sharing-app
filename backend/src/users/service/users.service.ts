@@ -223,8 +223,6 @@ export class UsersService {
       email: body.email,
     };
 
-    console.log('file: ', file);
-
     if (file && file.buffer) {
       // get files from user folder
       const {data: files, error: filesError} = await this.supabaseService
@@ -233,7 +231,6 @@ export class UsersService {
                                                          .from('profile_pictures')
                                                          .list(`images/${req.user_id}`);
 
-      console.log('files: ', files)
 
       // delete files from user folder. promise.wait all
       if (files && files.length > 0) {

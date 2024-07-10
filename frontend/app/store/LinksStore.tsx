@@ -16,6 +16,8 @@ interface LinksStore {
   setSessionId: (sessionId: string) => void;
   currentPage: string;
   setCurrentPage: (currentPage: string) => void;
+  previousPage: string;
+  setPreviousPage: (previousPage: string) => void;
   userDetails: UserObject;
   userLinks: LinkObject[];  // Array of link objects
   setUserLinks: (links: Link[]) => void;  // Updated to handle setting links
@@ -29,6 +31,7 @@ interface LinksStore {
 export const useLinksStore = create<LinksStore>((set) => ({
   sessionId: '',
   currentPage: '',
+  previousPage: '',
   userLinks: [],
   userDetails: {
     first_name: '',
@@ -40,6 +43,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
 
   setSessionId: (sessionId) => set({ sessionId }),
   setCurrentPage: (currentPage) => set({ currentPage }),
+  setPreviousPage: (previousPage) => set({ previousPage }),
 
   setUserLinks: (links) => set({ userLinks: links }),
 

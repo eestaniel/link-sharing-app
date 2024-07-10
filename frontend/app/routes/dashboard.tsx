@@ -3,13 +3,9 @@ import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import {LoaderFunction} from "@remix-run/node";
 import styles from '../styles/Dashboard.module.css';
+import {red} from "kleur/colors"
 
-export const loader: LoaderFunction = async ({request}) => {
 
-  redirect('/dashboard/links')
-
-  return {message: "This is a secret message from the server!"};
-}
 
 export const action = async ({request}: any) => {
   const formData = await request.formData();
