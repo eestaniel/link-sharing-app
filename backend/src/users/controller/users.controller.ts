@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Get,
   Inject,
   Post,
   Req,
@@ -67,6 +67,26 @@ export class UsersController {
     return {profile: userCache.user_profile};
   }
 
+  @Get('get-preview')
+  async getPreview(@Req() req: Request): Promise<any> {
+    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
+
+    if (!userCache) {
+      // fetch user links and profile from database
+      const links = await this.usersService.getLinks(req.body.user_id);
+      const profile = await this.usersService.getProfile(req.body.user_id);
+
+      // save user links and profile to cache
+      await this.cacheManager.set(req.body.user_id, {user_links: links, user_profile: profile});
+
+
+      return {links, profile};
+    }
+
+    const links = userCache.user_links;
+    const profile = userCache.user_profile;
+    return {links, profile};
+  }
 
   // Functions to save Links and Profile data
   @Post('save-links')

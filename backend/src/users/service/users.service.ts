@@ -93,10 +93,11 @@ export class UsersService {
     }
 
 
-      return JSON.stringify({links: newArray || []});
+    return {links: newArray};
   }
 
-  async getProfile(user_id: string): Promise<string> {
+
+  async getProfile(user_id: string): Promise<any> {
     //get userID from supabase using accessToken
 
     if (!user_id) {
@@ -112,16 +113,16 @@ export class UsersService {
     if (error) {
       return JSON.stringify({error: error.message});
     }
-/*     let publicUrl: any = ''
-    if (data[0].profile_picture_url) {
-      const {data: link} = this.supabaseService
-                               .getClient()
-                               .storage
-                               .from('profile_pictures')
-                               .getPublicUrl(`${data[0].profile_picture_url}`)
+    /*     let publicUrl: any = ''
+     if (data[0].profile_picture_url) {
+     const {data: link} = this.supabaseService
+     .getClient()
+     .storage
+     .from('profile_pictures')
+     .getPublicUrl(`${data[0].profile_picture_url}`)
 
-      publicUrl = link
-    }  */
+     publicUrl = link
+     }  */
 
     const profile = {
       first_name: data[0].first_name,
@@ -129,9 +130,6 @@ export class UsersService {
       email: data[0].email,
       url: data[0].profile_picture_url
     }
-
-    console.log('database profile: ', profile)
-
 
     // save to cache
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
@@ -146,16 +144,7 @@ export class UsersService {
       })
 
     }
-
-
-    return JSON.stringify({
-      profile: {
-        first_name: data[0].first_name,
-        last_name: data[0].last_name,
-        email: data[0].email,
-        url: data[0].profile_picture_url
-      }
-    });
+    return {profile: profile};
   }
 
 
@@ -223,38 +212,42 @@ export class UsersService {
   }
 
 
-  async saveProfile(file: Express.Multer.File, body: any, req: any): Promise<string> {
-    const profile_to_save = {
+  async saveProfile(
+    file: Express.Multer.File,
+    body: { first_name: string; last_name: string; email: string },
+    req: any,
+  ): Promise<string> {
+    const profileToSave = {
       first_name: body.first_name,
       last_name: body.last_name,
       email: body.email,
-    }
-    console.log('saving profile: ', body, file)
-    if (file || file !== undefined) {
-      // user pictures from public/$user_id/
-      const {
-        data: storageData,
-        error: storageError
-      } = await this.supabaseService
+    };
+
+    console.log('file: ', file);
+
+    if (file && file.buffer) {
+      // get files from user folder
+      const {data: files, error: filesError} = await this.supabaseService
+                                                         .getClient()
+                                                         .storage
+                                                         .from('profile_pictures')
+                                                         .list(`images/${req.user_id}`);
+
+      console.log('files: ', files)
+
+      // delete files from user folder. promise.wait all
+      if (files && files.length > 0) {
+        const deletePromises = files.map(async (file) => {
+          await this.supabaseService
                     .getClient()
                     .storage
                     .from('profile_pictures')
-                    .list(`images/${req.user_id}/`);
-      if (storageError) {
-        return JSON.stringify({error: storageError.message});
+            // @ts-ignore
+                    .remove(`images/${req.user_id}/${file.name}`);
+        });
+        await Promise.all(deletePromises);
       }
 
-      // map through storageData and delete all the files
-      await Promise.all(storageData.map(async (file: any) => {
-        await this.supabaseService
-                  .getClient()
-                  .storage
-                  .from('profile_pictures')
-                  .remove([`images/${req.user_id}/${file.name}`]);
-      }))
-
-
-      // upload file to storage
       const {
         data: newStorage,
         error: newStorageError
@@ -262,65 +255,80 @@ export class UsersService {
                     .getClient()
                     .storage
                     .from('profile_pictures')
-                    .upload(`images/${req.user_id}/${file.originalname}`, file.buffer,
-                      {
-                        cacheControl: '3600',
-                        upsert: true
-                      }
-                    );
+                    .upload(`images/${req.user_id}/${file.originalname}`, file.buffer, {
+                      cacheControl: '3600',
+                      upsert: true,
+                      contentType: file.mimetype,
+                    });
 
       if (newStorageError) {
+        console.log('newStorageError: ', newStorageError.message)
         return JSON.stringify({error: newStorageError.message});
       }
 
-      // update profile_picture_url in users table
-      profile_to_save['profile_picture_url'] = newStorage.path
+      const {data: fileURLData} = this.supabaseService.getClient()
+                                      .storage
+                                      .from('profile_pictures')
+                                      .getPublicUrl(newStorage.path)
+
+      profileToSave['profile_picture_url'] = fileURLData.publicUrl;
     }
 
+    const {data: updatedData, error: updatedError} = await this.supabaseService
+                                                               .getClient()
+                                                               .from('users')
+                                                               .upsert(
+                                                                 {
+                                                                   id: req.user_id,
+                                                                   ...profileToSave,
+                                                                 },
+                                                                 {
+                                                                   onConflict: 'id',
+                                                                 },
+                                                               )
+                                                               .select();
 
-    // update user profile on supobase
-    const {
-      data: updatedData,
-      error: updatedError
-    } = await this.supabaseService
-                  .getClient()
-                  .from('users')
-                  .upsert({
-                    id: req.user_id,
-                    ...profile_to_save
-                  }, {
-                    onConflict: "id"
-                  })
-                  .select()
     if (updatedError) {
+      console.log('updatedError: ', updatedError.message)
       return JSON.stringify({error: updatedError.message});
     }
 
-    // update cache with new information
+    await this.updateCache(req.user_id, profileToSave);
 
-    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.user_id)
+    return JSON.stringify({message: 'Profile picture uploaded successfully'});
+  }
+
+
+  private getFileExtension(filename: string): string {
+    return filename.split('.').pop();
+  }
+
+
+  private async updateCache(userId: string, profileToSave: any): Promise<string> {
+    const userCache = await this.cacheManager.get<any>(userId);
+
     if (userCache?.user_profile.first_name) {
-      userCache.user_profile.first_name = profile_to_save.first_name
-      userCache.user_profile.last_name = profile_to_save.last_name
-      userCache.user_profile.email = profile_to_save.email
-      if (profile_to_save['profile_picture_url']) {
-        userCache.user_profile.url = profile_to_save['profile_picture_url']
+      userCache.user_profile.first_name = profileToSave.first_name;
+      userCache.user_profile.last_name = profileToSave.last_name;
+      userCache.user_profile.email = profileToSave.email;
+
+      if (profileToSave['profile_picture_url']) {
+        userCache.user_profile.url = profileToSave['profile_picture_url'];
       }
 
-      await this.cacheManager.set(req.user_id, userCache);
+      await this.cacheManager.set(userId, userCache);
     } else {
-      await this.cacheManager.set(req.user_id, {
+      await this.cacheManager.set(userId, {
         refresh_token: '',
         user_links: [],
         user_profile: {
-          first_name: body.first_name,
-          last_name: body.last_name,
-          email: body.email,
-          url: profile_to_save['profile_picture_url']
-        }
-      })
+          first_name: profileToSave.first_name,
+          last_name: profileToSave.last_name,
+          email: profileToSave.email,
+          url: profileToSave['profile_picture_url'],
+        },
+      });
     }
-
 
 
     return JSON.stringify({message: "Profile picture uploaded successfully"});

@@ -16,6 +16,7 @@
     flex-grow: 1;
 
     .profile_header {
+
       h1 {
         /* font */
         font-family: "Instrument Sans", serif;

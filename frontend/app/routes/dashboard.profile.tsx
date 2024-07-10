@@ -59,16 +59,7 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
-  if (userProfile.profile.url) {
-    const {data: publicUrl} = supabase
-      .storage
-      .from('profile_pictures')
-      .getPublicUrl(userProfile.profile.url)
-    console.log('getting url: ', publicUrl)
-    userProfile.profile.url = publicUrl.publicUrl
-  }
-
-  console.log('new userProfile: ', userProfile)
+  console.log('dashboard profile url:', userProfile.profile.url)
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
 
@@ -159,8 +150,25 @@ const DashboardProfile = () => {
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file: any = event.target.files?.[0];
     if (file) {
+
+      // check if file is an image (jpg, jpeg, png)
+      if (!file.type.includes('image')) {
+        alert('Invalid file type. Allowed types are jpg, jpeg, png.');
+        return
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Max image size is 5MB.');
+        return
+      }
+
+      if (file.width > 1024 || file.height > 1024) {
+        alert('Image must be below 1024x1024px.');
+        return
+      }
+
       // Creating an object URL for efficient rendering
       const url = URL.createObjectURL(file);
       setImageData({url, file: file});

@@ -8,7 +8,7 @@ import { LinkMenuIcons } from "~/components/links_menu/LinkMenuIcons";
 import { RightArrowIcon } from "~/assets/svgs/IconSVGs";
 import { LoaderFunction, redirect } from "@remix-run/node";
 import { sessionCookie } from "~/utils/sessionCookie";
-import { useFetcher } from "@remix-run/react";
+import {useFetcher, useLoaderData} from "@remix-run/react";
 import { useEffect } from "react";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -26,8 +26,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   // Verify the access token without fetching user data
-  const response = await fetch("http://localhost:3000/api/auth/validate", {
-    method: "POST",
+  const response = await fetch("http://localhost:3000/api/users/get-preview", {
+    method: "GET",
     headers: { "Authorization": `Bearer ${accessToken}` },
   });
   const responseBody = await response.json();
@@ -37,9 +37,14 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
+  console.log(responseBody)
+
   console.log(`Time to validate access Token for Preview Page: ${Date.now() - start}ms`);
   // Only authenticate, no data return needed
-  return null;
+  return {
+    loaderLinks: responseBody.links,
+    loaderDetails: responseBody.profile
+  }
 };
 
 const DashboardPreview = () => {
@@ -54,45 +59,16 @@ const DashboardPreview = () => {
     setUserLinks: state.setUserLinks,
     setUserDetails: state.setUserDetails
   }));
-  const fetcher = useFetcher();
+  const {loaderLinks, loaderDetails} = useLoaderData() as any;
 
   useEffect(() => {
-    // Check Local Storage for user details
-    const storedUserDetails = localStorage.getItem('user_details');
-    if (storedUserDetails && storedUserDetails !== 'undefined' && storedUserDetails !== null) {
-      setUserDetails(JSON.parse(storedUserDetails));
-    } else {
-      // Fetch user details if not in local storage
-      const formData = new FormData();
-      formData.append('action', 'get-profile');
-      fetcher.submit(formData, { method: 'post', action: '/auth' });
-    }
+    if (loaderLinks && loaderDetails) {
+      setUserLinks(loaderLinks);
+      setUserDetails(loaderDetails);
 
-    // Check Local Storage for user links
-    const storedUserLinks = localStorage.getItem('user_links');
-    if (storedUserLinks && storedUserLinks !== 'undefined' && storedUserLinks !== null) {
-      setUserLinks(JSON.parse(storedUserLinks));
-    } else {
-      // Fetch user links if not in local storage
-      const formData = new FormData();
-      formData.append('action', 'get-links');
-      fetcher.submit(formData, { method: 'post', action: '/auth' });
     }
-  }, []);
+  }, [loaderLinks, loaderDetails]);
 
-  useEffect(() => {
-    // Handle fetcher data for user details
-    if (fetcher.data?.profile) {
-      setUserDetails(fetcher.data.profile);
-      localStorage.setItem('user_details', JSON.stringify(fetcher.data.profile));
-    }
-
-    // Handle fetcher data for user links
-    if (fetcher.data?.links) {
-      setUserLinks(fetcher.data.links);
-      localStorage.setItem('user_links', JSON.stringify(fetcher.data.links));
-    }
-  }, [fetcher.data, setUserLinks, setUserDetails]);
 
   const renderLinksContent = () => {
     if (userLinks.length === 0) {
@@ -128,7 +104,7 @@ const DashboardPreview = () => {
     <div className={styles.preview_container}>
       <section className={styles.picture_header_container}>
         <div className={styles.picture_container}>
-          <img src={userDetails?.url?.publicUrl} alt="dashboard preview" />
+          <img src={userDetails?.url} alt="dashboard preview" />
         </div>
         <header className={styles.header_group}>
           <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>

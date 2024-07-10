@@ -103,12 +103,6 @@ const DashboardLinks = () => {
   }, []);
 
 
-  useEffect(() => {
-    if (userLinks) {
-      console.log('userLinks', userLinks)
-    }
-  }, [userLinks]);
-
   const {
     handleSubmit,
     setValue,
@@ -176,8 +170,8 @@ const DashboardLinks = () => {
     <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(handleSaveLinks)}>
-          <div className={styles.container}>
-            <section className={styles.content}>
+          <div className={styles.dashboard_container}>
+            <section className={styles.dashboard_content}>
               <header className={styles.header}>
                 <h1>Customize your links</h1>
                 <p>Add/edit/remove links below and then share all your
