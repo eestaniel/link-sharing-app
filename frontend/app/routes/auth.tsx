@@ -44,7 +44,6 @@ export const action: ActionFunction = async ({request}) => {
 
 const changePage = async (formData: FormData, request: any) => {
   const page = formData.get('page') as string;
-  console.log(page)
   if (!page) {
     return redirect('/dashboard/links')
   }

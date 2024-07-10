@@ -73,7 +73,7 @@ export default function Index() {
   }, [currentPage]);
 
   return (
-    <div className={`${styles.container} ${path === '/' && styles.home_page} `}>
+    <div className={`${styles.main_content} ${path === '/' && styles.home_page} `}>
       <Navigation/>
       <div className={styles.content}>
         {renderPage}

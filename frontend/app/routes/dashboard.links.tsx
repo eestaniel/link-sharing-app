@@ -77,7 +77,6 @@ const DashboardLinks = () => {
 
   useEffect(() => {
     if (links) {
-      console.log("Links", links);
       setUserLinks(links);
       methods.reset({links});
     }
@@ -131,12 +130,8 @@ const DashboardLinks = () => {
 
 
   useEffect(() => {
-    console.log('userLinks: ', userLinks);
     const subscription = methods.watch((value, { name, type }) => {
-      console.log('value: ', value.links);
-      console.log(JSON.stringify(value.links), JSON.stringify(userLinks));
-      console.log(JSON.stringify(value.links) === JSON.stringify(userLinks));
-      const isDifferent = (
+    const isDifferent = (
         JSON.stringify(value.links) !== JSON.stringify(userLinks)
       );
       setIsFormChanged(isDifferent);

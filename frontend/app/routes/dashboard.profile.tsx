@@ -82,6 +82,7 @@ const DashboardProfile = () => {
     if (profile) {
       setUserDetails(profile);
       methods.reset(profile);
+      console.log("Profile data loaded", profile)
     }
   }, [profile]);
 

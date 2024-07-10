@@ -143,8 +143,9 @@ const Navigation = () => {
     }
   }, [currentPage, handlePageChange]);
 
+
   return (
-    <div className={styles.container}>
+    <div className={`${styles.navigation_container} ${path === '/' && styles.home}`}>
       {logo}
     </div>
   );

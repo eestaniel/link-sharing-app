@@ -76,7 +76,7 @@ const Login = () => {
   }
 
   return (
-      <div className={styles.container}>
+      <div className={styles.login_container}>
         <header className={styles.header}>
           <h1>Login</h1>
           <h2>Add your details below to get back into the app</h2>

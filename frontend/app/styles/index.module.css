@@ -1,22 +1,19 @@
-.container{
+.main_content {
   display: flex;
   flex-direction: column;
-  max-height: 100vh;
-  justify-content: start;
-  align-items: center;
+  width: 100%;
   flex-grow: 1;
-
-
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    flex-grow: 1;
-    padding-top: 4rem;
-  }
+  justify-content: start;
+  gap: 4rem;
 }
 
-.home_page {
-  background-color: white;
+
+
+
+@media screen and (min-width: 768px) {
+  .main_content {
+    justify-content: center;
+    gap: 2.188rem;
+
+  }
 }

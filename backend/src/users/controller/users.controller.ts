@@ -40,7 +40,6 @@ export class UsersController {
   async getPreview(@Req() req: Request): Promise<any> {
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.body.user_id);
 
-    console.log('userCache', userCache)
     if (!userCache) {
 
       // fetch user links and profile from database

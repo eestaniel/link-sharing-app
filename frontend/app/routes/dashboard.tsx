@@ -12,9 +12,7 @@ export const action = async ({request}: any) => {
 
   const actionType = formData.get('action') as string;
 
-  console.log('page', page)
   if (page) {
-    console.log('page', page)
     switch (page) {
       case 'edit-links':
       case '/dashboard/links':
@@ -76,7 +74,6 @@ const saveLinks = async (formData: any, request: any) => {
 
 const Dashboard = () => {
 
-  console.log()
 
   return (
     <div className={styles.page_container}>

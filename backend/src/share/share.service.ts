@@ -15,7 +15,6 @@ export class ShareService {
     let start = Date.now();
     const {id: uuid} = id as {id: string}
 
-    console.log('uuid', uuid)
 
     // find user in supabase where user's share_uuid matches id
     // return user's share_uuid

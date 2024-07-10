@@ -122,12 +122,14 @@ export class UsersService {
       share_uuid: data[0].share_uuid
     }
 
+
     // save to cache
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
     if (userCache) {
       userCache.user_profile = profile
       await this.cacheManager.set(user_id, userCache);
     } else {
+      console.log('cache here: ', userCache)
       await this.cacheManager.set(user_id, {
         refresh_token: '',
         user_links: [],

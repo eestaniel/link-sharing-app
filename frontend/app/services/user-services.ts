@@ -23,6 +23,8 @@ export const getData = async (accessToken: string) => {
   });
   const {links, profile, error} = await res.json();
 
+  console.log('profile', profile)
+
   if (error) {
     return {error: error};
   }

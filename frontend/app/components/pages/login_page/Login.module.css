@@ -1,10 +1,11 @@
-.container {
+.login_container {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
   max-width: 19.438rem;
   margin-inline: auto;
   background-color: white;
+  border-radius: 0.75rem;
 
   .header {
     display: flex;
@@ -141,6 +142,28 @@
       }
     }
   }
+}
 
+@media screen and (min-width: 768px) {
+  .login_container {
+    max-width: 29.75rem;
+    padding: 2.5rem;
+    gap: 2.5rem;
 
+    .header {
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .form_container {
+
+      .footer_group {
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+    }
+  }
 }

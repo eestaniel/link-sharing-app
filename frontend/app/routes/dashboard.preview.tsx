@@ -59,7 +59,7 @@ const DashboardPreview = () => {
       setUserLinks(links);
       setUserDetails(profile);
 
-      console.log(links)
+
 
     }
   }, [links, profile]);
