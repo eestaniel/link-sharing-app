@@ -1,24 +1,26 @@
 import {Outlet} from "@remix-run/react"
-import {LoaderFunction, redirect} from "@remix-run/node";
+import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
 import {sessionCookie} from "~/utils/sessionCookie"
-import {getData} from "~/services/user-services";
+
 
 export const action = async ({request}: any) => {
 
   const formData = await request.formData();
   const page = formData.get('page') as string;
 
-  console.log('here')
   const actionType = formData.get('action') as string;
 
-
+  console.log('page', page)
   if (page) {
+    console.log('page', page)
     switch (page) {
       case 'edit-links':
+      case '/dashboard/links':
         return redirect('/dashboard/links')
       case 'edit-profile':
+      case '/dashboard/profile':
         return redirect('/dashboard/profile')
       case 'preview-links':
         return redirect('/dashboard/preview')
