@@ -20,6 +20,8 @@
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   background-color: var(--light-grey);
-  min-height: 100vh;
+  height: 100vh;
 }
