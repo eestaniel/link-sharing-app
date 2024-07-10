@@ -150,6 +150,7 @@ export class UsersService {
 
   // save links
   async saveLinks(user_id: string, links: {
+    id: string,
     platform: string,
     url: string
   }[]): Promise<any> {
@@ -205,10 +206,15 @@ export class UsersService {
       return JSON.stringify({error: error.message});
     }
 
+    // update cache with new links
+    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
+    if (userCache) {
+      userCache.user_links = links
+      await this.cacheManager.set(user_id, userCache);
+    }
 
-    return JSON.stringify({
-      links: links
-    });
+
+    return {message: "Links saved successfully"};
   }
 
 

@@ -32,8 +32,8 @@ export const action = async ({request}: any) => {
       case 'logout':
         return redirect('/logout')
 
-      case 'get-data':
-        return getData(request)
+      case 'save-links':
+        return await saveLinks(formData, request);
 
       default:
         return redirect('/dashboard/links')
@@ -42,8 +42,37 @@ export const action = async ({request}: any) => {
 }
 
 
-const Dashboard = () => {
+const saveLinks = async (formData: any, request: any) => {
+  // Get the access token from the session cookie
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
 
+  // if no access token throw redirect /
+  if (!accessToken) {
+    return redirect("/");
+  }
+
+  const response = await fetch('http://localhost:3000/api/users/save-links', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      links: JSON.parse(formData.get('links') as string),
+    }),
+  });
+
+  let responseBody = await response.json();
+  if (responseBody.error) {
+    return {error: responseBody.error}
+  }
+
+  return {message: responseBody}
+}
+
+const Dashboard = () => {
 
   console.log()
 

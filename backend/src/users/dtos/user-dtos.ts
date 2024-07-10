@@ -14,6 +14,7 @@ export class UserCacheDto {
                          // in the DTO
 
   @IsArray()
+  @ValidateNested()
   @Type(() => UserLinks)
   user_links: UserLinks[];
 
