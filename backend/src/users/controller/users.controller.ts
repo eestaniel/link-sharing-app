@@ -62,7 +62,7 @@ export class UsersController {
       console.log('returning user profile from database')
       return this.usersService.getProfile(req.body.user_id);
     }
-
+    console.log(userCache)
     console.log('returning user profile from cache')
     return {profile: userCache.user_profile};
   }
@@ -84,17 +84,17 @@ export class UsersController {
 
   @Post('save-profile')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
+  async saveProfile(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
     @Body() body: {
       first_name: string,
       last_name: string,
       email: string,
-      profile_picture_url: string
+      url: string
     }
   ) {
-    return this.usersService.uploadFile(file, body, req)
+    return this.usersService.saveProfile(file, body, req)
   }
 
 

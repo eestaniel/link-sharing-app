@@ -273,6 +273,11 @@ const saveProfile = async (formData: FormData, request: Request) => {
 
   });
 
+  const responseBody = await response.json();
+  if (responseBody.error) {
+    return json({error: responseBody.error}, {status: 401});
+  }
+
 
   return {message: 'Profile saved'};
 };

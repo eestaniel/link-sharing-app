@@ -112,7 +112,7 @@ export class UsersService {
     if (error) {
       return JSON.stringify({error: error.message});
     }
-    let publicUrl: any = ''
+/*     let publicUrl: any = ''
     if (data[0].profile_picture_url) {
       const {data: link} = this.supabaseService
                                .getClient()
@@ -121,14 +121,17 @@ export class UsersService {
                                .getPublicUrl(`${data[0].profile_picture_url}`)
 
       publicUrl = link
-    }
+    }  */
 
     const profile = {
       first_name: data[0].first_name,
       last_name: data[0].last_name,
       email: data[0].email,
-      url: publicUrl
+      url: data[0].profile_picture_url
     }
+
+    console.log('database profile: ', profile)
+
 
     // save to cache
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
@@ -150,7 +153,7 @@ export class UsersService {
         first_name: data[0].first_name,
         last_name: data[0].last_name,
         email: data[0].email,
-        url: publicUrl
+        url: data[0].profile_picture_url
       }
     });
   }
@@ -220,52 +223,62 @@ export class UsersService {
   }
 
 
-  async uploadFile(file: Express.Multer.File, body: any, req: any): Promise<string> {
-    // user pictures from public/$user_id/
-    const {
-      data: storageData,
-      error: storageError
-    } = await this.supabaseService
+  async saveProfile(file: Express.Multer.File, body: any, req: any): Promise<string> {
+    const profile_to_save = {
+      first_name: body.first_name,
+      last_name: body.last_name,
+      email: body.email,
+    }
+    console.log('saving profile: ', body, file)
+    if (file || file !== undefined) {
+      // user pictures from public/$user_id/
+      const {
+        data: storageData,
+        error: storageError
+      } = await this.supabaseService
+                    .getClient()
+                    .storage
+                    .from('profile_pictures')
+                    .list(`images/${req.user_id}/`);
+      if (storageError) {
+        return JSON.stringify({error: storageError.message});
+      }
+
+      // map through storageData and delete all the files
+      await Promise.all(storageData.map(async (file: any) => {
+        await this.supabaseService
                   .getClient()
                   .storage
                   .from('profile_pictures')
-                  .list(`images/${req.user_id}/`);
-    if (storageError) {
-      return JSON.stringify({error: storageError.message});
+                  .remove([`images/${req.user_id}/${file.name}`]);
+      }))
+
+
+      // upload file to storage
+      const {
+        data: newStorage,
+        error: newStorageError
+      } = await this.supabaseService
+                    .getClient()
+                    .storage
+                    .from('profile_pictures')
+                    .upload(`images/${req.user_id}/${file.originalname}`, file.buffer,
+                      {
+                        cacheControl: '3600',
+                        upsert: true
+                      }
+                    );
+
+      if (newStorageError) {
+        return JSON.stringify({error: newStorageError.message});
+      }
+
+      // update profile_picture_url in users table
+      profile_to_save['profile_picture_url'] = newStorage.path
     }
 
-    // map through storageData and delete all the files
-    await Promise.all(storageData.map(async (file: any) => {
-      await this.supabaseService
-                .getClient()
-                .storage
-                .from('profile_pictures')
-                .remove([`images/${req.user_id}/${file.name}`]);
-    }))
 
-
-    // upload file to storage
-    const {
-      data: newStorage,
-      error: newStorageError
-    } = await this.supabaseService
-                  .getClient()
-                  .storage
-                  .from('profile_pictures')
-                  .upload(`images/${req.user_id}/${file.originalname}`, file.buffer,
-                    {
-                      cacheControl: '3600',
-                      upsert: true
-                    }
-                  );
-
-    if (newStorageError) {
-      return JSON.stringify({error: newStorageError.message});
-    }
-
-    // update profile_picture_url in users table
-    body.profile_picture_url = newStorage.path
-
+    // update user profile on supobase
     const {
       data: updatedData,
       error: updatedError
@@ -274,10 +287,7 @@ export class UsersService {
                   .from('users')
                   .upsert({
                     id: req.user_id,
-                    first_name: body.first_name,
-                    last_name: body.last_name,
-                    email: body.email,
-                    profile_picture_url: body.profile_picture_url
+                    ...profile_to_save
                   }, {
                     onConflict: "id"
                   })
@@ -285,6 +295,33 @@ export class UsersService {
     if (updatedError) {
       return JSON.stringify({error: updatedError.message});
     }
+
+    // update cache with new information
+
+    const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(req.user_id)
+    if (userCache?.user_profile.first_name) {
+      userCache.user_profile.first_name = profile_to_save.first_name
+      userCache.user_profile.last_name = profile_to_save.last_name
+      userCache.user_profile.email = profile_to_save.email
+      if (profile_to_save['profile_picture_url']) {
+        userCache.user_profile.url = profile_to_save['profile_picture_url']
+      }
+
+      await this.cacheManager.set(req.user_id, userCache);
+    } else {
+      await this.cacheManager.set(req.user_id, {
+        refresh_token: '',
+        user_links: [],
+        user_profile: {
+          first_name: body.first_name,
+          last_name: body.last_name,
+          email: body.email,
+          url: profile_to_save['profile_picture_url']
+        }
+      })
+    }
+
+
 
     return JSON.stringify({message: "Profile picture uploaded successfully"});
   }

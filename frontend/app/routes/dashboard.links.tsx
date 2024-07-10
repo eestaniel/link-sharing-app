@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({request}) => {
   if (!accessToken) {
     // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({request}) => {
   if (userLinks.error) {
     // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 

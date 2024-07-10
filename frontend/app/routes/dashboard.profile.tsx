@@ -10,6 +10,7 @@ import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {getProfile} from "~/services/user-services"
 import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
+import {supabase} from "~/services/supabaseClient"
 
 
 // Define zod schema for profile details
@@ -58,7 +59,16 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
+  if (userProfile.profile.url) {
+    const {data: publicUrl} = supabase
+      .storage
+      .from('profile_pictures')
+      .getPublicUrl(userProfile.profile.url)
+    console.log('getting url: ', publicUrl)
+    userProfile.profile.url = publicUrl.publicUrl
+  }
 
+  console.log('new userProfile: ', userProfile)
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
 
@@ -133,10 +143,7 @@ const DashboardProfile = () => {
     formData.append("email", data.email);
     if (data.file) {
       formData.append("file", data.file);
-    } else {
-      formData.append("file", '');
     }
-
 
     fetcher.submit(formData, {
       method: "POST",
@@ -162,9 +169,9 @@ const DashboardProfile = () => {
   }
 
   const renderImage = () => {
-    if (userDetails?.url?.publicUrl && !imageData) {
+    if (userDetails?.url && !imageData) {
       return (
-        <img src={userDetails?.url?.publicUrl} alt="profile picture"/>
+        <img src={userDetails?.url} alt="profile picture"/>
       )
     } else if (imageData) {
       return (
