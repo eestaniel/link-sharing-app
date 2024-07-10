@@ -1,15 +1,15 @@
 import styles from "../styles/Dashboard.Profile.module.css";
-import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UploadImageIcon } from "~/assets/svgs/IconSVGs";
-import { useLinksStore } from "~/store/LinksStore";
-import { useEffect, useRef, useState } from "react";
-import { useFetcher, useLoaderData, useNavigation } from "@remix-run/react";
-import { LoaderFunction, redirect } from "@remix-run/node";
-import { sessionCookie } from "~/utils/sessionCookie";
-import { getData } from "~/services/user-services";
-import { Jsonify } from "@remix-run/server-runtime/dist/jsonify";
+import {FormProvider, useForm} from "react-hook-form";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {UploadImageIcon} from "~/assets/svgs/IconSVGs";
+import {useLinksStore} from "~/store/LinksStore";
+import {useEffect, useRef, useState} from "react";
+import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react";
+import {LoaderFunction, redirect} from "@remix-run/node";
+import {sessionCookie} from "~/utils/sessionCookie";
+import {getData} from "~/services/user-services";
+import {Jsonify} from "@remix-run/server-runtime/dist/jsonify";
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -21,7 +21,7 @@ const profileSchema = z.object({
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({request}) => {
   let start = Date.now();
 
   const cookieHeader = request.headers.get("Cookie");
@@ -30,20 +30,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   if (!accessToken) {
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) },
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
     });
   }
-  const { profile, error } = await getData(accessToken);
+  const {profile, error} = await getData(accessToken);
 
   if (error) {
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) },
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
     });
   }
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
   return profile;
 };
+
 
 interface ProfileLoaderData {
   profile: {
@@ -53,6 +54,7 @@ interface ProfileLoaderData {
     url?: string;
   };
 }
+
 
 const DashboardProfile = () => {
   const methods = useForm<ProfileFormInputs>({
@@ -66,7 +68,7 @@ const DashboardProfile = () => {
   });
   const fetcher = useFetcher();
 
-  const { userDetails, setUserDetails } = useLinksStore((state) => ({
+  const {userDetails, setUserDetails} = useLinksStore((state) => ({
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
   }));
@@ -86,9 +88,12 @@ const DashboardProfile = () => {
     }
   }, [profile]);
 
-  const { handleSubmit, register, formState: { errors }, watch } = methods;
+  const {handleSubmit, register, formState: {errors}, watch} = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageData, setImageData] = useState<{ url: string; file: any } | string | null>(null);
+  const [imageData, setImageData] = useState<{
+    url: string;
+    file: any
+  } | string | null>(null);
 
   const handleSaveForm = async () => {
     const data = methods.getValues();
@@ -117,7 +122,7 @@ const DashboardProfile = () => {
   const handleSignOut = async () => {
     const formData = new FormData();
     formData.append('action', 'logout');
-    fetcher.submit(formData, { method: 'post', action: '/auth' });
+    fetcher.submit(formData, {method: 'post', action: '/auth'});
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,13 +140,13 @@ const DashboardProfile = () => {
 
       // Creating an object URL for efficient rendering
       const url = URL.createObjectURL(file);
-      setImageData({ url, file });
+      setImageData({url, file});
       methods.setValue('file', file);
     }
   };
 
   useEffect(() => {
-    const subscription = methods.watch((value, { name, type }) => {
+    const subscription = methods.watch((value, {name, type}) => {
       const isDifferent = (
         value.first_name !== userDetails.first_name ||
         value.last_name !== userDetails.last_name ||
@@ -157,20 +162,20 @@ const DashboardProfile = () => {
     if (userDetails?.url && !imageData) {
       return (
         <>
-          <img src={userDetails?.url} alt="profile picture" />
+          <img src={userDetails?.url} alt="profile picture"/>
           <span className={styles.layer}>
-            <UploadImageIcon />
+            <UploadImageIcon/>
             <p>Change Image</p>
           </span>
         </>
       );
     } else if (imageData) {
       return (
-        <img src={imageData?.url} alt="profile picture" />
+        <img src={imageData?.url} alt="profile picture"/>
       );
     } else {
       return (
-        <UploadImageIcon />
+        <UploadImageIcon/>
       );
     }
   };
@@ -178,14 +183,15 @@ const DashboardProfile = () => {
   return (
     <div className={styles.profile_container}>
       <div className={styles.profile_content}>
-        <div className={styles.form_header_content}>
+        <div className={styles.form_header_container}>
           <header className={styles.profile_header}>
             <h1>Profile Details</h1>
             <p>Add your details to create a personal touch to your profile.</p>
           </header>
-          <FormProvider {...methods}>
+          <FormProvider {...methods} >
             <form onSubmit={handleSubmit(handleSaveForm)}
-                  className={styles.form_container}>
+                  className={styles.img_detail_container}
+            >
               <div className={styles.picture_container}>
                 <div className={styles.picture_content}>
                   <p>Profile picture</p>
@@ -201,7 +207,7 @@ const DashboardProfile = () => {
                         onChange={handleFileChange}
                         style={{display: 'none'}}
                       />
-                      <div className={styles.svg_group}>
+                      <div className={styles.picture_input_container}>
                         {renderImage()}
                       </div>
                     </div>
@@ -234,14 +240,16 @@ const DashboardProfile = () => {
           </FormProvider>
         </div>
       </div>
-      <footer className={styles.footer}>
-        <button type="button" onClick={handleSaveForm}
-                disabled={!isFormChanged && isClient}>
-          Save
-        </button>
-        <button type="submit" onClick={handleSignOut}>
-          Sign Out
-        </button>
+      <footer className={styles.footer_container}>
+        <div className={styles.button_group}>
+          <button type="button" onClick={handleSaveForm}
+                  disabled={!isFormChanged && isClient}>
+            Save
+          </button>
+          <button type="submit" onClick={handleSignOut}>
+            Sign Out
+          </button>
+        </div>
       </footer>
     </div>
   );
