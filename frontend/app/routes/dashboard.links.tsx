@@ -173,35 +173,44 @@ const DashboardLinks = () => {
   return (
     <>
       <FormProvider {...methods}>
-        <Form className={styles.dashboard_container} method="post"
+        <Form className={styles.dashboard_form_container} method="post"
               onSubmit={handleSubmit(handleSaveLinks)}
         >
 
-          <section className={styles.dashboard_content}>
-            <header className={styles.header}>
-              <h1>Customize your links</h1>
+          <div className={styles.dashboard_content_container}>
+            <div className={styles.dashboard_content}>
+              <section className={styles.header_links_container}>
+                <header className={styles.header}>
+                  <h1>Customize your links</h1>
 
-              <p>Add/edit/remove links below and then share all your profiles
-                with the world!</p>
-            </header>
-            <div className={styles.links_content}>
-              <button type="button"
-                      className={styles.add_link_button}
-                      onClick={handleDisplayNewLink}
-              >
+                  <p>Add/edit/remove links below and then share all your
+                    profiles
+                    with the world!</p>
+                </header>
+                <div className={styles.links_container}>
+                  <button type="button"
+                          className={styles.add_link_button}
+                          onClick={handleDisplayNewLink}
+                  >
 
-                + Add new link
-              </button>
-              {renderLinksContent}
+                    + Add new link
+                  </button>
+                  <div className={styles.links_content}>
+                    {renderLinksContent}
+                  </div>
+                </div>
+              </section>
             </div>
-          </section>
-          <footer>
-            <button type="submit"
-                    className={styles.save_button}
-                    disabled={!isFormChanged && isClient}
+            <footer>
+              <button type="submit"
+                      className={styles.save_button}
+                      disabled={!isFormChanged && isClient}
 
-            >Save</button>
-          </footer>
+              >Save
+              </button>
+            </footer>
+          </div>
+
 
           <input type="hidden" name="links"
                  value={JSON.stringify(getValues('links'))}/>

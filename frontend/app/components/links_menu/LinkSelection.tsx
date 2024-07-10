@@ -58,12 +58,12 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
       scrollRef.current?.scrollIntoView({behavior: "smooth"})
     }, []);
 
-    return <div ref={scrollRef}/>;
+    return <div  ref={scrollRef} className={styles.scroll_to_view}/>;
   }
 
   return (
     <div className={styles.form_container}>
-      <ScrollToView/>
+
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"
@@ -72,6 +72,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
           </svg>
           <p className={styles.drag_p}>Link #{index + 1}</p>
         </div>
+        <ScrollToView />
         <p className={styles.remove_text}
            onClick={handleRemoveElement}>Remove</p>
       </div>
@@ -89,7 +90,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
             render={({field}) => (
               <input
                 type="text"
-                className={`${styles.form_container}`}
+                className={`${styles.input}`}
                 onChange={field.onChange} // Ensure field updates are handled
                 onBlur={field.onBlur}
                 value={`${linkMenuList[platform]}`}
@@ -123,7 +124,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
             render={({field}) => (
               <input
                 type="text"
-                className={styles.form_container}
+                className={styles.input}
                 onChange={(e) => handleInputChange(e.target.value, field.onChange)} // Ensure field updates are handled
                 onBlur={field.onBlur}
                 value={field.value}
