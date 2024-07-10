@@ -167,7 +167,6 @@
     button {
       background-color: var(--purple);
       border: none;
-      cursor: pointer;
       width: 100%;
 
       font-family: "Instrument Sans", serif;
@@ -178,6 +177,9 @@
       padding-block: 0.688rem;
       border-radius: 0.5rem;
       color: white;
+
+      touch-action: manipulation;
+
 
 
       &:disabled {
@@ -190,6 +192,7 @@
       }
       &:hover {
         background-color: var(--purple-hover);
+        cursor: pointer;
       }
     }
 

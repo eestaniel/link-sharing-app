@@ -25,7 +25,15 @@ const linkSchema = z.object({
 type LinkFormInputs = z.infer<typeof linkSchema>;
 
 const generateUUID = () => {
-  return crypto.randomUUID();
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  } else {
+    // Fallback to another method if crypto.randomUUID is not available
+    return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return r.toString(16);
+    });
+  }
 }
 
 export const loader: LoaderFunction = async ({request}) => {
@@ -166,7 +174,8 @@ const DashboardLinks = () => {
     <>
       <FormProvider {...methods}>
         <Form className={styles.dashboard_container} method="post"
-              onSubmit={handleSubmit(handleSaveLinks)}>
+              onSubmit={handleSubmit(handleSaveLinks)}
+        >
 
           <section className={styles.dashboard_content}>
             <header className={styles.header}>
@@ -176,8 +185,11 @@ const DashboardLinks = () => {
                 with the world!</p>
             </header>
             <div className={styles.links_content}>
-              <button type="button" className={styles.add_link_button}
-                      onClick={handleDisplayNewLink}>
+              <button type="button"
+                      className={styles.add_link_button}
+                      onClick={handleDisplayNewLink}
+              >
+
                 + Add new link
               </button>
               {renderLinksContent}
