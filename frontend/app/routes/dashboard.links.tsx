@@ -134,13 +134,15 @@ const DashboardLinks = () => {
     console.log('userLinks: ', userLinks);
     const subscription = methods.watch((value, { name, type }) => {
       console.log('value: ', value.links);
+      console.log(JSON.stringify(value.links), JSON.stringify(userLinks));
+      console.log(JSON.stringify(value.links) === JSON.stringify(userLinks));
       const isDifferent = (
         JSON.stringify(value.links) !== JSON.stringify(userLinks)
       );
       setIsFormChanged(isDifferent);
     });
     return () => subscription.unsubscribe();
-  }, [methods, userLinks] );
+  }, [methods] );
 
   const renderLinksContent = useMemo(() => {
     if (userLinks) {
