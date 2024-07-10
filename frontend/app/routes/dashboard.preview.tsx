@@ -10,6 +10,7 @@ import { LoaderFunction, redirect } from "@remix-run/node";
 import { sessionCookie } from "~/utils/sessionCookie";
 import {useFetcher, useLoaderData} from "@remix-run/react";
 import { useEffect } from "react";
+import {getData} from "~/services/user-services"
 
 export const loader: LoaderFunction = async ({ request }) => {
 
@@ -26,24 +27,17 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   // Verify the access token without fetching user data
-  const response = await fetch("http://localhost:3000/api/users/get-preview", {
-    method: "GET",
-    headers: { "Authorization": `Bearer ${accessToken}` },
-  });
-  const responseBody = await response.json();
-  if (responseBody.error) {
+  const {links, profile, error} = await getData(accessToken);
+
+  if (error) {
+    // remove cookie
     return redirect("/", {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
 
   console.log(`Time to validate access Token for Preview Page: ${Date.now() - start}ms`);
-  // Only authenticate, no data return needed
-  const { links, profile } = responseBody;
-  return {
-    links,
-    profile
-  }
+  return {links, profile};
 };
 
 const DashboardPreview = () => {

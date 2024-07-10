@@ -8,7 +8,7 @@ import {useEffect, useRef, useState} from "react";
 import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react"
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
-import {getProfile, getAll} from "~/services/user-services"
+import {getData} from "~/services/user-services"
 import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
 import {supabase} from "~/services/supabaseClient"
 
@@ -49,7 +49,7 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
     });
   }
-  const {profile, error} = await getAll(accessToken);
+  const {profile, error} = await getData(accessToken);
 
 
   if (error) {

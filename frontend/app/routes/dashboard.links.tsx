@@ -9,7 +9,8 @@ import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
-import {getUserLinks, getAll} from "~/services/user-services"
+import {getData} from "~/services/user-services"
+import {Form} from "@remix-run/react"
 
 // Define zod schema for link URLs
 const linkSchema = z.object({
@@ -42,15 +43,13 @@ export const loader: LoaderFunction = async ({request}) => {
     });
   }
 
-  const {links, error} = await getAll(accessToken);
-
+  const {links, error} = await getData(accessToken);
   if (error) {
     // remove cookie
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
-
   console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);
   return links;
 };
@@ -78,8 +77,6 @@ const DashboardLinks = () => {
     }
   });
 
-  const transition = useNavigation();
-  const isLoad = transition.state === 'loading';
 
 
   const links = useLoaderData() as any;
@@ -127,7 +124,7 @@ const DashboardLinks = () => {
       const formData = new FormData();
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
-      fetcher.submit(formData, {method: "post", action: "/auth"});
+      // fetcher.submit(formData, {method: "post", action: "/auth"});
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -158,7 +155,7 @@ const DashboardLinks = () => {
   return (
     <>
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(handleSaveLinks)}>
+        <Form method={'post'} onSubmit={handleSubmit(handleSaveLinks)}>
           <div className={styles.dashboard_container}>
             <section className={styles.dashboard_content}>
               <header className={styles.header}>
@@ -181,7 +178,7 @@ const DashboardLinks = () => {
               </button>
             </footer>
           </div>
-        </form>
+        </Form>
       </FormProvider>
     </>
 

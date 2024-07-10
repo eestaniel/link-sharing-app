@@ -14,7 +14,7 @@ export const validateAccessToken = async (accessToken: string) => {
   return data;
 }
 
-export const getAll = async (accessToken: string) => {
+export const getData = async (accessToken: string) => {
   const res = await fetch('http://localhost:3000/api/users/get-preview', {
     method: 'GET',
     headers: {
