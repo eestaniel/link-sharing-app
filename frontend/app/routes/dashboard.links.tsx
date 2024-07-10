@@ -154,10 +154,14 @@ const DashboardLinks = () => {
           <div className={styles.empty_links_container}>
             <div className={styles.empty_links_content}>
               <EmptyLinksIcon/>
-              <h2>Let's get you started</h2>
-              <p>Use the “Add new link” button to get started. Once you have more
-                than one link, you can reorder and edit them. We’re here to help
-                you share your profiles with everyone!</p>
+              <div className={styles.text_group}>
+                <h2>Let's get you started</h2>
+                <p>Use the “Add new link” button to get started. Once you have
+                  more
+                  than one link, you can reorder and edit them. We’re here to
+                  help
+                  you share your profiles with everyone!</p>
+              </div>
             </div>
           </div>
         );
