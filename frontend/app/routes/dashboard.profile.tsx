@@ -178,57 +178,65 @@ const DashboardProfile = () => {
   return (
     <div className={styles.profile_container}>
       <div className={styles.profile_content}>
-        <header className={styles.profile_header}>
-          <h1>Profile Details</h1>
-          <p>Add your details to create a personal touch to your profile.</p>
-        </header>
-        <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(handleSaveForm)} className={styles.form_container}>
-            <div className={styles.picture_container}>
-              <div className={styles.picture_content}>
-                <p>Profile picture</p>
-                <div className={styles.picture_group}>
-                  <div
-                    className={styles.picture_svg_container}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ display: 'none' }}
-                    />
-                    <div className={styles.svg_group}>
-                      {renderImage()}
+        <div className={styles.form_header_content}>
+          <header className={styles.profile_header}>
+            <h1>Profile Details</h1>
+            <p>Add your details to create a personal touch to your profile.</p>
+          </header>
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(handleSaveForm)}
+                  className={styles.form_container}>
+              <div className={styles.picture_container}>
+                <div className={styles.picture_content}>
+                  <p>Profile picture</p>
+                  <div className={styles.picture_group}>
+                    <div
+                      className={styles.picture_svg_container}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{display: 'none'}}
+                      />
+                      <div className={styles.svg_group}>
+                        {renderImage()}
+                      </div>
                     </div>
+                    <p>Image must be below 1024x1024px. Use PNG or JPG
+                      format.</p>
                   </div>
-                  <p>Image must be below 1024x1024px. Use PNG or JPG format.</p>
                 </div>
               </div>
-            </div>
-            <div className={styles.details_container}>
-              <div className={styles.input_container}>
-                <label htmlFor="first_name">First name*</label>
-                <input {...register('first_name')} type="text" />
-                {errors.first_name && <p className={styles.error_text}>{errors.first_name.message}</p>}
+              <div className={styles.details_container}>
+                <div className={styles.input_container}>
+                  <label htmlFor="first_name">First name*</label>
+                  <input {...register('first_name')} type="text"/>
+                  {errors.first_name && <p
+                    className={styles.error_text}>{errors.first_name.message}</p>}
+                </div>
+                <div className={styles.input_container}>
+                  <label htmlFor="last_name">Last name*</label>
+                  <input {...register('last_name')} type="text"/>
+                  {errors.last_name && <p
+                    className={styles.error_text}>{errors.last_name.message}</p>}
+                </div>
+                <div className={styles.input_container}>
+                  <label htmlFor="email">Email</label>
+                  <input {...register('email')} type="email"/>
+                  {errors.email &&
+                    <p className={styles.error_text}>{errors.email.message}</p>}
+                </div>
               </div>
-              <div className={styles.input_container}>
-                <label htmlFor="last_name">Last name*</label>
-                <input {...register('last_name')} type="text" />
-                {errors.last_name && <p className={styles.error_text}>{errors.last_name.message}</p>}
-              </div>
-              <div className={styles.input_container}>
-                <label htmlFor="email">Email</label>
-                <input {...register('email')} type="email" />
-                {errors.email && <p className={styles.error_text}>{errors.email.message}</p>}
-              </div>
-            </div>
-          </form>
-        </FormProvider>
+            </form>
+          </FormProvider>
+        </div>
       </div>
       <footer className={styles.footer}>
-        <button type="button" onClick={handleSaveForm} disabled={!isFormChanged && isClient}>
+        <button type="button" onClick={handleSaveForm}
+                disabled={!isFormChanged && isClient}>
           Save
         </button>
         <button type="submit" onClick={handleSignOut}>

@@ -49,6 +49,7 @@
       justify-content: center;
       align-items: center;
 
+
       .icon_container {
         padding: 0.688rem 1.688rem;
         border-radius: 0.5rem;
@@ -89,6 +90,15 @@
       outline: 1px solid var(--purple);
 
       cursor: pointer;
+
+      font-family: "Instrument Sans", serif;
+      font-size: 1rem;
+      line-height: 150%;
+      letter-spacing: 0;
+      font-weight: 600;
+
+      color: var(--purple);
+      width: 100%;
 
       &:hover {
         background-color: var(--light-pink);
@@ -155,7 +165,7 @@
     .navigation_content {
       border-radius: 0.75rem;
       padding: 1rem 1rem 1rem 1.5rem;
-      background-color: lightblue;
+      background-color: white;
       align-items: center;
 
       .img_container {
@@ -177,7 +187,6 @@
 
     .link_group {
       width: fit-content;
-
       .icon_container {
         padding: 0.688rem 1.688rem;
         width: fit-content;
@@ -212,6 +221,14 @@
         color: var(--purple);
       }
 
+    }
+
+    .preview_icon_container {
+      display: flex;
+     justify-content: center;
+      max-width: 7.125rem;
+      padding: 0.688rem 1.688rem;
+      width: fit-content;
     }
   }
 }
