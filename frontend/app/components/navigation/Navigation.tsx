@@ -6,9 +6,10 @@ import {useFetcher} from "@remix-run/react"
 
 
 const Navigation = () => {
-  const {currentPage, setCurrentPage} = useLinksStore(state => ({
+  const {currentPage, userDetails} = useLinksStore(state => ({
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
+    userDetails: state.userDetails
   }));
 
   const [previousPage, setPreviousPage] = useState('');
@@ -37,7 +38,37 @@ const Navigation = () => {
     fetcher.submit(formData, {method: 'post'});
   }
 
-  console.log('path', path)
+  const handleShareLink = async () => {
+    const newURL = `${window.location.origin}/share/${userDetails.share_uuid}`;
+
+    // Fallback to textarea method for mobile support
+    if (!navigator.clipboard) {
+      const textArea = document.createElement("textarea");
+      textArea.value = newURL;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        const msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Fallback: Copying text command was ' + msg);
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+      }
+
+      document.body.removeChild(textArea);
+      return;
+    }
+
+    // Using the Clipboard API
+    try {
+      await navigator.clipboard.writeText(newURL);
+      console.log('Link copied to clipboard successfully!');
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
 
   // Memoize the logo rendering based on sessionId
   const logo = useMemo(() => {
@@ -92,7 +123,7 @@ const Navigation = () => {
         return (
           <div className={styles.preview_button_container}>
             <button onClick={handlePreviousPage} className={styles.back}>Back to Editor</button>
-            <button className={styles.share}> Share Link</button>
+            <button className={styles.share} onClick={handleShareLink}> Share Link</button>
 
           </div>
         )
