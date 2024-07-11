@@ -195,12 +195,31 @@
 
 
 @media screen and (min-width: 768px) {
+  .preview {
+    background-color: revert;
+    z-index: 10;
+
+    .preview_button_container {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      justify-content: space-between;
+
+      button {
+        width: fit-content;
+      }
+    }
+
+    .navigation_content {
+      background-color: white !important;
+      z-index: 10;
+    }
+  }
   .navigation_container {
     padding:        1.5rem;
     display:        flex;
     flex-direction: column;
     gap:            0.5rem;
-
 
     .navigation_content {
       display:        flex;

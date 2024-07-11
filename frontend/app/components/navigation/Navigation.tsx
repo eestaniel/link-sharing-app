@@ -175,10 +175,10 @@ const Navigation = () => {
     }
   }, [currentPage, handlePageChange]);
 
-
+  console.log(path)
   return (
     <div
-      className={`${styles.navigation_container} ${path === '/' && styles.home}`}>
+      className={`${styles.navigation_container} ${path === '/' && styles.home} ${path ==='/dashboard/preview' && styles.preview}`}>
       {logo}
     </div>
   );

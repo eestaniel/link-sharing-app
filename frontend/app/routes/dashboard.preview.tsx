@@ -6,7 +6,7 @@ import {RightArrowIcon} from "~/assets/svgs/IconSVGs";
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {useLoaderData} from "@remix-run/react";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {getData} from "~/services/user-services"
 
 
@@ -60,6 +60,21 @@ const DashboardPreview = () => {
     }
   }, [links, profile]);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const handleResize = () => {
+    if (window.innerWidth < 768) {
+      setIsMobile(true);
+    } else {
+      setIsMobile(false);
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const renderLinksContent = () => {
     if (userLinks.length == 0) {
       return (
@@ -91,20 +106,25 @@ const DashboardPreview = () => {
   };
 
   return (
-    <div className={styles.preview_container}>
-      <section className={styles.picture_header_container}>
-        <div className={styles.picture_container}>
-          <img src={userDetails?.url} alt="dashboard preview"/>
-        </div>
-        <header className={styles.header_group}>
-          <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>
-          <p>{userDetails?.email}</p>
-        </header>
-      </section>
-      <section className={styles.links_container}>
-        {renderLinksContent()}
-      </section>
-    </div>
+    <>
+      <div className={styles.background}></div>
+      <div className={styles.preview_container}>
+
+        <section className={styles.picture_header_container}>
+          <div className={styles.picture_container}>
+            <img src={userDetails?.url} alt="dashboard preview"/>
+          </div>
+          <header className={styles.header_group}>
+            <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>
+            <p>{userDetails?.email}</p>
+          </header>
+        </section>
+        <section className={styles.links_container}>
+          {renderLinksContent()}
+        </section>
+      </div>
+
+    </>
   );
 };
 
