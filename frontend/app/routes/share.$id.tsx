@@ -4,8 +4,8 @@ import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu"
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
 import {useLoaderData} from "@remix-run/react"
-import { Key } from "react";
-
+import {Key} from "react";
+import {useLocation} from "react-router";
 
 export const loader: LoaderFunction = async ({request, params}) => {
 
@@ -21,8 +21,6 @@ export const loader: LoaderFunction = async ({request, params}) => {
 
   const {profile, links, error} = await response.json()
 
-
-
   return {profile, links}
 }
 const PublicShareId = () => {
@@ -36,7 +34,9 @@ const PublicShareId = () => {
       );
     } else {
       return (
-        links.map((link: { platform: string; }, index: Key | null | undefined) => (
+        links.map((link: {
+          platform: string;
+        }, index: Key | null | undefined) => (
           <div
             key={index}
             className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}>
@@ -49,7 +49,7 @@ const PublicShareId = () => {
             </div>
             <div
               className={`${styles.right_arrow_container} ${LinkMenuStyles(link.platform)}`}>
-              <RightArrowIcon />
+              <RightArrowIcon/>
             </div>
           </div>
         ))
@@ -58,23 +58,29 @@ const PublicShareId = () => {
   };
 
   const {profile, links} = useLoaderData() as any;
+  const location = useLocation();
+  const path = location.pathname;
 
- return (
-   <div className={styles.preview_container}>
-     <section className={styles.picture_header_container}>
-       <div className={styles.picture_container}>
-         <img src={profile?.url} alt="profile img"/>
-       </div>
-       <header className={styles.header_group}>
-         <h1>{profile?.first_name} {profile?.last_name}</h1>
-         <p>{profile?.email}</p>
-       </header>
-     </section>
-     <section className={styles.links_container}>
-       {renderLinksContent()}
-     </section>
-   </div>
- );
+  console.log(path.split('/')[1] === 'share')
+  return (
+    <>
+      <div className={styles.background}></div>
+      <div className={`${styles.preview_container} ${path.split('/')[1] === 'share' && styles.share}`}>
+        <section className={styles.picture_header_container}>
+          <div className={styles.picture_container}>
+            <img src={profile?.url} alt="profile img"/>
+          </div>
+          <header className={styles.header_group}>
+            <h1>{profile?.first_name} {profile?.last_name}</h1>
+            <p>{profile?.email}</p>
+          </header>
+        </section>
+        <section className={styles.links_container}>
+          {renderLinksContent()}
+        </section>
+      </div>
+    </>
+  );
 };
 
 export default PublicShareId;
