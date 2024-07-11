@@ -129,6 +129,7 @@ const DashboardLinks = () => {
     }
   };
 
+
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
@@ -138,14 +139,14 @@ const DashboardLinks = () => {
 
 
   useEffect(() => {
-    const subscription = methods.watch((value, { name, type }) => {
-    const isDifferent = (
+    const subscription = methods.watch((value, {name, type}) => {
+      const isDifferent = (
         JSON.stringify(value.links) !== JSON.stringify(userLinks)
       );
       setIsFormChanged(isDifferent);
     });
     return () => subscription.unsubscribe();
-  }, [methods] );
+  }, [methods]);
 
   const renderLinksContent = useMemo(() => {
     if (userLinks) {

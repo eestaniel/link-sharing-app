@@ -1,13 +1,12 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
+
 
 interface LinkObject {
   id: string;  // Unique identifier for each link
   platform: string;  // Title or name of the platform
   url: string;  // URL associated with the platform
 }
-
-
 
 
 interface LinksStore {
@@ -23,10 +22,14 @@ interface LinksStore {
   setUserLinks: (links: Link[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
-  editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL update by ID
-  editLinkPlatform: (id: string, platform: string) => void;  // New function to handle platform update by ID
+  editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL
+                                                   // update by ID
+  editLinkPlatform: (id: string, platform: string) => void;  // New function to
+                                                             // handle platform
+                                                             // update by ID
   setUserDetails: (details: Jsonify<ProfileLoaderData["profile"]>) => void;
 }
+
 
 export const useLinksStore = create<LinksStore>((set) => ({
   sessionId: '',
@@ -39,13 +42,13 @@ export const useLinksStore = create<LinksStore>((set) => ({
     email: ''
   },
 
-  editUserDetails: (details: any) => set({ userDetails: details }),
+  editUserDetails: (details: any) => set({userDetails: details}),
 
-  setSessionId: (sessionId) => set({ sessionId }),
-  setCurrentPage: (currentPage) => set({ currentPage }),
-  setPreviousPage: (previousPage) => set({ previousPage }),
+  setSessionId: (sessionId) => set({sessionId}),
+  setCurrentPage: (currentPage) => set({currentPage}),
+  setPreviousPage: (previousPage) => set({previousPage}),
 
-  setUserLinks: (links) => set({ userLinks: links }),
+  setUserLinks: (links) => set({userLinks: links}),
 
   addLink: (link) => set((state) => ({
     userLinks: [...state.userLinks, link]
@@ -60,7 +63,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
   editLinkUrl: (id, url) => set((state) => ({
     userLinks: state.userLinks.map((link) => {
       if (link.id === id) {
-        return { ...link, url };
+        return {...link, url};
       }
       return link;
     })
@@ -70,14 +73,14 @@ export const useLinksStore = create<LinksStore>((set) => ({
   editLinkPlatform: (id, platform) => set((state) => ({
     userLinks: state.userLinks.map((link) => {
       if (link.id === id) {
-        return { ...link, platform };
+        return {...link, platform};
       }
       return link;
     })
 
   })),
 
-  setUserDetails: (details) => set({ userDetails: details })
+  setUserDetails: (details) => set({userDetails: details})
 
 
 }));

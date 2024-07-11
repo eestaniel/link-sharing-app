@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
-import {setErrorMap, z} from 'zod';
+import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import styles from './Login.module.css';
 import {useFetcher} from "@remix-run/react";
@@ -16,8 +16,8 @@ type LoginFormInputs = z.infer<typeof loginSchema>;
 
 
 const Login = () => {
-  const {setCurrentPage, currentPage} = useLinksStore(state => ({
-    setCurrentPage: state.setCurrentPage
+  const {setCurrentPage} = useLinksStore(state => ({
+    setCurrentPage: state.setCurrentPage,
   }));
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,6 +33,9 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  interface LoginResponse {
+    error: string;
+  }
   const fetcher = useFetcher();
 
   // Define the submit handler
@@ -53,13 +56,15 @@ const Login = () => {
 
   };
 
+
   useEffect(() => {
-    if (fetcher.data?.error) {
+    const data = fetcher.data as LoginResponse;
+    if (data?.error) {
       // add invalid error to formState error password
 
       setError('password', {
         type: 'manual',
-        message: fetcher.data.error
+        message: data.error
       })
     }
   }, [fetcher]);

@@ -1,18 +1,16 @@
 import styles from "../styles/Dashboard.Preview.module.css";
-import { useLinksStore } from "~/store/LinksStore";
-import {
-  linkMenuList,
-  LinkMenuStyles
-} from "~/components/links_menu/LinkMenu";
-import { LinkMenuIcons } from "~/components/links_menu/LinkMenuIcons";
-import { RightArrowIcon } from "~/assets/svgs/IconSVGs";
-import { LoaderFunction, redirect } from "@remix-run/node";
-import { sessionCookie } from "~/utils/sessionCookie";
-import {useFetcher, useLoaderData} from "@remix-run/react";
-import { useEffect } from "react";
+import {useLinksStore} from "~/store/LinksStore";
+import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu";
+import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons";
+import {RightArrowIcon} from "~/assets/svgs/IconSVGs";
+import {LoaderFunction, redirect} from "@remix-run/node";
+import {sessionCookie} from "~/utils/sessionCookie";
+import {useLoaderData} from "@remix-run/react";
+import {useEffect} from "react";
 import {getData} from "~/services/user-services"
 
-export const loader: LoaderFunction = async ({ request }) => {
+
+export const loader: LoaderFunction = async ({request}) => {
 
   const start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
@@ -22,7 +20,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!accessToken) {
     // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 
@@ -32,7 +30,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (error) {
     // remove cookie
     return redirect("/", {
-      headers: { "Set-Cookie": await sessionCookie.serialize("", { maxAge: 0 }) }
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 
@@ -59,11 +57,8 @@ const DashboardPreview = () => {
       setUserLinks(links);
       setUserDetails(profile);
 
-
-
     }
   }, [links, profile]);
-
 
   const renderLinksContent = () => {
     if (userLinks.length == 0) {
@@ -87,7 +82,7 @@ const DashboardPreview = () => {
             </div>
             <div
               className={`${styles.right_arrow_container} ${LinkMenuStyles(link.platform)}`}>
-              <RightArrowIcon />
+              <RightArrowIcon/>
             </div>
           </div>
         ))
@@ -95,13 +90,11 @@ const DashboardPreview = () => {
     }
   };
 
-
-
   return (
     <div className={styles.preview_container}>
       <section className={styles.picture_header_container}>
         <div className={styles.picture_container}>
-          <img src={userDetails?.url} alt="dashboard preview" />
+          <img src={userDetails?.url} alt="dashboard preview"/>
         </div>
         <header className={styles.header_group}>
           <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>

@@ -10,9 +10,7 @@ import Dropdown from "./dropdown/Dropdown"
 interface LinkSelectionProps {
   index: number;
   object: {
-    id: string;
-    platform: string;
-    url: string;
+    id: string; platform: string; url: string;
   };
   onRemove: (id: string) => void;
 }
@@ -23,8 +21,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [platform, setPlatform] = useState<LinkKey>(object.platform as LinkKey);
   const {editLinkUrl, editLinkPlatform} = useLinksStore((state) => ({
-    editLinkUrl: state.editLinkUrl,
-    editLinkPlatform: state.editLinkPlatform
+    editLinkUrl: state.editLinkUrl, editLinkPlatform: state.editLinkPlatform
   }));
 
 
@@ -58,11 +55,10 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
       scrollRef.current?.scrollIntoView({behavior: "smooth"})
     }, []);
 
-    return <div  ref={scrollRef} className={styles.scroll_to_view}/>;
+    return <div ref={scrollRef} className={styles.scroll_to_view}/>;
   }
 
-  return (
-    <div className={styles.form_container}>
+  return (<div className={styles.form_container}>
 
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
@@ -72,7 +68,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
           </svg>
           <p className={styles.drag_p}>Link #{index + 1}</p>
         </div>
-        <ScrollToView />
+        <ScrollToView/>
         <p className={styles.remove_text}
            onClick={handleRemoveElement}>Remove</p>
       </div>
@@ -87,16 +83,14 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
             name={`links.${index}.platform`}
             control={control}
             defaultValue={object.platform}
-            render={({field}) => (
-              <input
+            render={({field}) => (<input
                 type="text"
                 className={`${styles.input}`}
                 onChange={field.onChange} // Ensure field updates are handled
                 onBlur={field.onBlur}
                 value={`${linkMenuList[platform]}`}
                 readOnly={true}
-              />
-            )}
+              />)}
           />
           <div className={styles.svg_container}>
             {LinkMenuIcons[object.platform as LinkKey]}
@@ -108,8 +102,8 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
               <path stroke="#633CFF" strokeWidth="2" d="m1 1 6 6 6-6"/>
             </svg>
           </div>
-          {isDropdownOpen &&
-            <Dropdown handleItemSelection={handleItemSelection} handleClose={handleDropdownClose}/>}
+          {isDropdownOpen && <Dropdown handleItemSelection={handleItemSelection}
+                                       handleClose={handleDropdownClose}/>}
         </div>
       </div>
 
@@ -121,22 +115,18 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
             name={`links.${index}.url`}
             control={control}
             defaultValue={object.url}
-            render={({field}) => (
-              <input
+            render={({field}) => (<input
                 type="text"
                 className={styles.input}
                 onChange={(e) => handleInputChange(e.target.value, field.onChange)} // Ensure field updates are handled
                 onBlur={field.onBlur}
                 value={field.value}
-              />
-            )}
+              />)}
           />
           {// @ts-ignore
-            errors.links?.[index]?.url && (
-              // @ts-ignore
+            errors.links?.[index]?.url && (// @ts-ignore
               <p
-                className={styles.error_text}>{errors.links[index].url.message}</p>
-            )}
+                className={styles.error_text}>{errors.links[index].url.message}</p>)}
           <div className={styles.svg_container}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                  fill="none" viewBox="0 0 16 16">

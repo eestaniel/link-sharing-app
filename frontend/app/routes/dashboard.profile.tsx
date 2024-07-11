@@ -171,11 +171,19 @@ const DashboardProfile = () => {
       );
     } else if (imageData) {
       return (
-        <img src={imageData?.url} alt="profile picture"/>
+        <>
+          <img src={imageData?.url} alt="profile picture"/>
+          <span className={styles.layer}>
+            <UploadImageIcon/>
+            <p>Change Image</p>
+          </span></>
       );
     } else {
       return (
-        <UploadImageIcon/>
+        <div className={styles.upload_icon_group}>
+          <UploadImageIcon/>
+          <span>+ Upload Image</span>
+        </div>
       );
     }
   };
@@ -194,7 +202,7 @@ const DashboardProfile = () => {
             >
               <div className={styles.picture_container}>
                 <div className={styles.picture_content}>
-                  <p>Profile picture</p>
+                  <p className={styles.text_profile_picture}>Profile picture</p>
                   <div className={styles.picture_group}>
                     <div
                       className={styles.picture_svg_container}
@@ -246,7 +254,8 @@ const DashboardProfile = () => {
                   disabled={!isFormChanged && isClient}>
             Save
           </button>
-          <button type="submit" onClick={handleSignOut}>
+          <button type="submit" onClick={handleSignOut}
+                  className={styles.sign_out}>
             Sign Out
           </button>
         </div>
