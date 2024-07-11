@@ -90,7 +90,7 @@ const Login = () => {
           <label className={styles.input_group}>
             Email address:
             <div className={`${styles.input_container} ${errors.email && styles.input_error}`}>
-              <img src="app/assets/images/icon-email.svg" alt="email icon"/>
+              <img src="/assets/images/icon-email.svg" alt="email icon"/>
               <input type="email" {...register('email')} placeholder={'e.g. alex@email.com'}/>
             </div>
             {errors.email && <span className={styles.error}>{errors.email.message}</span>}
@@ -98,7 +98,7 @@ const Login = () => {
           <label className={styles.input_group}>
             Password:
             <div className={`${styles.input_container} ${errors.password && styles.input_error}`}>
-              <img src="app/assets/images/icon-password.svg" alt="password icon"/>
+              <img src="/assets/images/icon-password.svg" alt="password icon"/>
               <input type="password" {...register('password')} placeholder={'Enter your password'}/>
             </div>
             {errors.password && <span className={styles.error}>{errors.password.message}</span>}
