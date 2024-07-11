@@ -33,7 +33,7 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
     });
   }
-  const {profile, error} = await getData(accessToken);
+  const {profile, links, error} = await getData(accessToken);
 
   if (error) {
     return redirect("/", {
@@ -42,7 +42,7 @@ export const loader: LoaderFunction = async ({request}) => {
   }
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
-  return profile;
+  return {profile, links};
 };
 
 
@@ -68,24 +68,31 @@ const DashboardProfile = () => {
   });
   const fetcher = useFetcher();
 
-  const {userDetails, setUserDetails} = useLinksStore((state) => ({
+  const {userDetails, setUserDetails, setUserLinks} = useLinksStore((state) => ({
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
+    setUserLinks: state.setUserLinks
   }));
 
   const transition = useNavigation();
 
-  const profile: Jsonify<ProfileLoaderData> = useLoaderData<ProfileLoaderData>();
+
 
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+  const {links, profile} = useLoaderData() as any;
 
   useEffect(() => {
     if (profile) {
       setUserDetails(profile);
       methods.reset(profile);
     }
-  }, [profile]);
+    if (links) {
+      setUserLinks(links);
+    }
+
+  }, [profile, links, methods]);
 
   const {handleSubmit, register, formState: {errors}, watch} = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
