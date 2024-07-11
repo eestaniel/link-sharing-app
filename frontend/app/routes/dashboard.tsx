@@ -3,6 +3,12 @@ import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
 import {sessionCookie} from "~/utils/sessionCookie"
+import {useEffect, useState} from "react"
+import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu"
+import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
+import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
+import {useLinksStore} from "~/store/LinksStore"
+import {getData} from "~/services/user-services"
 
 
 export const action = async ({request}: any) => {
@@ -41,7 +47,6 @@ export const action = async ({request}: any) => {
   }
 }
 
-
 const saveLinks = async (formData: any, request: any) => {
   // Get the access token from the session cookie
   const cookieHeader = request.headers.get("Cookie");
@@ -72,13 +77,97 @@ const saveLinks = async (formData: any, request: any) => {
   return {message: responseBody}
 }
 
-const Dashboard = () => {
 
+
+export const loader = async ({request}: any) => {
+  let start = Date.now();
+  const cookieHeader = request.headers.get("Cookie");
+  const session = await sessionCookie.parse(cookieHeader);
+  const accessToken = session?.accessToken ?? null;
+
+  if (!accessToken) {
+    return redirect("/", {
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
+    });
+  }
+
+  const {links, profile, error} = await getData(accessToken);
+  if (error) {
+    return redirect("/", {
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
+    });
+  }
+  console.log(`Time to validate access Token for dashboard Page:  ${Date.now() - start}ms`);
+  return {links, profile}
+}
+
+
+const Dashboard = () => {
+  const [isDesktop, setIsDesktop] = useState(false);
+  const handleResize = () => {
+    if (window.innerWidth >= 1024) {
+      setIsDesktop(true);
+    } else {
+      setIsDesktop(false);
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const renderLinksPreviewComponent = () => {
+
+    return (
+      <section className={styles.links_preview_container}>
+
+        <div className={styles.preview_section}>
+          <div className={styles.preview_group}>
+            <div className={styles.header_group}>
+              {userDetails?.url &&
+                <img src={userDetails?.url} alt="profile image"/>}
+              <div
+                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
+                <h2>{userDetails?.first_name} {userDetails?.last_name} </h2>
+                <p>{userDetails?.email}</p>
+              </div>
+            </div>
+            <div className={styles.links_group}>
+              <ul>
+                {userLinks?.map((link, index) => (
+                  <li key={index}>
+                    <div
+                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}>
+                      <div className={styles.group1}>
+                        {LinkMenuIcons[link.platform]}
+                        {linkMenuList[link.platform]}
+                      </div>
+                      {<RightArrowIcon/>}
+                    </div>
+
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    )
+  }
+
+  const {userLinks, userDetails} = useLinksStore(state => ({
+    userLinks: state.userLinks,
+    userDetails: state.userDetails
+  }))
 
   return (
     <div className={styles.page_container}>
       <Navigation/>
       <div className={styles.dashboard_container}>
+        {isDesktop && renderLinksPreviewComponent()}
         <Outlet/>
       </div>
     </div>

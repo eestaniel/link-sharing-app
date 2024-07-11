@@ -183,64 +183,11 @@ const DashboardLinks = () => {
     }
   }, [userLinks]);
 
-  const [isDesktop, setIsDesktop] = useState(false);
-  const handleResize = () => {
-    if (window.innerWidth >= 1024) {
-      setIsDesktop(true);
-    } else {
-      setIsDesktop(false);
-    }
-  }
 
-  useEffect(() => {
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const renderLinksPreviewComponent = () => {
-
-    return (
-      <section className={styles.links_preview_container}>
-
-        <div className={styles.preview_section}>
-          <div className={styles.preview_group}>
-            <div className={styles.header_group}>
-              {userDetails?.url &&
-                <img src={userDetails?.url} alt="profile image"/>}
-              <div
-                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                <h2>{userDetails?.first_name} {userDetails?.last_name} </h2>
-                <p>{userDetails?.email}</p>
-              </div>
-            </div>
-            <div className={styles.links_group}>
-              <ul>
-                {userLinks?.map((link, index) => (
-                  <li key={index}>
-                    <div
-                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}>
-                      <div className={styles.group1}>
-                        {LinkMenuIcons[link.platform]}
-                        {linkMenuList[link.platform]}
-                      </div>
-                      {<RightArrowIcon/>}
-                    </div>
-
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
-    )
-  }
 
   return (
     <>
-      {isDesktop && renderLinksPreviewComponent()}
+
       <FormProvider {...methods}>
         <Form className={styles.dashboard_form_container} method="post"
               onSubmit={handleSubmit(handleSaveLinks)}
