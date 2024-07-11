@@ -87,9 +87,6 @@ export class AuthService {
       return JSON.stringify({error: dataProfileError});
     }
 
-
-    console.log('dataProfile', dataProfile[0].profile_picture_url)
-
     const profile = {
       first_name: dataProfile[0].first_name,
       last_name: dataProfile[0].last_name,

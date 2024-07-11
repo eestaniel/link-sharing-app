@@ -94,7 +94,8 @@
 
       .error {
         position: absolute;
-        bottom: -1.125rem;
+        top: 50%;
+        right: 1rem;
         color: var(--red);
       }
     }
@@ -166,4 +167,8 @@
       }
     }
   }
+}
+
+@media screen and (min-width: 1024px) {
+
 }

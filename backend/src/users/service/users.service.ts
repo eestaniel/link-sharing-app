@@ -130,7 +130,6 @@ export class UsersService {
       userCache.user_profile = profile
       await this.cacheManager.set(user_id, userCache);
     } else {
-      console.log('cache here: ', userCache)
       await this.cacheManager.set(user_id, {
         refresh_token: '',
         user_links: [],

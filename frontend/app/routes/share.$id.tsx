@@ -60,8 +60,6 @@ const PublicShareId = () => {
   const {profile, links} = useLoaderData() as any;
   const location = useLocation();
   const path = location.pathname;
-
-  console.log(path.split('/')[1] === 'share')
   return (
     <>
       <div className={styles.background}></div>

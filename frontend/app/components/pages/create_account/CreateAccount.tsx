@@ -49,7 +49,7 @@ const CreateAccount = () => {
   }
 
   return (
-      <div className={styles.container}>
+      <div className={styles.login_container}>
         <header className={styles.header}>
           <h1>Create Account</h1>
           <h2>Let’s get you started sharing your links!</h2>
