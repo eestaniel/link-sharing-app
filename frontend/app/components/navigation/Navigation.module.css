@@ -289,7 +289,10 @@
 
 
 @media screen and (min-width: 768px) {
-  .home,
+  .home {
+    margin-block: 0 !important;
+    margin-inline: auto;
+  }
   .preview {
 
     .preview_button_container {
@@ -305,6 +308,9 @@
 
 
   .navigation_container {
+    margin-inline: auto;
+    min-width: 768px;
+    min-height: 126px;
 
     .navigation_content {
 
@@ -336,5 +342,25 @@
   }
 }
 
+@media screen and (min-width: 1024px) {
+  .home,
+  .preview {
 
+    .preview_button_container {
+
+      button {
+      }
+    }
+
+
+    .navigation_content {
+    }
+  }
+
+
+  .navigation_container {
+    max-width:  1440px;
+    max-height: 126px;
+  }
+}
 

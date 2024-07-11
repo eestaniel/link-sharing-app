@@ -77,8 +77,6 @@ const saveLinks = async (formData: any, request: any) => {
   return {message: responseBody}
 }
 
-
-
 export const loader = async ({request}: any) => {
   let start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
@@ -100,7 +98,6 @@ export const loader = async ({request}: any) => {
   console.log(`Time to validate access Token for dashboard Page:  ${Date.now() - start}ms`);
   return {links, profile}
 }
-
 
 const Dashboard = () => {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -165,12 +162,14 @@ const Dashboard = () => {
 
   const location = useLocation()
 
-
   return (
-    <div className={styles.page_container}>
+    <div className={`${styles.page_container} ${location.pathname !== '/dashboard/preview' && styles.center_page}`}>
       <Navigation/>
-      <div className={`${styles.dashboard_container} ${location.pathname ==='/dashboard/preview' && styles.preview_page}`}>
-        {location.pathname !=='/dashboard/preview' && isDesktop && renderLinksPreviewComponent()}
+      <div className={`${styles.dashboard_container} 
+      ${location.pathname === '/dashboard/preview' && styles.preview_page} 
+      `}
+      >
+        {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent()}
         <Outlet/>
       </div>
     </div>

@@ -246,8 +246,9 @@
 
 @media screen and (min-width: 768px) {
   .dashboard_form_container {
-    margin: 0 1.5rem 1.5rem 1.5rem;
+    margin: 0 0 1.5rem 0;
     height: 100%;
+    background-color: red !important;
     .dashboard_content_container {
 
 
