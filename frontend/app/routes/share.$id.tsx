@@ -10,8 +10,8 @@ import {useLocation} from "react-router";
 export const loader: LoaderFunction = async ({request, params}) => {
 
   const id: string | undefined = params.id
-
-  const response = await fetch(`http://localhost:3000/api/share/get-share`, {
+  const baseUrl = process.env.BASE_URL
+  const response = await fetch(`${baseUrl}/api/share/get-share`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

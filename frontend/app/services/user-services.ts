@@ -18,7 +18,6 @@ export const validateAccessToken = async (accessToken: string) => {
 }
 
 export const getData = async (accessToken: string) => {
-  console.log(baseUrl)
   const res = await fetch(`${baseUrl}/api/users/get-preview`, {
     method: 'GET',
     headers: {

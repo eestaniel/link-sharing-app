@@ -88,7 +88,6 @@ const baseUrl = process.env.BASE_URL;
 const login = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-
   const response = await fetch(`${baseUrl}/api/auth/signin`, {
     method: 'POST', headers: {
       'Content-Type': 'application/json',
