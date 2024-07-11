@@ -254,6 +254,7 @@
       .dashboard_content {
         padding: 2.5rem;
 
+
         .header_links_container {
           height: 100%;
 
@@ -265,19 +266,22 @@
 
           }
 
+
           .empty_links_container {
             flex-grow: 1;
-            padding: 1.25rem;
-            gap: 2.5rem;
+            padding:   1.25rem;
+            gap:       2.5rem;
 
 
             .empty_links_content {
               max-width: 30.5rem;
 
+
               svg {
                 height: 10rem;
-                width: 15.625rem;
+                width:  15.625rem;
               }
+
 
               .text_group {
                 h2 {
@@ -287,6 +291,17 @@
             }
           }
         }
+
+
+        .links_container {
+
+
+          .links_content {
+            max-height: 32rem;
+
+          }
+        }
+
       }
 
 
@@ -305,6 +320,27 @@
 }
 
 @media screen and (min-width: 1024px) {
+  .dashboard_form_container {
+    margin: 0 0 1.5rem 0;
+    height: 100%;
+    .dashboard_content_container {
+
+
+      .dashboard_content {
+
+
+        .links_container {
+
+
+          .links_content {
+            max-height: 28rem;
+
+          }
+        }
+      }
+    }
+  }
+
   .links_preview_container {
     display: flex;
     flex-direction: row;
