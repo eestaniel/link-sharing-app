@@ -1,4 +1,4 @@
-import {Outlet} from "@remix-run/react"
+import {Outlet, useLocation} from "@remix-run/react"
 import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
@@ -163,11 +163,14 @@ const Dashboard = () => {
     userDetails: state.userDetails
   }))
 
+  const location = useLocation()
+
+
   return (
     <div className={styles.page_container}>
       <Navigation/>
-      <div className={styles.dashboard_container}>
-        {isDesktop && renderLinksPreviewComponent()}
+      <div className={`${styles.dashboard_container} ${location.pathname ==='/dashboard/preview' && styles.preview_page}`}>
+        {location.pathname !=='/dashboard/preview' && isDesktop && renderLinksPreviewComponent()}
         <Outlet/>
       </div>
     </div>

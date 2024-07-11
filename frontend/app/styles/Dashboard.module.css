@@ -19,6 +19,9 @@
 @media screen and (min-width: 1024px) {
   .page_container {
 
+    .preview_page {
+      padding: 0 !important;
+    }
     .dashboard_container {
       flex-direction: row;
       padding:        0 1.5rem 1.5rem 1.5rem;

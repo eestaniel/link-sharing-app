@@ -135,7 +135,6 @@
   }
 
   .preview_container {
-    max-height: fit-content;
     width: 21.813rem;
     margin-inline: auto;
     margin-top: 6.375rem;
@@ -144,6 +143,7 @@
     box-shadow: 0 0 2rem 0 hsla(0, 0%, 0%, 10%);
     flex-grow: revert;
     z-index: 20;
+    height: fit-content;
   }
 }
 
