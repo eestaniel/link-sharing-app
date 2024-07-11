@@ -25,6 +25,7 @@
 .frontend_mentor {
   background-color: #FFFFFF !important;
   color: var(--dark-grey) !important;
+  outline: 1px solid var(--borders);
 
 }
 

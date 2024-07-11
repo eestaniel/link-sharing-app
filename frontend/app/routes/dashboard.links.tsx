@@ -5,11 +5,13 @@ import {useEffect, useMemo, useState} from "react";
 import styles from "app/styles/dashboard.links.module.css";
 import {useLinksStore} from "~/store/LinksStore";
 import LinkSelection from "~/components/links_menu/LinkSelection";
-import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
+import {EmptyLinksIcon, RightArrowIcon} from "~/assets/svgs/IconSVGs";
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
 import {getData} from "~/services/user-services"
+import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
+import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu"
 
 // Define zod schema for link URLs
 const linkSchema = z.object({
@@ -48,14 +50,14 @@ export const loader: LoaderFunction = async ({request}) => {
     });
   }
 
-  const {links, error} = await getData(accessToken);
+  const {links, profile, error} = await getData(accessToken);
   if (error) {
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
   console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);
-  return links;
+  return {links, profile}
 };
 
 const DashboardLinks = () => {
@@ -64,13 +66,17 @@ const DashboardLinks = () => {
     setUserLinks,
     addLink,
     removeLink,
-    editLinkUrl
+    editLinkUrl,
+    userDetails,
+    setUserDetails
   } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     addLink: state.addLink,
     removeLink: state.removeLink,
-    editLinkUrl: state.editLinkUrl
+    editLinkUrl: state.editLinkUrl,
+    userDetails: state.userDetails,
+    setUserDetails: state.setUserDetails
   }));
   const fetcher = useFetcher();
 
@@ -81,12 +87,16 @@ const DashboardLinks = () => {
     }
   });
 
-  const links = useLoaderData() as any;
+  const {links, profile} = useLoaderData() as any;
 
   useEffect(() => {
     if (links) {
       setUserLinks(links);
       methods.reset({links});
+    }
+
+    if (profile) {
+      setUserDetails(profile);
     }
   }, [links, setUserLinks, methods]);
 
@@ -129,14 +139,12 @@ const DashboardLinks = () => {
     }
   };
 
-
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-
 
   useEffect(() => {
     const subscription = methods.watch((value, {name, type}) => {
@@ -175,8 +183,64 @@ const DashboardLinks = () => {
     }
   }, [userLinks]);
 
+  const [isDesktop, setIsDesktop] = useState(false);
+  const handleResize = () => {
+    if (window.innerWidth >= 1024) {
+      setIsDesktop(true);
+    } else {
+      setIsDesktop(false);
+    }
+  }
+
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const renderLinksPreviewComponent = () => {
+
+    return (
+      <section className={styles.links_preview_container}>
+
+        <div className={styles.preview_section}>
+          <div className={styles.preview_group}>
+            <div className={styles.header_group}>
+              {userDetails?.url &&
+                <img src={userDetails?.url} alt="profile image"/>}
+              <div
+                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
+                <h2>{userDetails?.first_name} {userDetails?.last_name} </h2>
+                <p>{userDetails?.email}</p>
+              </div>
+            </div>
+            <div className={styles.links_group}>
+              <ul>
+                {userLinks?.map((link, index) => (
+                  <li key={index}>
+                    <div
+                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}>
+                      <div className={styles.group1}>
+                        {LinkMenuIcons[link.platform]}
+                        {linkMenuList[link.platform]}
+                      </div>
+                      {<RightArrowIcon/>}
+                    </div>
+
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    )
+  }
+
   return (
     <>
+      {isDesktop && renderLinksPreviewComponent()}
       <FormProvider {...methods}>
         <Form className={styles.dashboard_form_container} method="post"
               onSubmit={handleSubmit(handleSaveLinks)}

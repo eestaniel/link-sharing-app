@@ -10,5 +10,21 @@
     background-color: var(--light-grey);
   }
 }
+@media screen and (min-width: 768px) {
+  .page_container{
+    .dashboard_container {
+    }
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .page_container{
+
+    .dashboard_container {
+      flex-direction: row;
+      padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+  }
+}
 
 
