@@ -87,7 +87,8 @@ export class UsersService {
           first_name: '',
           last_name: '',
           email: '',
-          url: ''
+          url: '',
+          share_uuid: ''
         }
       })
     }

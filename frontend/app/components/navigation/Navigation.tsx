@@ -38,8 +38,9 @@ const Navigation = () => {
   }
 
   const handleShareLink = async () => {
+    console.log('userDetails', userDetails)
     const newURL = `${window.location.origin}/share/${userDetails.share_uuid}`;
-
+    console.log('newURL', newURL);
     // Fallback to textarea method for mobile support
     if (!navigator.clipboard) {
       const textArea = document.createElement("textarea");

@@ -94,7 +94,8 @@ export class AuthService {
       first_name: dataProfile[0].first_name,
       last_name: dataProfile[0].last_name,
       email: dataProfile[0].email,
-      url: dataProfile[0].profile_picture_url
+      url: dataProfile[0].profile_picture_url,
+      share_uuid: dataProfile[0].share_uuid
     }
 
 
