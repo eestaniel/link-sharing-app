@@ -25,12 +25,6 @@ export const action: ActionFunction = async ({request}) => {
     case 'create-account':
       return await createAccount(formData);
 
-    case 'get-links':
-      return await getLinks(formData, request);
-
-    case 'get-profile':
-      return await getProfile(formData, request);
-
     case 'save-links':
       return await saveLinks(formData, request);
     case 'save-profile':
@@ -51,69 +45,6 @@ const changePage = async (formData: FormData, request: any) => {
 
 }
 
-const getLinks = async (formData: FormData, request: any) => {
-  // Get the access token from the session cookie
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
-
-  // if no access token throw redirect /
-  if (!accessToken) {
-    return redirect("/");
-  }
-
-
-  const response = await fetch('http://localhost:3000/api/users/get-links', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      user_id: formData.get('user_id'),
-    }),
-  });
-
-  let responseBody = await response.json();
-  if (responseBody.error) {
-    return json({error: responseBody.error}, {status: 401});
-  }
-
-  /* Return the links
-  * example:
-  * */
-  return json(responseBody);
-
-}
-
-const getProfile = async (formData: FormData, request: any) => {
-  // Get the access token from the session cookie
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
-  // if no access token throw redirect /
-  if (!accessToken) {
-    return redirect("/");
-  }
-
-  const response = await fetch('http://localhost:3000/api/users/get-profile', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  });
-
-  let responseBody = await response.json();
-  if (responseBody.error) {
-    return json({error: responseBody.error}, {status: 401});
-  }
-
-  /* Return the profile data
-  * example:
-  * */
-  return json(responseBody);
-
-}
 
 const createAnonSession = async () => {
   const {data, error} = await supabase.auth.signInAnonymously();
@@ -153,12 +84,12 @@ interface TokenPayload {
   refreshToken: string;
 }
 
-
+const baseUrl = process.env.BASE_URL;
 const login = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const response = await fetch('http://localhost:3000/api/auth/signin', {
+  const response = await fetch(`${baseUrl}/api/auth/signin`, {
     method: 'POST', headers: {
       'Content-Type': 'application/json',
     }, body: JSON.stringify({email, password}),
@@ -208,7 +139,7 @@ const signOut = async (request: any) => {
   }
 
   // sign user out from backend
-  const response = await fetch('http://localhost:3000/api/auth/signout', {
+  const response = await fetch(`${baseUrl}/api/auth/signout`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -239,7 +170,7 @@ const saveLinks = async (formData: FormData, request: any) => {
     return redirect("/");
   }
 
-  const response = await fetch('http://localhost:3000/api/users/save-links', {
+  const response = await fetch(`${baseUrl}/api/users/save-links`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -269,7 +200,7 @@ const saveProfile = async (formData: FormData, request: Request) => {
     throw redirect("/");
   }
 
-  const response = await fetch('http://localhost:3000/api/users/save-profile', {
+  const response = await fetch(`${baseUrl}/api/users/save-profile`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,

@@ -1,5 +1,8 @@
+
+const baseUrl = process.env.BASE_URL
+
 export const validateAccessToken = async (accessToken: string) => {
-  const res = await fetch('http://localhost:3000/api/auth/validate', {
+  const res = await fetch(`${baseUrl}/api/auth/validate`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`
@@ -15,7 +18,8 @@ export const validateAccessToken = async (accessToken: string) => {
 }
 
 export const getData = async (accessToken: string) => {
-  const res = await fetch('http://localhost:3000/api/users/get-preview', {
+  console.log(baseUrl)
+  const res = await fetch(`${baseUrl}/api/users/get-preview`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`
@@ -30,7 +34,7 @@ export const getData = async (accessToken: string) => {
 }
 
 export const getProfile = async (accessToken: string) => {
-  const res = await fetch('http://localhost:3000/api/users/get-profile', {
+  const res = await fetch(`${baseUrl}/api/users/get-profile`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`
@@ -46,7 +50,7 @@ export const getProfile = async (accessToken: string) => {
 
 
 export const getUserLinks = async (accessToken: string) => {
-  const res = await fetch('http://localhost:3000/api/users/get-links', {
+  const res = await fetch(`${baseUrl}/api/users/get-links`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`

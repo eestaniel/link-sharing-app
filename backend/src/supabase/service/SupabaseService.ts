@@ -22,6 +22,4 @@ export class SupabaseService {
     return this.supabase;
   }
 
-  // Optionally, you can add more helper methods here
-  // For example, methods for common queries or operations
 }

@@ -57,8 +57,8 @@ const saveLinks = async (formData: any, request: any) => {
   if (!accessToken) {
     return redirect("/");
   }
-
-  const response = await fetch('http://localhost:3000/api/users/save-links', {
+  const baseURL = process.env.BASE_URL
+  const response = await fetch(`${baseURL}/api/users/save-links`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
