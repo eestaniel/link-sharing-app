@@ -3,10 +3,19 @@
   flex-direction: column;
   width: 100%;
   flex-grow: 1;
+  align-items: center;
   justify-content: start;
   gap: 4rem;
-}
 
+  .confirmation {
+    /* font */
+    font-family:    "Instrument Sans", serif;
+    font-size:      24rem;
+    line-height:    150%;
+    letter-spacing: 0;
+    font-weight:    400;
+  }
+}
 
 
 

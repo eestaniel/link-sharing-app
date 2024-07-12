@@ -50,49 +50,80 @@ const CreateAccount = () => {
     fetcher.submit(formData, { method: "post", action: "/auth" });
   }
 
+  const handleCreateAccountConfirmation = () => {
+    if (!fetcher.data) {
+      return (
+        <div className={styles.confirmation}>
+          <p>Account created successfully! Please check your email to confirm your account.</p>
+        </div>
+      )
+    } else {
+      return (
+        <div className={styles.login_container}>
+          <header className={styles.header}>
+            <h1>Create Account</h1>
+            <h2>Let’s get you started sharing your links!</h2>
+          </header>
+          <form className={styles.form_container}
+                onSubmit={handleSubmit(onSubmit)}>
+            <label className={styles.input_group}>
+              Email address:
+              <div
+                className={`${styles.input_container} ${errors.email && styles.input_error}`}>
+                <img src="app/assets/images/icon-email.svg" alt="email icon"/>
+                <input type="email" {...register('email')}
+                       placeholder={'e.g. alex@email.com'}/>
+              </div>
+              {errors.email &&
+                <span className={styles.error}>{errors.email.message}</span>}
+            </label>
+            <label className={styles.input_group}>
+              Create Password:
+              <div
+                className={`${styles.input_container} ${errors.password && styles.input_error}`}>
+                <img src="app/assets/images/icon-password.svg"
+                     alt="password icon"/>
+                <input type="password" {...register('password')}
+                       placeholder={'At least 8 characters'}/>
+              </div>
+              {errors.password &&
+                <span className={styles.error}>{errors.password.message}</span>}
+            </label>
+            <label className={styles.input_group}>
+              Confirm Password:
+              <div
+                className={`${styles.input_container} ${errors.password && styles.input_error}`}>
+                <img src="app/assets/images/icon-password.svg"
+                     alt="password icon"/>
+                <input type="password" {...register('confirmPassword')}
+                       placeholder={'At least 8 characters'}/>
+              </div>
+              {errors.confirmPassword && <span
+                className={styles.error}>{errors.confirmPassword.message}</span>}
+            </label>
+            <button
+              className={`${styles.button} ${isDisabled && styles.is_loading}`}
+              type="submit" onClick={handleSubmit(onSubmit)}
+              disabled={isDisabled}>
+              {isDisabled ? 'Creating Account...' : 'Create Account'}
+            </button>
+
+            <div className={styles.footer_group}>
+              <p className={styles.dont_have_account}>Already have an
+                account?</p>
+              <p className={styles.create_account}
+                 onClick={handlePageChange}>Login</p>
+            </div>
+          </form>
+        </div>
+      )
+    }
+  }
+
   return (
-      <div className={styles.login_container}>
-        <header className={styles.header}>
-          <h1>Create Account</h1>
-          <h2>Let’s get you started sharing your links!</h2>
-        </header>
-        <form className={styles.form_container} onSubmit={handleSubmit(onSubmit)}>
-          <label className={styles.input_group}>
-            Email address:
-            <div className={`${styles.input_container} ${errors.email && styles.input_error}`}>
-              <img src="app/assets/images/icon-email.svg" alt="email icon"/>
-              <input type="email" {...register('email')} placeholder={'e.g. alex@email.com'}/>
-            </div>
-            {errors.email && <span className={styles.error}>{errors.email.message}</span>}
-          </label>
-          <label className={styles.input_group}>
-            Create Password:
-            <div className={`${styles.input_container} ${errors.password && styles.input_error}`}>
-              <img src="app/assets/images/icon-password.svg" alt="password icon"/>
-              <input type="password" {...register('password')} placeholder={'At least 8 characters'}/>
-            </div>
-            {errors.password && <span className={styles.error}>{errors.password.message}</span>}
-          </label>
-          <label className={styles.input_group}>
-            Confirm Password:
-            <div className={`${styles.input_container} ${errors.password && styles.input_error}`}>
-              <img src="app/assets/images/icon-password.svg" alt="password icon"/>
-              <input type="password" {...register('confirmPassword')} placeholder={'At least 8 characters'}/>
-            </div>
-            {errors.confirmPassword && <span className={styles.error}>{errors.confirmPassword.message}</span>}
-          </label>
-          <button className={styles.button} type="submit" onClick={handleSubmit(onSubmit)} disabled={isDisabled}>
-            {isDisabled ? 'Creating Account...' : 'Create Account'}
-          </button>
-
-          <div className={styles.footer_group}>
-            <p className={styles.dont_have_account}>Already have an account?</p>
-            <p className={styles.create_account} onClick={handlePageChange}>Login</p>
-          </div>
-        </form>
-
-
-      </div>
+    <>
+      {handleCreateAccountConfirmation()}
+    </>
   );
 };
 
