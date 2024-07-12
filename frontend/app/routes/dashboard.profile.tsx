@@ -140,6 +140,13 @@ const DashboardProfile = () => {
   }, []);
 
   const handleSignOut = async () => {
+    setUserDetails({
+      first_name: "",
+      last_name: "",
+      email: "",
+    });
+    setUserLinks([]);
+
     const formData = new FormData();
     formData.append('action', 'logout');
     fetcher.submit(formData, {method: 'post', action: '/auth'});

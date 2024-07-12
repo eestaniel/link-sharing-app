@@ -187,6 +187,7 @@ const signOut = async (request: any) => {
   }
 
 
+
   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
   return redirect("/", {
     headers: {"Set-Cookie": newCookieHeader},

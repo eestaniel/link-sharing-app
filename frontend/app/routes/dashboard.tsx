@@ -150,11 +150,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (previewLinks && previewLinks.length > 0) {
-      console.log()
+
       setUserLinks(previewLinks);
     }
 
   }, [previewLinks]);
+
+
 
   const handleDismissToast = () => {
     setShowToast(false);

@@ -17,7 +17,7 @@ interface LinksStore {
   setCurrentPage: (currentPage: string) => void;
   previousPage: string;
   setPreviousPage: (previousPage: string) => void;
-  userDetails: UserObject;
+  userDetails: any;
   userLinks: LinkObject[];  // Array of link objects
   setUserLinks: (links: Link[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
@@ -27,7 +27,7 @@ interface LinksStore {
   editLinkPlatform: (id: string, platform: string) => void;  // New function to
                                                              // handle platform
                                                              // update by ID
-  setUserDetails: (details: Jsonify<ProfileLoaderData["profile"]>) => void;
+  setUserDetails: (details: any) => void;
   showToast: boolean;
   setShowToast: (showToast: boolean) => void;
   toastMessage: string;
