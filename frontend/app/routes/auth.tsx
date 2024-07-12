@@ -22,6 +22,9 @@ export const action: ActionFunction = async ({request}) => {
       return await signOut(request);
     case 'login':
       return await login(formData);
+
+    case 'login-new-user':
+      return await loginNewUser(formData);
     case 'create-account':
       return await createAccount(formData);
 
@@ -35,6 +38,8 @@ export const action: ActionFunction = async ({request}) => {
       return json({error: 'Unsupported action'}, {status: 400});
   }
 };
+
+
 
 const changePage = async (formData: FormData, request: any) => {
   const page = formData.get('page') as string;
@@ -65,24 +70,55 @@ const createAccount = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const {data, error} = await supabase.auth.signUp({
-    email, password,
+  console.log(email, password);
+  const response = await fetch(`${process.env.BASE_URL}/api/auth/create-account`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({email, password}),
   });
+  const {message, error} = await response.json();
+  console.log(message, error)
 
   if (error) {
-    return json({error: error.message}, {status: 401});
+    return json({error}, {status: 401});
   }
 
-  return json({message: 'Please confirm email to login'}, {status: 200});
+  return {message};
 }
 
 
 interface TokenPayload {
   accessToken: string;
-
-
   refreshToken: string;
 }
+
+const loginNewUser = async (formData: FormData) => {
+  const accessToken = formData.get('access_token') as string;
+  const refreshToken = formData.get('refresh_token') as string;
+
+  console.log('accessToken', accessToken)
+  console.log('refreshToken', refreshToken)
+  // Set session data
+  const {data, error} = await supabase.auth.setSession({
+    access_token: accessToken, refresh_token: refreshToken
+  });
+
+  if (error) {
+    return json({error: error.message}, {status: 500});
+  }
+
+  // Create a session cookie with the access token
+  const cookieHeader = await sessionCookie.serialize({accessToken});
+
+  console.log('cookieHeader', cookieHeader)
+  return json({session: accessToken}, {
+    headers: {"Set-Cookie": cookieHeader},
+  });
+
+}
+
 
 const baseUrl = process.env.BASE_URL;
 const login = async (formData: FormData) => {

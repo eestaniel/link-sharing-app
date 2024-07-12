@@ -1,6 +1,6 @@
 import {
   MetaFunction,
-  redirect,
+  redirect, useFetcher,
   useLoaderData,
   useLocation
 } from "@remix-run/react";
@@ -13,8 +13,7 @@ import Navigation from "~/components/navigation/Navigation";
 import {useLinksStore} from '~/store/LinksStore';
 import CreateAccount from "~/components/pages/create_account/CreateAccount";
 import {validateAccessToken} from "~/services/user-services"
-import {useNavigation} from "@remix-run/react"
-
+import {useNavigation,useNavigate} from "@remix-run/react"
 
 export const meta: MetaFunction = () => {
   return [
@@ -40,6 +39,8 @@ export const loader: LoaderFunction = async ({request}) => {
     return redirect("/dashboard/links");
   }
 
+  // check if user confirmed email from supabase, look for hash in url
+
   // If no accessToken, assume the user needs to login
   return json({homePage: 'login'});
 };
@@ -56,6 +57,25 @@ export default function Index() {
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
   }));
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
+  // this use effect checks if user has a hash from confirmation email
+  useEffect(() => {
+    const processToken = async () => {
+      const params = new URLSearchParams(location.hash.slice(1)); // Remove the '#' and parse
+      if (!params.has('access_token')) return;
+
+      const formData = new FormData();
+      formData.append("action", "login-new-user");
+      formData.append("access_token", params.get('access_token') as string);
+      formData.append("refresh_token", params.get('refresh_token') as string);
+      fetcher.submit(formData, {method: "post", action: "/auth"})
+
+
+    };
+
+    processToken();
+  }, []);
 
   useEffect(() => {
     // Set the current page to the home page on initial load

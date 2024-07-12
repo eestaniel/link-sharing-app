@@ -92,6 +92,7 @@ export const loader = async ({request}: any) => {
     });
   }
 
+  console.log('links', links)
   return json({links, profile});
 };
 
@@ -139,13 +140,17 @@ const Dashboard = () => {
   )
 
   useEffect(() => {
-    if (userLinks.length > 0) {
+    if (userLinks && userLinks.length > 0) {
+      setPreviewLinks(userLinks);
+    }
+    else if (userLinks) {
       setPreviewLinks(userLinks);
     }
   }, [userLinks]);
 
   useEffect(() => {
-    if (previewLinks.length > 0) {
+    if (previewLinks && previewLinks.length > 0) {
+      console.log()
       setUserLinks(previewLinks);
     }
 
@@ -161,8 +166,11 @@ const Dashboard = () => {
         <div className={styles.preview_section}>
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
-              {userDetails?.url &&
-                <img src={userDetails?.url} alt="profile image"/>}
+              {userDetails?.url ?
+                <img src={userDetails?.url} alt="profile image"/>:
+                <div className={styles.empty_image}></div>
+              }
+
               <div
                 className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
                 <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>

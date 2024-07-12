@@ -76,11 +76,7 @@ const DashboardPreview = () => {
 
   const renderLinksContent = () => {
     if (userLinks.length == 0) {
-      return (
-        <div className={styles.empty_links_container}>
-          <p>No links added yet</p>
-        </div>
-      );
+      return
     } else {
       return (
         userLinks.map((link, index) => (

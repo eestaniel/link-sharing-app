@@ -104,9 +104,8 @@ const DashboardProfile = () => {
   } | string | null>(null);
 
   const [disableButton, setDisableButton] = useState(false);
-  const handleSaveForm = async () => {
-    setDisableButton(true)
-    const data = methods.getValues();
+  const handleSaveForm = async (data: ProfileFormInputs) => {
+    setDisableButton(true);
     setUserDetails(data);
 
     const formData = new FormData();
@@ -118,6 +117,7 @@ const DashboardProfile = () => {
       formData.append("file", data.file);
     }
 
+    // Assuming you want to handle the fetch call yourself, otherwise use fetcher
     fetcher.submit(formData, {
       method: "POST",
       action: "/auth",
@@ -125,10 +125,12 @@ const DashboardProfile = () => {
     });
   };
 
+
+
   useEffect(() => {
     if (fetcher.data?.message) {
       setShowToast(fetcher.data.message);
-      setToastMessage('Your changes have been successfully saved.')
+      setToastMessage('Your changes have been successfully saved!')
       setDisableButton(false);
     }
   }, [fetcher.data]);
@@ -206,6 +208,12 @@ const DashboardProfile = () => {
     }
   };
 
+  useEffect(() => {
+    if (errors) {
+      console.log(errors);
+    }
+  }, [errors]);
+
   return (
     <div className={styles.profile_container}>
       <div className={styles.profile_content}>
@@ -243,19 +251,19 @@ const DashboardProfile = () => {
                 </div>
               </div>
               <div className={styles.details_container}>
-                <div className={styles.input_container}>
+                <div className={`${styles.input_container} ${errors.first_name && styles.input_error}`}>
                   <label htmlFor="first_name">First name*</label>
                   <input {...register('first_name')} type="text"/>
                   {errors.first_name && <p
                     className={styles.error_text}>{errors.first_name.message}</p>}
                 </div>
-                <div className={styles.input_container}>
+                <div className={`${styles.input_container} ${errors.last_name && styles.input_error}`}>
                   <label htmlFor="last_name">Last name*</label>
                   <input {...register('last_name')} type="text"/>
                   {errors.last_name && <p
                     className={styles.error_text}>{errors.last_name.message}</p>}
                 </div>
-                <div className={styles.input_container}>
+                <div className={`${styles.input_container} ${errors.email && styles.input_error}`}>
                   <label htmlFor="email">Email</label>
                   <input {...register('email')} type="email"/>
                   {errors.email &&
@@ -268,7 +276,7 @@ const DashboardProfile = () => {
       </div>
       <footer className={styles.footer_container}>
         <div className={styles.button_group}>
-          <button type="button" onClick={handleSaveForm}
+          <button type="submit" onClick={handleSubmit(handleSaveForm)}
                   disabled={(!isFormChanged && isClient) || disableButton}>
             {disableButton ? "Saving..." : "Save"}
           </button>

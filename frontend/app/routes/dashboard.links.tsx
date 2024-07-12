@@ -143,7 +143,7 @@ const DashboardLinks = () => {
   useEffect(() => {
     if (fetcher.data?.message) {
       setShowToast(fetcher.data.message);
-      setToastMessage('Your changes have been successfully saved.')
+      setToastMessage('Your changes have been successfully saved!')
       setDisableButton(false);
     }
   }, [fetcher.data]);

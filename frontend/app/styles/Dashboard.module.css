@@ -54,6 +54,7 @@
         width:             19.25rem;
         background-image:  url("../assets/images/illustration-phone-mockup.svg");
         background-repeat: no-repeat;
+        height:            100%;
 
 
         .preview_group {
@@ -74,12 +75,17 @@
             align-items:     center;
 
 
-            img {
+            img, .empty_image {
               height:        6rem;
               width:         6rem;
               border-radius: 32rem;
               object-fit:    cover;
-              outline:       0.25rem solid var(--purple);
+
+            }
+
+
+            img {
+              outline: 0.25rem solid var(--purple);
             }
 
 
@@ -95,6 +101,7 @@
               gap:            0.5rem;
               text-align:     center;
               width:          100%;
+              min-height:     2.375rem;
 
 
               h2 {
@@ -105,7 +112,7 @@
                 font-weight:      600;
 
                 color:            var(--dark-grey);
-                background-color: white;
+                min-height: 1.313rem;
 
               }
 
@@ -118,7 +125,7 @@
                 font-weight:    400;
 
                 color:          var(--grey) !important;
-
+                background-color: white;
                 width:          100%;
 
               }

@@ -18,9 +18,9 @@ export class AuthController {
     return {message: 'User validated'};
   }
 
-  @Post('signup')
-  signUp(@Body() signUpDto: { email: string; password: string }) {
-    return this.authService.signUp(signUpDto.email, signUpDto.password);
+  @Post('create-account')
+  createAccount(@Body() signUpDto: { email: string; password: string }) {
+    return this.authService.createAccount(signUpDto.email, signUpDto.password);
   }
 
   @Post('signin')

@@ -24,18 +24,32 @@ export class AuthService {
   }
 
 
-  async signUp(email: string, password: string) {
-    const {data, error} = await this.supabaseService
-                                    .getClient()
-                                    .auth
-                                    .signUp({email, password});
+  async createAccount(email: string, password: string) {
+    const {data: newData, error: newError} = await this.supabaseService.getClient()
+      .auth.signUp({
+        email: email,
+        password: password
+      });
+    if (newError) {
+      return {error: newError.message};
+    }
 
-    if (error) throw error;
+    // upsert user in users table
+    const {data: dataProfile, error: dataProfileError} = await this.supabaseService.getClient()
+      .from('users')
+      .upsert({
+        id: newData.user.id,
+        email: email,
+      })
+      .select()
 
-    // Create user in your custom users table
-    await this.usersService.createUserEntry(data.user.id, email);
+    if (dataProfileError) {
+      return {error: dataProfileError.message};
+    }
 
-    return data;
+
+
+    return {message: 'Account created successfully', data:dataProfile[0]};
   }
 
 

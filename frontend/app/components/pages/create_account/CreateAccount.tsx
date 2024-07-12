@@ -1,5 +1,5 @@
 import styles from "../login_page/Login.module.css";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -39,14 +39,22 @@ const CreateAccount = () => {
 
   const fetcher = useFetcher();
 
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const onSubmit = (data: CreateFormInput) => {
+    setIsDisabled(true);
     const formData = new FormData();
     formData.append("action", "create-account");
     formData.append("email", data.email);
     formData.append("password", data.password);
     fetcher.submit(formData, { method: "post", action: "/auth" });
-
+    console.log(formData)
   }
+  useEffect(() => {
+    if (fetcher.data) {
+      console.log(fetcher.data)
+    }
+  }, [fetcher]);
 
   return (
       <div className={styles.login_container}>
@@ -79,7 +87,9 @@ const CreateAccount = () => {
             </div>
             {errors.confirmPassword && <span className={styles.error}>{errors.confirmPassword.message}</span>}
           </label>
-          <button className={styles.button} type="submit">Log in</button>
+          <button className={styles.button} type="submit" onClick={handleSubmit(onSubmit)} disabled={isDisabled}>
+            {isDisabled ? 'Creating Account...' : 'Create Account'}
+          </button>
 
           <div className={styles.footer_group}>
             <p className={styles.dont_have_account}>Already have an account?</p>
