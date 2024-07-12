@@ -6,8 +6,9 @@ import {RightArrowIcon} from "~/assets/svgs/IconSVGs";
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {useLoaderData} from "@remix-run/react";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {getData} from "~/services/user-services"
+
 
 export const loader: LoaderFunction = async ({request}) => {
 
@@ -56,21 +57,6 @@ const DashboardPreview = () => {
 
     }
   }, [links, profile]);
-
-  const [isMobile, setIsMobile] = useState(false);
-  const handleResize = () => {
-    if (window.innerWidth < 768) {
-      setIsMobile(true);
-    } else {
-      setIsMobile(false);
-    }
-  }
-
-  useEffect(() => {
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const renderLinksContent = () => {
     if (userLinks.length == 0) {

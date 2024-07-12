@@ -46,7 +46,7 @@ export const loader: LoaderFunction = async ({request}) => {
     if (profile.last_name === null || profile.last_name === undefined) {
       profile.last_name = "";
     }
-    if (profile.email === null  || profile.email === undefined) {
+    if (profile.email === null || profile.email === undefined) {
       profile.email = "";
     }
     return {profile, links};
@@ -198,7 +198,7 @@ const DashboardProfile = () => {
 
   // Watch for changes in the form
   useEffect(() => {
-    const subscription = methods.watch((value, {name}) => {
+    const subscription = methods.watch((value) => {
       const hasNameChanged = value.first_name !== profile.first_name
         || value.last_name !== profile.last_name
         || value.email !== profile.email
@@ -212,8 +212,6 @@ const DashboardProfile = () => {
 
     return () => subscription.unsubscribe();
   }, [methods]);
-
-
 
   const renderImage = () => {
     if (userDetails?.url && !imageData) {
@@ -244,7 +242,6 @@ const DashboardProfile = () => {
       );
     }
   };
-
 
   return (
     <div className={styles.profile_container}>

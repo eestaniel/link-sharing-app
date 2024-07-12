@@ -5,13 +5,6 @@ import {Cache} from "cache-manager"
 import {UserCacheDto} from "../dtos/user-dtos"
 
 
-interface Link {
-  id: string;
-  platform: string;
-  url: string;
-}
-
-
 @Injectable()
 export class UsersService {
 
@@ -264,18 +257,18 @@ export class UsersService {
     }
 
     const {error: updatedError} = await this.supabaseService
-                                                               .getClient()
-                                                               .from('users')
-                                                               .upsert(
-                                                                 {
-                                                                   id: req.user_id,
-                                                                   ...profileToSave,
-                                                                 },
-                                                                 {
-                                                                   onConflict: 'id',
-                                                                 },
-                                                               )
-                                                               .select();
+                                            .getClient()
+                                            .from('users')
+                                            .upsert(
+                                              {
+                                                id: req.user_id,
+                                                ...profileToSave,
+                                              },
+                                              {
+                                                onConflict: 'id',
+                                              },
+                                            )
+                                            .select();
 
     if (updatedError) {
       return JSON.stringify({error: updatedError.message});
@@ -285,7 +278,6 @@ export class UsersService {
 
     return JSON.stringify({message: 'Profile picture uploaded successfully'});
   }
-
 
 
   private async updateCache(userId: string, profileToSave: any): Promise<string> {

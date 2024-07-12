@@ -142,8 +142,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (userLinks && userLinks.length > 0) {
       setPreviewLinks(userLinks);
-    }
-    else if (userLinks) {
+    } else if (userLinks) {
       setPreviewLinks(userLinks);
     }
   }, [userLinks]);
@@ -156,8 +155,6 @@ const Dashboard = () => {
 
   }, [previewLinks]);
 
-
-
   const handleDismissToast = () => {
     setShowToast(false);
   };
@@ -169,7 +166,7 @@ const Dashboard = () => {
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
               {userDetails?.url ?
-                <img src={userDetails?.url} alt=""/>:
+                <img src={userDetails?.url} alt=""/> :
                 <div className={styles.empty_image}></div>
               }
 

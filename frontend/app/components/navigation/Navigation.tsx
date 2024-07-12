@@ -42,7 +42,6 @@ const Navigation = () => {
     fetcher.submit(formData, {method: 'post'});
   }
 
-
   const handleShareLink = async () => {
 
     console.log(location)
@@ -56,8 +55,6 @@ const Navigation = () => {
       textArea.select();
 
       try {
-        const successful = document.execCommand('copy');
-        const msg = successful ? 'successful' : 'unsuccessful';
         setShowToast(true);
         setToastMessage('The link has been copied to your clipboard!');
       } catch (err) {

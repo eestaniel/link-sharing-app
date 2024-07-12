@@ -34,8 +34,6 @@ export const action: ActionFunction = async ({request}) => {
   }
 };
 
-
-
 const changePage = async (formData: FormData) => {
   const page = formData.get('page') as string;
   if (!page) {
@@ -44,7 +42,6 @@ const changePage = async (formData: FormData) => {
   return redirect(page);
 
 }
-
 
 const createAnonSession = async () => {
   const response = await fetch(`${process.env.BASE_URL}/api/auth/sign-in-anon`, {
@@ -60,13 +57,11 @@ const createAnonSession = async () => {
     return json({error: error.message}, {status: 401});
   }
 
-
   const cookieHeader = await serializeSession(accessToken);
   return json({session: cookieHeader}, {
     headers: {"Set-Cookie": cookieHeader},
   });
 }
-
 
 const createAccount = async (formData: FormData) => {
   const email = formData.get('email') as string;
@@ -94,6 +89,7 @@ interface TokenPayload {
   refreshToken: string;
 }
 
+
 const loginNewUser = async (formData: FormData) => {
   const accessToken = formData.get('access_token') as string;
   const refreshToken = formData.get('refresh_token') as string;
@@ -116,7 +112,6 @@ const loginNewUser = async (formData: FormData) => {
 
 }
 
-
 const baseUrl = process.env.BASE_URL;
 const login = async (formData: FormData) => {
   const email = formData.get('email') as string;
@@ -136,7 +131,7 @@ const login = async (formData: FormData) => {
   const {accessToken, refreshToken} = res;
 
   // Set session data
-  const {data, error} = await supabase.auth.setSession({
+  const {error} = await supabase.auth.setSession({
     access_token: accessToken, refresh_token: refreshToken
   });
 
@@ -151,7 +146,6 @@ const login = async (formData: FormData) => {
     headers: {"Set-Cookie": cookieHeader},
   });
 };
-
 
 const signOut = async (request: any) => {
   // Get the access token from the session cookie
@@ -183,14 +177,11 @@ const signOut = async (request: any) => {
     return json({error: res.error}, {status: 401});
   }
 
-
-
   const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
   return redirect("/", {
     headers: {"Set-Cookie": newCookieHeader},
   });
 };
-
 
 const saveLinks = async (formData: FormData, request: any) => {
   // Get the access token from the session cookie
@@ -248,10 +239,8 @@ const saveProfile = async (formData: FormData, request: Request) => {
     return json({error: responseBody.error}, {status: 401});
   }
 
-
   return {message: 'Profile saved'};
 };
-
 
 const serializeSession = async (accessToken: string) => {
   const sessionValue = {accessToken}
