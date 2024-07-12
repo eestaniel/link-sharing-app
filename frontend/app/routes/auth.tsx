@@ -52,16 +52,24 @@ const changePage = async (formData: FormData, request: any) => {
 
 
 const createAnonSession = async () => {
-  const {data, error} = await supabase.auth.signInAnonymously();
+  const response = await fetch(`${process.env.BASE_URL}/api/auth/sign-in-anon`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const {accessToken, error} = await response.json();
 
   if (error) {
     return json({error: error.message}, {status: 401});
   }
 
-  const cookieHeader = await serializeSession(data?.session);
 
-  return json({sessionID: data?.session?.access_token}, {
-    headers: {"Set-Cookie": cookieHeader}
+  const cookieHeader = await serializeSession(accessToken);
+  console.log(accessToken, cookieHeader)
+  return json({session: cookieHeader}, {
+    headers: {"Set-Cookie": cookieHeader},
   });
 }
 

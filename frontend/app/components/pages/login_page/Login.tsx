@@ -112,7 +112,7 @@ const Login = () => {
         <button className={`${styles.button} ${isLoading && styles.is_loading}`}
                 disabled={isLoading}
                 type="submit">{isLoading ? 'Loading...' : 'Log in'}</button>
-        <button className={styles.button} onClick={handleAnon}>Sign in
+        <button className={styles.button} onClick={handleAnon} type={'button'}>Sign in
           Anonymously
         </button>
 

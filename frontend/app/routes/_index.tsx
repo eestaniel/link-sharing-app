@@ -70,8 +70,6 @@ export default function Index() {
       formData.append("access_token", params.get('access_token') as string);
       formData.append("refresh_token", params.get('refresh_token') as string);
       fetcher.submit(formData, {method: "post", action: "/auth"})
-
-
     };
 
     processToken();

@@ -52,6 +52,33 @@ export class AuthService {
     return {message: 'Account created successfully', data:dataProfile[0]};
   }
 
+  async signInAnon() {
+    const {data, error} = await this.supabaseService.getClient()
+      .auth.signInAnonymously()
+
+    if (error) {
+      return {error: error.message}
+    }
+
+    // create anon user in users table
+    const {data: dataProfile, error: dataProfileError} = await this.supabaseService.getClient()
+      .from('users')
+      .upsert({
+        id: data.user.id,
+      })
+      .select()
+
+    if (dataProfileError) {
+      return {error: dataProfileError.message}
+    }
+    console.log(data)
+
+
+
+
+    return {message: 'Anon user created successfully', accessToken: data.session.access_token};
+  }
+
 
   async signIn(email: string, password: string) {
     let start = new Date().getTime();

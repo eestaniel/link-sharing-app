@@ -175,7 +175,8 @@ const Dashboard = () => {
 
               <div
                 className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>
+                {userDetails?.first_name && userDetails?.last_name &&
+                  <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
                 <p>{userDetails?.email}</p>
               </div>
             </div>

@@ -28,20 +28,15 @@ export class AuthController {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
 
-  @UseGuards(AuthGuard)
-  @Get('me')
-  getProfile(@Req() req) {
-    return req.user;
+  @Post('sign-in-anon')
+  signInAnon() {
+    return this.authService.signInAnon();
   }
+
 
   @Post('signout')
   @UseGuards(AuthGuard)
   signOut(@Req() req) {
     return this.authService.signOut(req);
-  }
-
-  @Post('test')
-  test(@Req() req) {
-    return this.authService.test();
   }
 }

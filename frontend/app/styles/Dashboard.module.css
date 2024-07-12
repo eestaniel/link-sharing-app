@@ -101,7 +101,7 @@
               gap:            0.5rem;
               text-align:     center;
               width:          100%;
-              min-height:     2.375rem;
+              min-height:     3.5rem;
 
 
               h2 {
@@ -112,6 +112,7 @@
                 font-weight:      600;
 
                 color:            var(--dark-grey);
+                background-color: white;
                 min-height: 1.313rem;
 
               }

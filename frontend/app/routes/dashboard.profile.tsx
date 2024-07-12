@@ -5,17 +5,16 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs";
 import {useLinksStore} from "~/store/LinksStore";
 import {useEffect, useRef, useState} from "react";
-import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react";
+import {useFetcher, useLoaderData} from "@remix-run/react";
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {getData} from "~/services/user-services";
-import {Toast} from "~/components/toast/Toast"
 
 // Define zod schema for profile details
 const profileSchema = z.object({
   first_name: z.string().min(1, "Can't be empty"),
   last_name: z.string().min(1, "Can't be empty"),
-  email: z.string().email("Invalid email"),
+  email: z.string().optional(),
   file: z.any().optional(),
 });
 
@@ -42,19 +41,19 @@ export const loader: LoaderFunction = async ({request}) => {
   }
   console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
-  return {profile, links};
-};
-
-
-interface ProfileLoaderData {
-  profile: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    url?: string;
-  };
+  if (profile) {
+    if (profile.first_name === null || profile.first_name === undefined) {
+      profile.first_name = "";
+    }
+    if (profile.last_name === null || profile.last_name === undefined) {
+      profile.last_name = "";
+    }
+    if (profile.email === null  || profile.email === undefined) {
+      profile.email = "";
+    }
+    return {profile, links};
+  }
 }
-
 
 const DashboardProfile = () => {
   const methods = useForm<ProfileFormInputs>({
@@ -63,12 +62,19 @@ const DashboardProfile = () => {
       first_name: "",
       last_name: "",
       email: "",
-      file: undefined,
+      file: null,
     },
   });
+
   const fetcher = useFetcher();
 
-  const {userDetails, setUserDetails, setUserLinks,setShowToast, setToastMessage} = useLinksStore((state) => ({
+  const {
+    userDetails,
+    setUserDetails,
+    setUserLinks,
+    setShowToast,
+    setToastMessage
+  } = useLinksStore((state) => ({
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
     setUserLinks: state.setUserLinks,
@@ -76,57 +82,89 @@ const DashboardProfile = () => {
     setToastMessage: state.setToastMessage,
   }));
 
-  const transition = useNavigation();
-
-
-
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
-
-  const {links, profile} = useLoaderData() as any;
-
-  useEffect(() => {
-    if (profile) {
-      setUserDetails(profile);
-      methods.reset(profile);
-    }
-    if (links) {
-      setUserLinks(links);
-    }
-
-  }, [profile, links, methods]);
-
-  const {handleSubmit, register, formState: {errors}, watch} = methods;
+  const {
+    handleSubmit,
+    register,
+    formState: {errors},
+    setError,
+    watch
+  } = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageData, setImageData] = useState<{
     url: string;
     file: any
   } | string | null>(null);
-
+  const {links, profile} = useLoaderData() as any;
   const [disableButton, setDisableButton] = useState(false);
+
+  // Set the user details and links to the store
+  useEffect(() => {
+    if (profile) {
+      setUserDetails(profile);
+
+      const newProfile = {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        email: profile.email,
+      }
+
+
+
+      if (profile.email) {
+        newProfile.email = profile.email;
+      }
+      methods.reset(newProfile);
+    }
+    if (links) {
+      setUserLinks(links);
+    }
+
+  }, [profile]);
+
+  // Validate email
+  const validEmail = (email: string) => {
+    return z.string().email().safeParse(email);
+  }
+
+  // Save the form data
   const handleSaveForm = async (data: ProfileFormInputs) => {
     setDisableButton(true);
-    setUserDetails(data);
 
+    // check if email is empty
     const formData = new FormData();
     formData.append("action", "save-profile");
     formData.append("first_name", data.first_name);
     formData.append("last_name", data.last_name);
-    formData.append("email", data.email);
+    if (data.email) {
+      // check if email is valid
+      const emailValidation = validEmail(data.email);
+      if (emailValidation.success) {
+        formData.append("email", data.email);
+      } else {
+        setError('email', {
+          type: 'manual',
+          message: 'Invalid email'
+        });
+        setDisableButton(false);
+        return;
+      }
+    }
     if (data.file) {
       formData.append("file", data.file);
     }
-
-    // Assuming you want to handle the fetch call yourself, otherwise use fetcher
+    // Assuming you want to handle the fetch call yourself, otherwise use
+    // fetcher
     fetcher.submit(formData, {
       method: "POST",
       action: "/auth",
       encType: "multipart/form-data",
     });
+    setUserDetails(data);
   };
 
-
-
+  // Show toast message when data is saved
   useEffect(() => {
     if (fetcher.data?.message) {
       setShowToast(fetcher.data.message);
@@ -135,6 +173,7 @@ const DashboardProfile = () => {
     }
   }, [fetcher.data]);
 
+  // Set isClient to true
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -172,18 +211,25 @@ const DashboardProfile = () => {
     }
   };
 
+  // Watch for changes in the form
   useEffect(() => {
-    const subscription = methods.watch((value, {name, type}) => {
-      const isDifferent = (
-        value.first_name !== userDetails.first_name ||
-        value.last_name !== userDetails.last_name ||
-        value.email !== userDetails.email ||
-        (value.file && (imageData?.file !== value.file))
-      );
-      setIsFormChanged(isDifferent);
+    const subscription = methods.watch((value, {name}) => {
+      const hasNameChanged = value.first_name !== profile.first_name
+        || value.last_name !== profile.last_name
+        || value.email !== profile.email
+      ;
+      console.log(value.email)
+      if (hasNameChanged) {
+        setIsFormChanged(true);
+      } else {
+        setIsFormChanged(false);
+      }
     });
+
     return () => subscription.unsubscribe();
-  }, [methods, userDetails, imageData]);
+  }, [methods]);
+
+
 
   const renderImage = () => {
     if (userDetails?.url && !imageData) {
@@ -227,7 +273,8 @@ const DashboardProfile = () => {
         <div className={styles.form_header_container}>
           <header className={styles.profile_header}>
             <h1>Profile Details</h1>
-            <p>Add your details to create a personal touch to your profile.</p>
+            <p>Add your details to create a personal touch to your
+              profile.</p>
           </header>
           <FormProvider {...methods} >
             <form onSubmit={handleSubmit(handleSaveForm)}
@@ -235,7 +282,8 @@ const DashboardProfile = () => {
             >
               <div className={styles.picture_container}>
                 <div className={styles.picture_content}>
-                  <p className={styles.text_profile_picture}>Profile picture</p>
+                  <p className={styles.text_profile_picture}>Profile
+                    picture</p>
                   <div className={styles.picture_group}>
                     <div
                       className={styles.picture_svg_container}
@@ -258,23 +306,27 @@ const DashboardProfile = () => {
                 </div>
               </div>
               <div className={styles.details_container}>
-                <div className={`${styles.input_container} ${errors.first_name && styles.input_error}`}>
+                <div
+                  className={`${styles.input_container} ${errors.first_name && styles.input_error}`}>
                   <label htmlFor="first_name">First name*</label>
                   <input {...register('first_name')} type="text"/>
                   {errors.first_name && <p
                     className={styles.error_text}>{errors.first_name.message}</p>}
                 </div>
-                <div className={`${styles.input_container} ${errors.last_name && styles.input_error}`}>
+                <div
+                  className={`${styles.input_container} ${errors.last_name && styles.input_error}`}>
                   <label htmlFor="last_name">Last name*</label>
                   <input {...register('last_name')} type="text"/>
                   {errors.last_name && <p
                     className={styles.error_text}>{errors.last_name.message}</p>}
                 </div>
-                <div className={`${styles.input_container} ${errors.email && styles.input_error}`}>
+                <div
+                  className={`${styles.input_container} ${errors.email && styles.input_error}`}>
                   <label htmlFor="email">Email</label>
-                  <input {...register('email')} type="email"/>
+                  <input {...register('email')} type="text"/>
                   {errors.email &&
-                    <p className={styles.error_text}>{errors.email.message}</p>}
+                    <p
+                      className={styles.error_text}>{errors.email.message}</p>}
                 </div>
               </div>
             </form>
