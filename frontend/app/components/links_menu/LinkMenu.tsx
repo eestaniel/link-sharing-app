@@ -62,6 +62,56 @@ export const LinkMenuStyles = (platform: string) => {
   }
 }
 
+export const LinkMenuPlaceholder = (platform: string) => {
+  switch (platform) {
+    case 'github':
+      return 'e.g. https://www.github.com/johnappleseed'
+
+    case 'frontend_mentor':
+      return 'e.g. https://www.frontendmentor.io/profile/johnappleseed'
+
+    case 'twitter':
+      return 'e.g. https://twitter.com/johnappleseed'
+
+    case 'linkedIn':
+      return 'e.g. https://www.linkedin.com/in/johnappleseed'
+
+    case 'youtube':
+      return 'e.g. https://www.youtube.com/channel/johnappleseed'
+
+    case 'facebook':
+      return 'e.g. https://www.facebook.com/johnappleseed'
+
+    case 'twitch':
+      return 'e.g. https://www.twitch.tv/johnappleseed'
+
+    case 'dev_to':
+      return 'e.g. https://dev.to/johnappleseed'
+
+    case 'codewars':
+      return 'e.g. https://www.codewars.com/users/johnappleseed'
+
+    case 'codepen':
+      return 'e.g. https://codepen.io/johnappleseed'
+
+    case 'freecodecamp':
+      return 'e.g. https://www.freecodecamp.org/johnappleseed'
+
+    case 'gitlab':
+      return 'e.g. https://gitlab.com/johnappleseed'
+
+    case 'hashnode':
+      return 'e.g. https://hashnode.com/@johnappleseed'
+
+    case 'stackoverflow':
+      return 'e.g. https://stackoverflow.com/users/johnappleseed'
+
+
+    default:
+      return 'e.g. https://www.example.com/johnappleseed'
+  }
+}
+
 export const LinkMenu = () => {
 
   return (

@@ -1,6 +1,10 @@
 import styles from "./LinkSelection.module.css";
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons";
-import {LinkKey, linkMenuList} from "~/components/links_menu/LinkMenu";
+import {
+  LinkKey,
+  linkMenuList,
+  LinkMenuPlaceholder
+} from "~/components/links_menu/LinkMenu";
 import {Controller, useFormContext} from "react-hook-form";
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useLinksStore} from "~/store/LinksStore"
@@ -121,6 +125,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
                 onChange={(e) => handleInputChange(e.target.value, field.onChange)} // Ensure field updates are handled
                 onBlur={field.onBlur}
                 value={field.value}
+                placeholder={`${LinkMenuPlaceholder(platform)}`}
               />)}
           />
           {// @ts-ignore

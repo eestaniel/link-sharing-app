@@ -92,6 +92,19 @@
         transform: scale(1);
         transition: ease-in-out all 150ms;
       }
+
+      .error_text {
+        position: absolute;
+        top: 25%;
+        right: 1rem;
+
+        font-family: "Instrument Sans", serif;
+        font-size: 0.75rem;
+        line-height: 150%;
+        letter-spacing: 0;
+        font-weight: 400;
+        color: var(--red);
+      }
     }
     .input {
       display: flex;
