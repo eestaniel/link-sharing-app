@@ -49,7 +49,6 @@ export class UsersController {
       // save user links and profile to cache
       await this.cacheManager.set(req.body.user_id, {user_links: links, user_profile: profile});
 
-      console.log('returning user links and profile from database')
 
       return {links, profile};
     }

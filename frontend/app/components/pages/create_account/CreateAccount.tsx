@@ -48,13 +48,7 @@ const CreateAccount = () => {
     formData.append("email", data.email);
     formData.append("password", data.password);
     fetcher.submit(formData, { method: "post", action: "/auth" });
-    console.log(formData)
   }
-  useEffect(() => {
-    if (fetcher.data) {
-      console.log(fetcher.data)
-    }
-  }, [fetcher]);
 
   return (
       <div className={styles.login_container}>

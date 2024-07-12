@@ -258,7 +258,6 @@ export class UsersService {
                     });
 
       if (newStorageError) {
-        console.log('newStorageError: ', newStorageError.message)
         return JSON.stringify({error: newStorageError.message});
       }
 
@@ -285,7 +284,6 @@ export class UsersService {
                                                                .select();
 
     if (updatedError) {
-      console.log('updatedError: ', updatedError.message)
       return JSON.stringify({error: updatedError.message});
     }
 

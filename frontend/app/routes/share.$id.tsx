@@ -27,11 +27,7 @@ const PublicShareId = () => {
 
   const renderLinksContent = () => {
     if (links.length == 0) {
-      return (
-        <div className={styles.empty_links_container}>
-          <p>No links added yet</p>
-        </div>
-      );
+      return ;
     } else {
       return (
         links.map((link: {
@@ -66,7 +62,7 @@ const PublicShareId = () => {
       <div className={`${styles.preview_container} ${path.split('/')[1] === 'share' && styles.share}`}>
         <section className={styles.picture_header_container}>
           <div className={styles.picture_container}>
-            <img src={profile?.url} alt="profile img"/>
+            <img src={profile?.url} alt=""/>
           </div>
           <header className={styles.header_group}>
             <h1>{profile?.first_name} {profile?.last_name}</h1>

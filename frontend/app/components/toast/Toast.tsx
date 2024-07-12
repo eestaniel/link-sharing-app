@@ -42,7 +42,6 @@ export const Toast = ({message, duration = 3000, onDismiss}: ToastProps) => {
   }
 
   const messageIcon = () => {
-    console.log(toastMessage)
     if (toastMessage === 'Your changes have been successfully saved!') {
       return (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

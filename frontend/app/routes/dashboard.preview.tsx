@@ -107,7 +107,7 @@ const DashboardPreview = () => {
 
         <section className={styles.picture_header_container}>
           <div className={styles.picture_container}>
-            <img src={userDetails?.url} alt="dashboard preview"/>
+            <img src={userDetails?.url} alt=""/>
           </div>
           <header className={styles.header_group}>
             <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>

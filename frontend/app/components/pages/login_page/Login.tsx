@@ -20,6 +20,7 @@ const Login = () => {
     setCurrentPage: state.setCurrentPage,
   }));
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnon, setIsAnon] = useState(false);
 
   // Initialize the form with react-hook-form and zodResolver
   const {
@@ -76,6 +77,7 @@ const Login = () => {
 
   const handleAnon = () => {
     const formData = new FormData();
+    setIsAnon(true);
     formData.append("action", "anon");
     fetcher.submit(formData, {method: "post", action: "/auth"});
   }
@@ -112,8 +114,8 @@ const Login = () => {
         <button className={`${styles.button} ${isLoading && styles.is_loading}`}
                 disabled={isLoading}
                 type="submit">{isLoading ? 'Loading...' : 'Log in'}</button>
-        <button className={styles.button} onClick={handleAnon} type={'button'}>Sign in
-          Anonymously
+        <button className={`${styles.button} ${isAnon && styles.is_loading}`} onClick={handleAnon} type={'button'}>
+          {isAnon ? 'Loading...' : 'Log in as anonymous'}
         </button>
 
         <div className={styles.footer_group}>

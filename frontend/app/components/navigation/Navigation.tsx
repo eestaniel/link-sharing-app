@@ -55,7 +55,6 @@ const Navigation = () => {
       try {
         const successful = document.execCommand('copy');
         const msg = successful ? 'successful' : 'unsuccessful';
-        console.log('Fallback: Copying text command was ' + msg);
         setShowToast(true);
         setToastMessage('The link has been copied to your clipboard!');
       } catch (err) {
@@ -71,7 +70,6 @@ const Navigation = () => {
       await navigator.clipboard.writeText(newURL);
       setShowToast(true);
       setToastMessage('The link has been copied to your clipboard!');
-      console.log('Link copied to clipboard successfully!');
     } catch (err) {
       console.error('Failed to copy: ', err);
     }

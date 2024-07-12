@@ -39,7 +39,6 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
     });
   }
-  console.log(`Time to validate access Token for Profile Page: ${Date.now() - start}ms`);
 
   if (profile) {
     if (profile.first_name === null || profile.first_name === undefined) {
@@ -218,7 +217,6 @@ const DashboardProfile = () => {
         || value.last_name !== profile.last_name
         || value.email !== profile.email
       ;
-      console.log(value.email)
       if (hasNameChanged) {
         setIsFormChanged(true);
       } else {
@@ -261,11 +259,6 @@ const DashboardProfile = () => {
     }
   };
 
-  useEffect(() => {
-    if (errors) {
-      console.log(errors);
-    }
-  }, [errors]);
 
   return (
     <div className={styles.profile_container}>

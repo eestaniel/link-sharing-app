@@ -248,7 +248,16 @@
 
 
           .input_error {
-            color: red;
+            font-family:    "Instrument Sans", serif;
+            font-size:      0.75remrem;
+            line-height:    150%;
+            letter-spacing: 0;
+            font-weight:    400;
+            color: #FF3939;
+
+            input {
+              outline: 1px solid red;
+            }
           }
 
 
@@ -419,6 +428,8 @@
               input {
                 width: 100%;
               }
+
+
             }
           }
         }

@@ -24,7 +24,6 @@ export class ShareService {
                               .eq('share_uuid', uuid)
 
     if (profileError) {
-      console.log('error', profileError)
       return {error: profileError}
     }
 
@@ -41,7 +40,6 @@ export class ShareService {
                               .eq('user_id', profileData[0].id)
 
     if (linksError) {
-      console.log('error', linksError)
       return {error: linksError}
     }
 
@@ -55,8 +53,6 @@ export class ShareService {
       email: profileData[0].email,
       url: profileData[0].profile_picture_url
     }
-
-    console.log('time taken', Date.now() - start)
     return {
       profile: profile,
       links: links

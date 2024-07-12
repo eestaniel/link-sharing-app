@@ -71,9 +71,6 @@ export class AuthService {
     if (dataProfileError) {
       return {error: dataProfileError.message}
     }
-    console.log(data)
-
-
 
 
     return {message: 'Anon user created successfully', accessToken: data.session.access_token};
@@ -124,7 +121,6 @@ export class AuthService {
                   .eq('id', user_id);
 
     if (dataProfileError) {
-      console.log(dataProfileError)
       return JSON.stringify({error: dataProfileError});
     }
 
@@ -158,8 +154,6 @@ export class AuthService {
     // they can set session
 
 
-    console.log(`Time taken to login: ${new Date().getTime() - start}ms`)
-
     return {
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token
@@ -174,13 +168,11 @@ export class AuthService {
     // clear cache where req.user_id is the key
     const userCache = await this.cacheManager.get(req.user_id);
     if (userCache) {
-      console.log('clearing cache for user_id')
       await this.cacheManager.del(req.user_id);
     }
     // clear cache where token is the key
     const tokenCache = await this.cacheManager.get(`token:${req.headers.authorization?.split(' ')[1]}`);
     if (tokenCache) {
-      console.log('clearing cache for token')
       await this.cacheManager.del(`token:${req.headers.authorization?.split(' ')[1]}`);
     }
 

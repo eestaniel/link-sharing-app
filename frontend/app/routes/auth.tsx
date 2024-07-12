@@ -67,7 +67,6 @@ const createAnonSession = async () => {
 
 
   const cookieHeader = await serializeSession(accessToken);
-  console.log(accessToken, cookieHeader)
   return json({session: cookieHeader}, {
     headers: {"Set-Cookie": cookieHeader},
   });
@@ -78,7 +77,6 @@ const createAccount = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  console.log(email, password);
   const response = await fetch(`${process.env.BASE_URL}/api/auth/create-account`, {
     method: 'POST',
     headers: {
@@ -87,7 +85,6 @@ const createAccount = async (formData: FormData) => {
     body: JSON.stringify({email, password}),
   });
   const {message, error} = await response.json();
-  console.log(message, error)
 
   if (error) {
     return json({error}, {status: 401});
@@ -106,8 +103,6 @@ const loginNewUser = async (formData: FormData) => {
   const accessToken = formData.get('access_token') as string;
   const refreshToken = formData.get('refresh_token') as string;
 
-  console.log('accessToken', accessToken)
-  console.log('refreshToken', refreshToken)
   // Set session data
   const {data, error} = await supabase.auth.setSession({
     access_token: accessToken, refresh_token: refreshToken
