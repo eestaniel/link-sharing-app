@@ -43,12 +43,8 @@ const Login = () => {
   // Define the submit handler
   const onSubmit = async (data: LoginFormInputs) => {
     setIsLoading(true);
-    setError('password', {
-      type: 'manual',
-      message: ''
-    })
-    // Handle form submission
 
+    // Handle form submission
     const formData = new FormData();
     formData.append("action", "login");
     formData.append("email", data.email);
@@ -81,6 +77,7 @@ const Login = () => {
     formData.append("action", "anon");
     fetcher.submit(formData, {method: "post", action: "/auth"});
   }
+
 
   return (
     <div className={styles.login_container}>

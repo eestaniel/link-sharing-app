@@ -91,8 +91,6 @@ export const loader = async ({request}: any) => {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
-
-  console.log('profile', profile)
   return json({links, profile});
 };
 
