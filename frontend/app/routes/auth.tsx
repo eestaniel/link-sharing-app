@@ -1,9 +1,4 @@
-import {
-  ActionFunction,
-  json,
-  LoaderFunction,
-  redirect
-} from "@remix-run/node";
+import {ActionFunction, json, LoaderFunction, redirect} from "@remix-run/node";
 import {supabase} from "~/services/supabaseClient";
 import {sessionCookie} from "~/utils/sessionCookie";
 
@@ -33,7 +28,7 @@ export const action: ActionFunction = async ({request}) => {
     case 'save-profile':
       return await saveProfile(formData, request);
     case 'change-page':
-      return changePage(formData, request);
+      return changePage(formData);
     default:
       return json({error: 'Unsupported action'}, {status: 400});
   }
@@ -41,7 +36,7 @@ export const action: ActionFunction = async ({request}) => {
 
 
 
-const changePage = async (formData: FormData, request: any) => {
+const changePage = async (formData: FormData) => {
   const page = formData.get('page') as string;
   if (!page) {
     return redirect('/dashboard/links')
@@ -104,7 +99,7 @@ const loginNewUser = async (formData: FormData) => {
   const refreshToken = formData.get('refresh_token') as string;
 
   // Set session data
-  const {data, error} = await supabase.auth.setSession({
+  const {error} = await supabase.auth.setSession({
     access_token: accessToken, refresh_token: refreshToken
   });
 
@@ -115,7 +110,6 @@ const loginNewUser = async (formData: FormData) => {
   // Create a session cookie with the access token
   const cookieHeader = await sessionCookie.serialize({accessToken});
 
-  console.log('cookieHeader', cookieHeader)
   return json({session: accessToken}, {
     headers: {"Set-Cookie": cookieHeader},
   });
@@ -263,10 +257,8 @@ const serializeSession = async (accessToken: string) => {
   const sessionValue = {accessToken}
   // Serializing the cookie with the session value and maxAge set for 1
   // week
-  const cookieHeader = await sessionCookie.serialize(sessionValue, {
+  return await sessionCookie.serialize(sessionValue, {
     maxAge: 60 * 60 * 24 * 7 // 1 week in seconds
-  });
-
-  return cookieHeader; // Just return the cookie header string
+  }); // Just return the cookie header string
 }
 

@@ -42,7 +42,10 @@ const Navigation = () => {
     fetcher.submit(formData, {method: 'post'});
   }
 
+
   const handleShareLink = async () => {
+
+    console.log(location)
     const newURL = `${window.location.origin}/share/${userDetails.share_uuid}`;
     // Fallback to textarea method for mobile support
     if (!navigator.clipboard) {

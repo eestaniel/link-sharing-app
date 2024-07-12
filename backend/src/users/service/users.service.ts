@@ -12,12 +12,6 @@ interface Link {
 }
 
 
-interface UserLinkResponse {
-  links: Link[];
-  error?: string;
-}
-
-
 @Injectable()
 export class UsersService {
 
@@ -93,7 +87,6 @@ export class UsersService {
       })
     }
 
-
     return {links: newArray};
   }
 
@@ -123,7 +116,6 @@ export class UsersService {
       share_uuid: data[0].share_uuid
     }
 
-
     // save to cache
     const userCache: UserCacheDto = await this.cacheManager.get<UserCacheDto>(user_id)
     if (userCache) {
@@ -137,6 +129,7 @@ export class UsersService {
       })
 
     }
+
     return {profile: profile};
   }
 
@@ -173,7 +166,6 @@ export class UsersService {
     // Determine links to delete
     const linksToDelete = existingLinks.filter(existingLink => !links.some(link => link.url === existingLink.url));
 
-
     // delete missing links based on id
     if (linksToDelete.length > 0) {
       const {error} = await this.supabaseService
@@ -206,7 +198,6 @@ export class UsersService {
       await this.cacheManager.set(user_id, userCache);
     }
 
-
     return {message: "Links saved successfully"};
   }
 
@@ -230,6 +221,9 @@ export class UsersService {
                                                          .from('profile_pictures')
                                                          .list(`images/${req.user_id}`);
 
+      if (filesError) {
+        return JSON.stringify({error: filesError.message});
+      }
 
       // delete files from user folder. promise.wait all
       if (files && files.length > 0) {
@@ -269,7 +263,7 @@ export class UsersService {
       profileToSave['profile_picture_url'] = fileURLData.publicUrl;
     }
 
-    const {data: updatedData, error: updatedError} = await this.supabaseService
+    const {error: updatedError} = await this.supabaseService
                                                                .getClient()
                                                                .from('users')
                                                                .upsert(
@@ -293,37 +287,19 @@ export class UsersService {
   }
 
 
-  private getFileExtension(filename: string): string {
-    return filename.split('.').pop();
-  }
-
 
   private async updateCache(userId: string, profileToSave: any): Promise<string> {
     const userCache = await this.cacheManager.get<any>(userId);
 
-    if (userCache?.user_profile.first_name) {
-      userCache.user_profile.first_name = profileToSave.first_name;
-      userCache.user_profile.last_name = profileToSave.last_name;
-      userCache.user_profile.email = profileToSave.email;
+    userCache.user_profile.first_name = profileToSave.first_name;
+    userCache.user_profile.last_name = profileToSave.last_name;
+    userCache.user_profile.email = profileToSave.email;
 
-      if (profileToSave['profile_picture_url']) {
-        userCache.user_profile.url = profileToSave['profile_picture_url'];
-      }
-
-      await this.cacheManager.set(userId, userCache);
-    } else {
-      await this.cacheManager.set(userId, {
-        refresh_token: '',
-        user_links: [],
-        user_profile: {
-          first_name: profileToSave.first_name,
-          last_name: profileToSave.last_name,
-          email: profileToSave.email,
-          url: profileToSave['profile_picture_url'],
-        },
-      });
+    if (profileToSave['profile_picture_url']) {
+      userCache.user_profile.url = profileToSave['profile_picture_url'];
     }
 
+    await this.cacheManager.set(userId, userCache);
 
     return JSON.stringify({message: "Profile picture uploaded successfully"});
   }

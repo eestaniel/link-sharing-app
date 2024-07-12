@@ -21,7 +21,6 @@ const profileSchema = z.object({
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 export const loader: LoaderFunction = async ({request}) => {
-  let start = Date.now();
 
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
@@ -88,7 +87,6 @@ const DashboardProfile = () => {
     register,
     formState: {errors},
     setError,
-    watch
   } = methods;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageData, setImageData] = useState<{
@@ -102,19 +100,7 @@ const DashboardProfile = () => {
   useEffect(() => {
     if (profile) {
       setUserDetails(profile);
-
-      const newProfile = {
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        email: profile.email,
-      }
-
-
-
-      if (profile.email) {
-        newProfile.email = profile.email;
-      }
-      methods.reset(newProfile);
+      methods.reset(profile);
     }
     if (links) {
       setUserLinks(links);
@@ -233,7 +219,7 @@ const DashboardProfile = () => {
     if (userDetails?.url && !imageData) {
       return (
         <>
-          <img src={userDetails?.url} alt="profile picture"/>
+          <img src={userDetails?.url} alt=""/>
           <span className={styles.layer}>
             <UploadImageIcon/>
             <p>Change Image</p>
@@ -243,7 +229,7 @@ const DashboardProfile = () => {
     } else if (imageData) {
       return (
         <>
-          <img src={imageData?.url} alt="profile picture"/>
+          <img src={imageData?.url} alt=""/>
           <span className={styles.layer}>
             <UploadImageIcon/>
             <p>Change Image</p>

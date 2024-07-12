@@ -15,7 +15,7 @@ async function bootstrap() {
   })
 
   // increase payload size
-  app.use(bodyParser.json({limit: '10mb'}));
+  app.use(bodyParser.json({limit: '10mb'})); 
 
   await app.listen(3000);
 

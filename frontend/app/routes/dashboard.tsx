@@ -92,7 +92,7 @@ export const loader = async ({request}: any) => {
     });
   }
 
-  console.log('links', links)
+  console.log('profile', profile)
   return json({links, profile});
 };
 
@@ -169,7 +169,7 @@ const Dashboard = () => {
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
               {userDetails?.url ?
-                <img src={userDetails?.url} alt="profile image"/>:
+                <img src={userDetails?.url} alt=""/>:
                 <div className={styles.empty_image}></div>
               }
 
@@ -182,7 +182,7 @@ const Dashboard = () => {
             </div>
             <div className={styles.links_group}>
               <ul ref={parent}>
-                {previewLinks?.map((link, index) => (
+                {previewLinks?.map((link) => (
                   <li key={link.id}>
                     <div
                       className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
@@ -205,7 +205,10 @@ const Dashboard = () => {
 
   return (
     <div
-      className={`${styles.page_container} ${location.pathname !== '/dashboard/preview' && styles.center_page}`}>
+      className={`${styles.page_container} 
+      ${location.pathname !== '/dashboard/preview' && styles.center_page}}
+      ${location.pathname === '/dashboard/preview' && styles.prev_page}`}
+    >
       <Navigation/>
       <div
         className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>

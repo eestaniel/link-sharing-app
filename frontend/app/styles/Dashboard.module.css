@@ -19,15 +19,17 @@
     margin: auto;
   }
 
+  .prev_page {
+  }
+
 
   .page_container {
-    max-width:     1440px;
     max-height:    984px;
-    margin-inline: auto;
 
 
     .preview_page {
       padding: 0 !important;
+      margin: 0;
     }
 
 
