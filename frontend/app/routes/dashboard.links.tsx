@@ -5,14 +5,13 @@ import {useEffect, useMemo, useState} from "react";
 import styles from "app/styles/dashboard.links.module.css";
 import {useLinksStore} from "~/store/LinksStore";
 import LinkSelection from "~/components/links_menu/LinkSelection";
-import {EmptyLinksIcon, RightArrowIcon} from "~/assets/svgs/IconSVGs";
+import {EmptyLinksIcon} from "~/assets/svgs/IconSVGs";
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
-import {getData} from "~/services/user-services"
-import { useDragAndDrop } from "@formkit/drag-and-drop/react"
+import {getData} from "~/services/user-services";
 
-// Define zod schema for link URLs
+
 const linkSchema = z.object({
   links: z.array(
     z.object({
@@ -29,16 +28,14 @@ const generateUUID = () => {
   if (crypto.randomUUID) {
     return crypto.randomUUID();
   } else {
-    // Fallback to another method if crypto.randomUUID is not available
     return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, (c) => {
       const r = (Math.random() * 16) | 0;
       return r.toString(16);
     });
   }
-}
+};
 
 export const loader: LoaderFunction = async ({request}) => {
-  let start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
@@ -55,8 +52,8 @@ export const loader: LoaderFunction = async ({request}) => {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
-  console.log(`Time to validate access Token for Links Page:  ${Date.now() - start}ms`);
-  return {links, profile}
+
+  return {links, profile};
 };
 
 const DashboardLinks = () => {
@@ -77,6 +74,7 @@ const DashboardLinks = () => {
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails
   }));
+
   const fetcher = useFetcher();
 
   const methods = useForm<LinkFormInputs>({
@@ -87,7 +85,6 @@ const DashboardLinks = () => {
   });
 
   const {links, profile} = useLoaderData() as any;
-
   useEffect(() => {
     if (links) {
       setUserLinks(links);
@@ -97,14 +94,7 @@ const DashboardLinks = () => {
     if (profile) {
       setUserDetails(profile);
     }
-  }, [links, setUserLinks, methods]);
-
-  const {
-    handleSubmit,
-    setValue,
-    getValues,
-    formState: {errors}
-  } = methods;
+  }, [links, profile, setUserLinks, setUserDetails, methods]);
 
   const handleSignOut = async () => {
     const localStorageKeys = ['user_details', 'user_links'];
@@ -119,12 +109,12 @@ const DashboardLinks = () => {
     const id = generateUUID();
     const newLink = {id, platform: "github", url: ""};
     addLink(newLink);
-    setValue('links', [...getValues('links'), newLink]);
+    methods.setValue('links', [methods.getValues('links')[0], newLink, ...methods.getValues('links').slice(1)]);
   };
 
   const handleRemoveLink = (id: string) => {
     removeLink(id);
-    setValue('links', getValues('links').filter((link: LinkFormInputs['links'][number]) => link.id !== id));
+    methods.setValue('links', methods.getValues('links').filter((link: any) => link.id !== id));
   };
 
   const handleSaveLinks = async (data: LinkFormInputs) => {
@@ -133,6 +123,7 @@ const DashboardLinks = () => {
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
       fetcher.submit(formData, {method: "post", action: "/auth"});
+      //console.log('methods.getValues:', methods.getValues('links'))
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -143,96 +134,79 @@ const DashboardLinks = () => {
 
   useEffect(() => {
     setIsClient(true);
+
   }, []);
 
   useEffect(() => {
-    const subscription = methods.watch((value, {name, type}) => {
-      const isDifferent = (
-        JSON.stringify(value.links) !== JSON.stringify(userLinks)
-      );
-      setIsFormChanged(isDifferent);
-    });
-    return () => subscription.unsubscribe();
-  }, [methods]);
+    if (links.length > 0 || userLinks.length > 0) {
+      if (JSON.stringify(links) !== JSON.stringify(userLinks)) {
+        setIsFormChanged(true);
+        console.log('zustand storage links:', userLinks)
+        console.log('user links:', links)
+        methods.setValue('links', userLinks)
+      } else {
+        setIsFormChanged(false);
+      }
+    }
+  }, [userLinks, links]);
 
   const renderLinksContent = useMemo(() => {
-    if (userLinks) {
-      if (userLinks.length === 0) {
-        return (
-          <div className={styles.empty_links_container}>
-            <div className={styles.empty_links_content}>
-              <EmptyLinksIcon/>
-              <div className={styles.text_group}>
-                <h2>Let's get you started</h2>
-                <p>Use the “Add new link” button to get started. Once you have
-                  more
-                  than one link, you can reorder and edit them. We’re here to
-                  help
-                  you share your profiles with everyone!</p>
-              </div>
+    if (userLinks.length === 0) {
+      return (
+        <div className={styles.empty_links_container}>
+          <div className={styles.empty_links_content}>
+            <EmptyLinksIcon/>
+            <div className={styles.text_group}>
+              <h2>Let's get you started</h2>
+              <p>Use the “Add new link” button to get started. Once you have
+                more than one link, you can reorder and edit them. We’re here to
+                help you share your profiles with everyone!</p>
             </div>
           </div>
-        );
-      } else {
-        // key={link.id} data-label={link.id}
-        return userLinks.map((object, index) => (
-          <LinkSelection key={object.id} object={object} index={index}
-                         onRemove={handleRemoveLink}/>
-        ));
-      }
+        </div>
+      );
+    } else {
+      return userLinks.map((object, index) => (
+        <LinkSelection key={object.id} object={object} index={index}
+                       onRemove={handleRemoveLink}/>
+      ));
     }
   }, [userLinks]);
 
-
-
   return (
-    <>
-
-      <FormProvider {...methods}>
-        <Form className={styles.dashboard_form_container} method="post"
-              onSubmit={handleSubmit(handleSaveLinks)}
-        >
-
-          <div className={styles.dashboard_content_container}>
-            <div className={styles.dashboard_content}>
-              <section className={styles.header_links_container}>
-                <header className={styles.header}>
-                  <h1>Customize your links</h1>
-
-                  <p>Add/edit/remove links below and then share all your
-                    profiles
-                    with the world!</p>
-                </header>
-                <div className={styles.links_container}>
-                  <button type="button"
-                          className={styles.add_link_button}
-                          onClick={handleDisplayNewLink}
-                  >
-
-                    + Add new link
-                  </button>
-                  <div className={styles.links_content}>
-                    {renderLinksContent}
-                  </div>
+    <FormProvider {...methods}>
+      <Form className={styles.dashboard_form_container} method="post"
+            onSubmit={methods.handleSubmit(handleSaveLinks)}>
+        <div className={styles.dashboard_content_container}>
+          <div className={styles.dashboard_content}>
+            <section className={styles.header_links_container}>
+              <header className={styles.header}>
+                <h1>Customize your links</h1>
+                <p>Add/edit/remove links below and then share all your profiles
+                  with the world!</p>
+              </header>
+              <div className={styles.links_container}>
+                <button type="button" className={styles.add_link_button}
+                        onClick={handleDisplayNewLink}>
+                  + Add new link
+                </button>
+                <div className={styles.links_content}>
+                  {renderLinksContent}
                 </div>
-              </section>
-            </div>
-            <footer>
-              <button type="submit"
-                      className={styles.save_button}
-                      disabled={!isFormChanged && isClient}
-
-              >Save
-              </button>
-            </footer>
+              </div>
+            </section>
           </div>
-
-
-          <input type="hidden" name="links"
-                 value={JSON.stringify(getValues('links'))}/>
-        </Form>
-      </FormProvider>
-    </>
+          <footer>
+            <button type="submit" className={styles.save_button}
+                    disabled={!isFormChanged && isClient}>
+              Save
+            </button>
+          </footer>
+        </div>
+        <input type="hidden" name="links"
+               value={JSON.stringify(methods.getValues('links'))}/>
+      </Form>
+    </FormProvider>
   );
 };
 

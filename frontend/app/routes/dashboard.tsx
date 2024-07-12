@@ -118,7 +118,7 @@ const Dashboard = () => {
 
   const location = useLocation();
 
-  const [userList, links, setLinks] = useDragAndDrop(
+  const [parent, previewLinks, setPreviewLinks] = useDragAndDrop(
     userLinks,
     {
       group: 'links',
@@ -129,17 +129,16 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userLinks.length > 0) {
-      setLinks(userLinks);
-
+      setPreviewLinks(userLinks);
     }
   }, [userLinks]);
 
   useEffect(() => {
-    if (links.length > 0) {
-      setUserLinks(links);
+    if (previewLinks.length > 0) {
+      setUserLinks(previewLinks);
     }
-  }, [links]);
 
+  }, [previewLinks]);
 
   const renderLinksPreviewComponent = useMemo(() => {
     return (
@@ -156,9 +155,9 @@ const Dashboard = () => {
               </div>
             </div>
             <div className={styles.links_group}>
-              <ul ref={userList}>
-                {links?.map((link, index) => (
-                  <li key={link.id} >
+              <ul ref={parent}>
+                {previewLinks?.map((link, index) => (
+                  <li key={link.id}>
                     <div
                       className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
                     >
@@ -176,7 +175,7 @@ const Dashboard = () => {
         </div>
       </section>
     );
-  }, [links, userDetails]);
+  }, [previewLinks, userDetails]);
 
   return (
     <div
@@ -184,7 +183,7 @@ const Dashboard = () => {
       <Navigation/>
       <div
         className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
-        {location.pathname !== '/dashboard/preview' && isDesktop  && renderLinksPreviewComponent}
+        {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
         <Outlet/>
       </div>
     </div>
