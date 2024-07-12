@@ -13,26 +13,28 @@
 }
 
 
-
-
 @media screen and (min-width: 1024px) {
 
   .center_page {
     margin: auto;
   }
+
+
   .page_container {
-    max-width: 1440px;
-    max-height: 984px;
+    max-width:     1440px;
+    max-height:    984px;
     margin-inline: auto;
 
 
     .preview_page {
       padding: 0 !important;
     }
+
+
     .dashboard_container {
       flex-direction: row;
       padding:        0 1.5rem 1.5rem 1.5rem;
-      gap: 1.5rem;
+      gap:            1.5rem;
     }
 
 
@@ -59,6 +61,8 @@
           flex-direction: column;
           gap:            2.25rem;
           margin:         3.969rem 2.156rem;
+          width:          14.875rem;
+
 
 
           .header_group {
