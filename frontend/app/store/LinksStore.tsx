@@ -28,6 +28,8 @@ interface LinksStore {
                                                              // handle platform
                                                              // update by ID
   setUserDetails: (details: Jsonify<ProfileLoaderData["profile"]>) => void;
+  showToast: boolean;
+  setShowToast: (showToast: boolean) => void;
 }
 
 
@@ -41,6 +43,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
     last_name: '',
     email: ''
   },
+  showToast: false,
 
   editUserDetails: (details: any) => set({userDetails: details}),
 
@@ -80,8 +83,9 @@ export const useLinksStore = create<LinksStore>((set) => ({
 
   })),
 
-  setUserDetails: (details) => set({userDetails: details})
+  setUserDetails: (details) => set({userDetails: details}),
 
+  setShowToast: (showToast) => set({showToast}),
 
 }));
 

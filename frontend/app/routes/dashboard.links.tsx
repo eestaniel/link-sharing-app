@@ -65,7 +65,8 @@ const DashboardLinks = () => {
     removeLink,
     editLinkUrl,
     userDetails,
-    setUserDetails
+    setUserDetails,
+    setShowToast
   } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
@@ -73,10 +74,11 @@ const DashboardLinks = () => {
     removeLink: state.removeLink,
     editLinkUrl: state.editLinkUrl,
     userDetails: state.userDetails,
-    setUserDetails: state.setUserDetails
+    setUserDetails: state.setUserDetails,
+    setShowToast: state.setShowToast,
   }));
 
-  const fetcher = useFetcher();
+  const fetcher = useFetcher() as any;
 
   const methods = useForm<LinkFormInputs>({
     resolver: zodResolver(linkSchema),
@@ -118,13 +120,17 @@ const DashboardLinks = () => {
     methods.setValue('links', methods.getValues('links').filter((link: any) => link.id !== id));
   };
 
+  const [disableButton, setDisableButton] = useState(false);
+  ;
+
   const handleSaveLinks = async (data: LinkFormInputs) => {
     try {
+      setDisableButton(true);
       const formData = new FormData();
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
       fetcher.submit(formData, {method: "post", action: "/auth"});
-      //console.log('methods.getValues:', methods.getValues('links'))
+
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -133,7 +139,12 @@ const DashboardLinks = () => {
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
-
+  useEffect(() => {
+    if (fetcher.data?.message) {
+      setShowToast(fetcher.data.message);
+      setDisableButton(false);
+    }
+  }, [fetcher.data]);
 
   useEffect(() => {
     setIsClient(true);
@@ -151,12 +162,12 @@ const DashboardLinks = () => {
     }
   }, [userLinks, links]);
 
-
   const [formParent, formList, setFormList] = useDragAndDrop(
     userLinks,
     {
       group: 'formLinks',
       sortable: true,
+      dragHandle: styles.grab_handle,
     }
   )
 
@@ -172,8 +183,6 @@ const DashboardLinks = () => {
     }
 
   }, [formList]);
-
-
 
   const renderLinksContent = useMemo(() => {
     if (userLinks.length === 0) {
@@ -225,8 +234,8 @@ const DashboardLinks = () => {
           </div>
           <footer>
             <button type="submit" className={styles.save_button}
-                    disabled={!isFormChanged && isClient}>
-              Save
+                    disabled={(!isFormChanged && isClient) || disableButton}>
+              {disableButton ? "Saving..." : "Save"}
             </button>
           </footer>
         </div>

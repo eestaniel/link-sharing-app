@@ -10,6 +10,7 @@ import {getData} from "~/services/user-services";
 import {linkMenuList, LinkMenuStyles} from '~/components/links_menu/LinkMenu';
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
+import {Toast} from "~/components/toast/Toast"
 
 
 export const action = async ({request}: any) => {
@@ -110,10 +111,18 @@ const Dashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const {userLinks, userDetails, setUserLinks} = useLinksStore(state => ({
+  const {
+    userLinks,
+    userDetails,
+    setUserLinks,
+    showToast,
+    setShowToast
+  } = useLinksStore(state => ({
     userLinks: state.userLinks,
     userDetails: state.userDetails,
     setUserLinks: state.setUserLinks,
+    showToast: state.showToast,
+    setShowToast: state.setShowToast
   }));
 
   const location = useLocation();
@@ -139,6 +148,10 @@ const Dashboard = () => {
     }
 
   }, [previewLinks]);
+
+  const handleDismissToast = () => {
+    setShowToast(false);
+  };
 
   const renderLinksPreviewComponent = useMemo(() => {
     return (
@@ -185,6 +198,9 @@ const Dashboard = () => {
         className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
         {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
         <Outlet/>
+        {showToast &&
+          <Toast message="Your changes have been successfully saved."
+                 onDismiss={handleDismissToast}/>}
       </div>
     </div>
   );

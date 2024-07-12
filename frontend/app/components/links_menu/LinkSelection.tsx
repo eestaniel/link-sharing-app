@@ -63,10 +63,9 @@ const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
 
   return (
     <div className={styles.form_container}>
-
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"
+          <svg className={styles.drag_handle} xmlns="http://www.w3.org/2000/svg" width="12" height="6"
                fill="none" viewBox="0 0 12 6">
             <path fill="#737373" d="M0 0h12v1H0zM0 5h12v1H0z"/>
           </svg>
