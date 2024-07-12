@@ -68,6 +68,9 @@
     flex-direction: column;
     gap:            1.25rem;
 
+    a {
+      text-decoration: none;
+    }
 
     .button_container {
       display:         flex;

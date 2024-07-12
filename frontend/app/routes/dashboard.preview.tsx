@@ -59,26 +59,32 @@ const DashboardPreview = () => {
   }, [links, profile]);
 
   const renderLinksContent = () => {
-    if (userLinks.length == 0) {
-      return
+    if (userLinks.length === 0) {
+      return null;
     } else {
       return (
         userLinks.map((link, index) => (
-          <div
+          <a
             key={index}
-            className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}>
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}
+          >
             <div
-              className={`${styles.icon_label_group} ${LinkMenuStyles(link.platform)}`}>
-              <div className={`${styles.svg_container} `}>
+              className={`${styles.icon_label_group} ${LinkMenuStyles(link.platform)}`}
+            >
+              <div className={`${styles.svg_container}`}>
                 {LinkMenuIcons[link.platform as keyof typeof LinkMenuIcons]}
               </div>
               {linkMenuList[link.platform as keyof typeof linkMenuList]}
             </div>
             <div
-              className={`${styles.right_arrow_container} `}>
-              <RightArrowIcon/>
+              className={`${styles.right_arrow_container}`}
+            >
+              <RightArrowIcon />
             </div>
-          </div>
+          </a>
         ))
       );
     }
