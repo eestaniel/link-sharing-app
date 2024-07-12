@@ -66,7 +66,8 @@ const DashboardLinks = () => {
     editLinkUrl,
     userDetails,
     setUserDetails,
-    setShowToast
+    setShowToast,
+    setToastMessage,
   } = useLinksStore(state => ({
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
@@ -76,6 +77,7 @@ const DashboardLinks = () => {
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
     setShowToast: state.setShowToast,
+    setToastMessage: state.setToastMessage,
   }));
 
   const fetcher = useFetcher() as any;
@@ -121,7 +123,6 @@ const DashboardLinks = () => {
   };
 
   const [disableButton, setDisableButton] = useState(false);
-  ;
 
   const handleSaveLinks = async (data: LinkFormInputs) => {
     try {
@@ -142,6 +143,7 @@ const DashboardLinks = () => {
   useEffect(() => {
     if (fetcher.data?.message) {
       setShowToast(fetcher.data.message);
+      setToastMessage('Your changes have been successfully saved.')
       setDisableButton(false);
     }
   }, [fetcher.data]);

@@ -116,13 +116,15 @@ const Dashboard = () => {
     userDetails,
     setUserLinks,
     showToast,
-    setShowToast
+    setShowToast,
+    toastMessage,
   } = useLinksStore(state => ({
     userLinks: state.userLinks,
     userDetails: state.userDetails,
     setUserLinks: state.setUserLinks,
     showToast: state.showToast,
-    setShowToast: state.setShowToast
+    setShowToast: state.setShowToast,
+    toastMessage: state.toastMessage,
   }));
 
   const location = useLocation();
@@ -199,7 +201,7 @@ const Dashboard = () => {
         {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
         <Outlet/>
         {showToast &&
-          <Toast message="Your changes have been successfully saved."
+          <Toast message={toastMessage}
                  onDismiss={handleDismissToast}/>}
       </div>
     </div>

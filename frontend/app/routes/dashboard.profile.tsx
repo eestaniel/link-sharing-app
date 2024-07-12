@@ -9,7 +9,7 @@ import {useFetcher, useLoaderData, useNavigation} from "@remix-run/react";
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {getData} from "~/services/user-services";
-import {Jsonify} from "@remix-run/server-runtime/dist/jsonify";
+import {Toast} from "~/components/toast/Toast"
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -68,10 +68,12 @@ const DashboardProfile = () => {
   });
   const fetcher = useFetcher();
 
-  const {userDetails, setUserDetails, setUserLinks} = useLinksStore((state) => ({
+  const {userDetails, setUserDetails, setUserLinks,setShowToast, setToastMessage} = useLinksStore((state) => ({
     userDetails: state.userDetails,
     setUserDetails: state.setUserDetails,
-    setUserLinks: state.setUserLinks
+    setUserLinks: state.setUserLinks,
+    setShowToast: state.setShowToast,
+    setToastMessage: state.setToastMessage,
   }));
 
   const transition = useNavigation();
@@ -101,7 +103,9 @@ const DashboardProfile = () => {
     file: any
   } | string | null>(null);
 
+  const [disableButton, setDisableButton] = useState(false);
   const handleSaveForm = async () => {
+    setDisableButton(true)
     const data = methods.getValues();
     setUserDetails(data);
 
@@ -120,6 +124,14 @@ const DashboardProfile = () => {
       encType: "multipart/form-data",
     });
   };
+
+  useEffect(() => {
+    if (fetcher.data?.message) {
+      setShowToast(fetcher.data.message);
+      setToastMessage('Your changes have been successfully saved.')
+      setDisableButton(false);
+    }
+  }, [fetcher.data]);
 
   useEffect(() => {
     setIsClient(true);
@@ -257,8 +269,8 @@ const DashboardProfile = () => {
       <footer className={styles.footer_container}>
         <div className={styles.button_group}>
           <button type="button" onClick={handleSaveForm}
-                  disabled={!isFormChanged && isClient}>
-            Save
+                  disabled={(!isFormChanged && isClient) || disableButton}>
+            {disableButton ? "Saving..." : "Save"}
           </button>
           <button type="submit" onClick={handleSignOut}
                   className={styles.sign_out}>

@@ -48,7 +48,7 @@ const PublicShareId = () => {
               {linkMenuList[link.platform as keyof typeof linkMenuList]}
             </div>
             <div
-              className={`${styles.right_arrow_container} ${LinkMenuStyles(link.platform)}`}>
+              className={`${styles.right_arrow_container} `}>
               <RightArrowIcon/>
             </div>
           </div>

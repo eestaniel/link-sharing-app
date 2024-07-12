@@ -9,7 +9,6 @@ import {useLoaderData} from "@remix-run/react";
 import {useEffect, useState} from "react";
 import {getData} from "~/services/user-services"
 
-
 export const loader: LoaderFunction = async ({request}) => {
 
   const start = Date.now();
@@ -43,12 +42,12 @@ const DashboardPreview = () => {
     userDetails,
     userLinks,
     setUserLinks,
-    setUserDetails
+    setUserDetails,
   } = useLinksStore((state) => ({
     userDetails: state.userDetails,
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
-    setUserDetails: state.setUserDetails
+    setUserDetails: state.setUserDetails,
   }));
   const {links, profile} = useLoaderData() as any;
 
@@ -96,7 +95,7 @@ const DashboardPreview = () => {
               {linkMenuList[link.platform as keyof typeof linkMenuList]}
             </div>
             <div
-              className={`${styles.right_arrow_container} ${LinkMenuStyles(link.platform)}`}>
+              className={`${styles.right_arrow_container} `}>
               <RightArrowIcon/>
             </div>
           </div>
