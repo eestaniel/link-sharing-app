@@ -158,6 +158,8 @@
             width: 100%;
             gap: 1.5rem;
             flex-grow: 1;
+            list-style: none;
+            padding-left: 0;
           }
 
 
@@ -298,6 +300,9 @@
 
           .links_content {
             max-height: 32rem;
+
+            list-style: none;
+            padding-left: 0;
 
           }
         }

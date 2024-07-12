@@ -10,6 +10,7 @@ import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
 import {getData} from "~/services/user-services";
+import {useDragAndDrop} from "@formkit/drag-and-drop/react"
 
 
 const linkSchema = z.object({
@@ -132,6 +133,8 @@ const DashboardLinks = () => {
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
+
+
   useEffect(() => {
     setIsClient(true);
 
@@ -141,14 +144,36 @@ const DashboardLinks = () => {
     if (links.length > 0 || userLinks.length > 0) {
       if (JSON.stringify(links) !== JSON.stringify(userLinks)) {
         setIsFormChanged(true);
-        console.log('zustand storage links:', userLinks)
-        console.log('user links:', links)
         methods.setValue('links', userLinks)
       } else {
         setIsFormChanged(false);
       }
     }
   }, [userLinks, links]);
+
+
+  const [formParent, formList, setFormList] = useDragAndDrop(
+    userLinks,
+    {
+      group: 'formLinks',
+      sortable: true,
+    }
+  )
+
+  useEffect(() => {
+    if (userLinks.length > 0) {
+      setFormList(userLinks);
+    }
+  }, [userLinks]);
+
+  useEffect(() => {
+    if (formList.length > 0) {
+      setUserLinks(formList);
+    }
+
+  }, [formList]);
+
+
 
   const renderLinksContent = useMemo(() => {
     if (userLinks.length === 0) {
@@ -166,12 +191,14 @@ const DashboardLinks = () => {
         </div>
       );
     } else {
-      return userLinks.map((object, index) => (
-        <LinkSelection key={object.id} object={object} index={index}
-                       onRemove={handleRemoveLink}/>
+      return formList.map((object, index) => (
+        <li key={object.id}>
+          <LinkSelection object={object} index={index}
+                         onRemove={handleRemoveLink}/>
+        </li>
       ));
     }
-  }, [userLinks]);
+  }, [userLinks, formList]);
 
   return (
     <FormProvider {...methods}>
@@ -190,9 +217,9 @@ const DashboardLinks = () => {
                         onClick={handleDisplayNewLink}>
                   + Add new link
                 </button>
-                <div className={styles.links_content}>
+                <ul ref={formParent} className={styles.links_content}>
                   {renderLinksContent}
-                </div>
+                </ul>
               </div>
             </section>
           </div>

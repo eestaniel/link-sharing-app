@@ -13,14 +13,13 @@ import Dropdown from "./dropdown/Dropdown"
 
 interface LinkSelectionProps {
   index: number;
-  object: {
-    id: string; platform: string; url: string;
-  };
+  object: any
   onRemove: (id: string) => void;
+  key?: string;
 }
 
 
-const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
+const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
   const {control, formState: {errors}, setValue} = useFormContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [platform, setPlatform] = useState<LinkKey>(object.platform as LinkKey);
@@ -63,7 +62,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
   }
 
   return (
-    <li className={styles.form_container} data-label={object.id}>
+    <div className={styles.form_container}>
 
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
@@ -73,7 +72,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
           </svg>
           <p className={styles.drag_p}>Link #{index + 1}</p>
         </div>
-        <ScrollToView/>
+        {/* <ScrollToView/> */}
         <p className={styles.remove_text}
            onClick={handleRemoveElement}>Remove</p>
       </div>
@@ -143,7 +142,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
           </div>
         </div>
       </div>
-    </li>
+    </div>
 
   );
 };
