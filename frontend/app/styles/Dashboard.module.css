@@ -162,6 +162,8 @@
                   border-radius:   0.5rem;
                   padding:         0.688rem 1rem;
 
+                  cursor: grab;
+
 
                   .group1 {
                     display:        flex;

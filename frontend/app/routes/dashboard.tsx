@@ -1,63 +1,59 @@
-import {Outlet, useLocation} from "@remix-run/react"
-import {redirect} from "@remix-run/node";
+import React, {useEffect, useMemo, useState} from 'react';
+import {Outlet, useLocation} from "@remix-run/react";
+import {json, redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
-import {sessionCookie} from "~/utils/sessionCookie"
-import {useEffect, useState} from "react"
-import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu"
+import {sessionCookie} from "~/utils/sessionCookie";
+import {useLinksStore} from "~/store/LinksStore";
+import {useDragAndDrop} from "@formkit/drag-and-drop/react";
+import {getData} from "~/services/user-services";
+import {linkMenuList, LinkMenuStyles} from '~/components/links_menu/LinkMenu';
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
-import {useLinksStore} from "~/store/LinksStore"
-import {getData} from "~/services/user-services"
 
 
 export const action = async ({request}: any) => {
-
   const formData = await request.formData();
   const page = formData.get('page') as string;
-
   const actionType = formData.get('action') as string;
 
   if (page) {
     switch (page) {
       case 'edit-links':
       case '/dashboard/links':
-        return redirect('/dashboard/links')
+        return redirect('/dashboard/links');
       case 'edit-profile':
       case '/dashboard/profile':
-        return redirect('/dashboard/profile')
+        return redirect('/dashboard/profile');
       case 'preview-links':
-        return redirect('/dashboard/preview')
+        return redirect('/dashboard/preview');
       default:
-        return redirect('/dashboard/links')
+        return redirect('/dashboard/links');
     }
   }
 
   if (actionType) {
     switch (actionType) {
       case 'logout':
-        return redirect('/logout')
-
+        return redirect('/logout');
       case 'save-links':
         return await saveLinks(formData, request);
-
       default:
-        return redirect('/dashboard/links')
+        return redirect('/dashboard/links');
     }
   }
-}
+};
 
 const saveLinks = async (formData: any, request: any) => {
-  // Get the access token from the session cookie
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
 
-  // if no access token throw redirect /
   if (!accessToken) {
     return redirect("/");
   }
-  const baseURL = process.env.BASE_URL
+
+  const baseURL = process.env.BASE_URL;
   const response = await fetch(`${baseURL}/api/users/save-links`, {
     method: 'POST',
     headers: {
@@ -69,16 +65,15 @@ const saveLinks = async (formData: any, request: any) => {
     }),
   });
 
-  let responseBody = await response.json();
+  const responseBody = await response.json();
   if (responseBody.error) {
-    return {error: responseBody.error}
+    return {error: responseBody.error};
   }
 
-  return {message: responseBody}
-}
+  return {message: responseBody};
+};
 
 export const loader = async ({request}: any) => {
-  let start = Date.now();
   const cookieHeader = request.headers.get("Cookie");
   const session = await sessionCookie.parse(cookieHeader);
   const accessToken = session?.accessToken ?? null;
@@ -95,9 +90,9 @@ export const loader = async ({request}: any) => {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
-  console.log(`Time to validate access Token for dashboard Page:  ${Date.now() - start}ms`);
-  return {links, profile}
-}
+
+  return json({links, profile});
+};
 
 const Dashboard = () => {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -107,7 +102,7 @@ const Dashboard = () => {
     } else {
       setIsDesktop(false);
     }
-  }
+  };
 
   useEffect(() => {
     handleResize();
@@ -115,11 +110,40 @@ const Dashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const renderLinksPreviewComponent = () => {
+  const {userLinks, userDetails, setUserLinks} = useLinksStore(state => ({
+    userLinks: state.userLinks,
+    userDetails: state.userDetails,
+    setUserLinks: state.setUserLinks,
+  }));
 
+  const location = useLocation();
+
+  const [userList, links, setLinks] = useDragAndDrop(
+    userLinks,
+    {
+      group: 'links',
+      sortable: true,
+
+    }
+  )
+
+  useEffect(() => {
+    if (userLinks.length > 0) {
+      setLinks(userLinks);
+
+    }
+  }, [userLinks]);
+
+  useEffect(() => {
+    if (links.length > 0) {
+      setUserLinks(links);
+    }
+  }, [links]);
+
+
+  const renderLinksPreviewComponent = useMemo(() => {
     return (
       <section className={styles.links_preview_container}>
-
         <div className={styles.preview_section}>
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
@@ -127,53 +151,43 @@ const Dashboard = () => {
                 <img src={userDetails?.url} alt="profile image"/>}
               <div
                 className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                <h2>{userDetails?.first_name} {userDetails?.last_name} </h2>
+                <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>
                 <p>{userDetails?.email}</p>
               </div>
             </div>
             <div className={styles.links_group}>
-              <ul>
-                {userLinks?.map((link, index) => (
-                  <li key={index}>
+              <ul ref={userList}>
+                {links?.map((link, index) => (
+                  <li key={link.id} data-label={link.id}>
                     <div
-                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}>
+                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
+                    >
                       <div className={styles.group1}>
                         {LinkMenuIcons[link.platform]}
                         {linkMenuList[link.platform]}
                       </div>
                       {<RightArrowIcon/>}
                     </div>
-
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-
         </div>
       </section>
-    )
-  }
-
-  const {userLinks, userDetails} = useLinksStore(state => ({
-    userLinks: state.userLinks,
-    userDetails: state.userDetails
-  }))
-
-  const location = useLocation()
+    );
+  }, [userDetails, links]);
 
   return (
-    <div className={`${styles.page_container} ${location.pathname !== '/dashboard/preview' && styles.center_page}`}>
+    <div
+      className={`${styles.page_container} ${location.pathname !== '/dashboard/preview' && styles.center_page}`}>
       <Navigation/>
-      <div className={`${styles.dashboard_container} 
-      ${location.pathname === '/dashboard/preview' && styles.preview_page} 
-      `}
-      >
-        {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent()}
+      <div
+        className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
+        {location.pathname !== '/dashboard/preview' && renderLinksPreviewComponent}
         <Outlet/>
       </div>
     </div>
-
   );
 };
 

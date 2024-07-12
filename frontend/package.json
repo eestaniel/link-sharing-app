@@ -11,6 +11,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@formkit/drag-and-drop": "^0.1.6",
     "@hookform/resolvers": "^3.8.0",
     "@remix-run/css-bundle": "^2.10.2",
     "@remix-run/node": "^2.10.2",
