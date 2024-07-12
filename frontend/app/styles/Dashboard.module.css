@@ -24,9 +24,8 @@
 
 
   .page_container {
-    max-height:    984px;
-
-
+    max-height: 1080px;
+    width: 100%;
     .preview_page {
       padding: 0 !important;
       margin: 0;
@@ -37,164 +36,179 @@
       flex-direction: row;
       padding:        0 1.5rem 1.5rem 1.5rem;
       gap:            1.5rem;
+      margin-inline: 1%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
     }
 
+    .wrapper {
 
-    .links_preview_container {
-      display:          flex;
-      flex-direction:   row;
-      gap:              0.5rem;
-      padding:          1.5rem;
-      border-radius:    0.5rem;
-      background-color: white;
-      min-width:        25rem;
-      align-items:      center;
-      justify-content:  center;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 1920px;
+      height: fit-content;
 
 
-      .preview_section {
-        width:             19.25rem;
-        background-image:  url("../assets/images/illustration-phone-mockup.svg");
-        background-repeat: no-repeat;
-        height:            100%;
+      .links_preview_container {
+        display:          flex;
+        flex-direction:   row;
+        gap:              0.5rem;
+        padding:          1.5rem;
+        border-radius:    0.5rem;
+        background-color: white;
+        min-width:        25rem;
+        align-items:      center;
+        justify-content:  center;
 
 
-        .preview_group {
-          display:        flex;
-          flex-direction: column;
-          gap:            2.25rem;
-          margin:         3.969rem 2.156rem;
-          width:          14.875rem;
+        .preview_section {
+          width:             19.25rem;
+          background-image:  url("../assets/images/illustration-phone-mockup.svg");
+          background-repeat: no-repeat;
+          height:            fit-content;
 
 
-          .header_group {
-            position:        relative;
-            width:           100%;
-            display:         flex;
-            flex-direction:  column;
-            gap:             1.563rem;
-            justify-content: center;
-            align-items:     center;
-
-
-            img, .empty_image {
-              height:        6rem;
-              width:         6rem;
-              border-radius: 32rem;
-              object-fit:    cover;
-
-            }
-
-
-            img {
-              outline: 0.25rem solid var(--purple);
-            }
-
-
-            .fill_bg_group {
-              height:           fit-content;
-              background-color: white;
-            }
-
-
-            .profile_details_group {
-              display:        flex;
-              flex-direction: column;
-              gap:            0.5rem;
-              text-align:     center;
-              width:          100%;
-              min-height:     3.5rem;
-
-
-              h2 {
-                font-family:      "Instrument Sans", serif;
-                font-size:        1.125rem;
-                line-height:      150%;
-                letter-spacing:   0;
-                font-weight:      600;
-
-                color:            var(--dark-grey);
-                background-color: white;
-                min-height: 1.313rem;
-
-              }
-
-
-              p {
-                font-family:    "Instrument Sans", serif;
-                font-size:      0.875rem;
-                line-height:    150%;
-                letter-spacing: 0;
-                font-weight:    400;
-
-                color:          var(--grey) !important;
-                background-color: white;
-                width:          100%;
-
-              }
-            }
-          }
-
-
-          .links_group {
+          .preview_group {
             display:        flex;
             flex-direction: column;
-            gap:            1.25rem;
+            gap:            2.25rem;
+            margin:         3.969rem 2.156rem;
+            width:          14.875rem;
 
 
-            ul {
-              display:        flex;
-              flex-direction: column;
-              gap:            1.25rem;
-              min-height:     18.75rem;
-              max-height:     18.75rem;
-              overflow:       auto;
-              padding:        0.125rem 0 0;
+            .header_group {
+              position:        relative;
+              width:           100%;
+              display:         flex;
+              flex-direction:  column;
+              gap:             1.563rem;
+              justify-content: center;
+              align-items:     center;
 
 
-              li {
-                display:         flex;
-                flex-direction:  row;
-                align-items:     center;
-                gap:             0.5rem;
-                justify-content: space-between;
-                list-style-type: none;
-                height:          2.75rem;
+              img, .empty_image {
+                height:        6rem;
+                width:         6rem;
+                border-radius: 32rem;
+                object-fit:    cover;
+
+              }
 
 
-                .icon_platform_group {
-                  display:         flex;
-                  align-items:     center;
-                  justify-content: space-between;
-                  width:           100%;
-
-                  border-radius:   0.5rem;
-                  padding:         0.688rem 1rem;
-
-                  cursor:          grab;
+              img {
+                outline: 0.25rem solid var(--purple);
+              }
 
 
-                  .group1 {
-                    display:        flex;
-                    flex-direction: row;
-                    gap:            0.5rem;
-                    align-items:    center;
+              .fill_bg_group {
+                height:           fit-content;
+                background-color: white;
+              }
 
-                  }
+
+              .profile_details_group {
+                display:        flex;
+                flex-direction: column;
+                gap:            0.5rem;
+                text-align:     center;
+                width:          100%;
+                min-height:     3.5rem;
+
+
+                h2 {
+                  font-family:      "Instrument Sans", serif;
+                  font-size:        1.125rem;
+                  line-height:      150%;
+                  letter-spacing:   0;
+                  font-weight:      600;
+
+                  color:            var(--dark-grey);
+                  background-color: white;
+                  min-height: 1.313rem;
+
                 }
 
 
-                color:           white;
+                p {
+                  font-family:    "Instrument Sans", serif;
+                  font-size:      0.875rem;
+                  line-height:    150%;
+                  letter-spacing: 0;
+                  font-weight:    400;
 
+                  color:          var(--grey) !important;
+                  background-color: white;
+                  width:          100%;
 
+                }
               }
             }
+
+
+            .links_group {
+              display:        flex;
+              flex-direction: column;
+              gap:            1.25rem;
+
+
+              ul {
+                display:        flex;
+                flex-direction: column;
+                gap:            1.25rem;
+                min-height:     18.75rem;
+                max-height:     18.75rem;
+                overflow:       auto;
+                padding:        0.125rem 0 0;
+
+
+                li {
+                  display:         flex;
+                  flex-direction:  row;
+                  align-items:     center;
+                  gap:             0.5rem;
+                  justify-content: space-between;
+                  list-style-type: none;
+                  height:          2.75rem;
+
+
+                  .icon_platform_group {
+                    display:         flex;
+                    align-items:     center;
+                    justify-content: space-between;
+                    width:           100%;
+
+                    border-radius:   0.5rem;
+                    padding:         0.688rem 1rem;
+
+                    cursor:          grab;
+
+
+                    .group1 {
+                      display:        flex;
+                      flex-direction: row;
+                      gap:            0.5rem;
+                      align-items:    center;
+
+                    }
+                  }
+
+
+                  color:           white;
+
+
+                }
+              }
+            }
+
           }
-
         }
-      }
 
+      }
     }
+
+
   }
 }
 

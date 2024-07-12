@@ -359,8 +359,9 @@
 
 
   .navigation_container {
-    max-width:  1440px;
+    max-width:  1920px;
     max-height: 126px;
+    padding-inline: 2.5rem;
   }
 }
 

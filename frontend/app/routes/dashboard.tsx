@@ -207,11 +207,13 @@ const Dashboard = () => {
       <Navigation/>
       <div
         className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
-        {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
-        <Outlet/>
-        {showToast &&
-          <Toast message={toastMessage}
-                 onDismiss={handleDismissToast}/>}
+        <div className={styles.wrapper}>
+          {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
+          <Outlet/>
+          {showToast &&
+            <Toast message={toastMessage}
+                   onDismiss={handleDismissToast}/>}
+        </div>
       </div>
     </div>
   );
