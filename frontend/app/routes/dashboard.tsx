@@ -158,7 +158,7 @@ const Dashboard = () => {
             <div className={styles.links_group}>
               <ul ref={userList}>
                 {links?.map((link, index) => (
-                  <li key={link.id} data-label={link.id}>
+                  <li key={link.id} >
                     <div
                       className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
                     >
@@ -176,7 +176,7 @@ const Dashboard = () => {
         </div>
       </section>
     );
-  }, [userDetails, links]);
+  }, [links, userDetails]);
 
   return (
     <div
@@ -184,7 +184,7 @@ const Dashboard = () => {
       <Navigation/>
       <div
         className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
-        {location.pathname !== '/dashboard/preview' && renderLinksPreviewComponent}
+        {location.pathname !== '/dashboard/preview' && isDesktop  && renderLinksPreviewComponent}
         <Outlet/>
       </div>
     </div>

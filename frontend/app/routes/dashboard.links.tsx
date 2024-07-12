@@ -174,6 +174,7 @@ const DashboardLinks = () => {
           </div>
         );
       } else {
+        // key={link.id} data-label={link.id}
         return userLinks.map((object, index) => (
           <LinkSelection key={object.id} object={object} index={index}
                          onRemove={handleRemoveLink}/>

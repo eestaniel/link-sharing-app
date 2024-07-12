@@ -62,7 +62,8 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
     return <div ref={scrollRef} className={styles.scroll_to_view}/>;
   }
 
-  return (<div className={styles.form_container}>
+  return (
+    <li className={styles.form_container} data-label={object.id}>
 
       <div className={styles.header_group}>
         <div className={styles.drag_group}>
@@ -142,7 +143,7 @@ const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </li>
 
   );
 };
