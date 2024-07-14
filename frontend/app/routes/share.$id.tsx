@@ -31,10 +31,11 @@ const PublicShareId = () => {
     } else {
       return (
         links.map((link: {
-          platform: string;
+          platform: string, url: string
         }, index: Key | null | undefined) => (
-          <div
+          <a
             key={index}
+            href={link.url}
             className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}>
             <div
               className={`${styles.icon_label_group} ${LinkMenuStyles(link.platform)}`}>
@@ -47,7 +48,7 @@ const PublicShareId = () => {
               className={`${styles.right_arrow_container} `}>
               <RightArrowIcon/>
             </div>
-          </div>
+          </a>
         ))
       );
     }
