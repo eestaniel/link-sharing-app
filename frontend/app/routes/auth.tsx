@@ -44,7 +44,7 @@ const changePage = async (formData: FormData) => {
 }
 
 const createAnonSession = async () => {
-  const response = await fetch(`${process.env.BASE_URL}/api/auth/sign-in-anon`, {
+  const response = await fetch(`${process.env.BASE_URL}/api/v1/auth/sign-in-anon`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -64,23 +64,26 @@ const createAnonSession = async () => {
 }
 
 const createAccount = async (formData: FormData) => {
+
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const response = await fetch(`${process.env.BASE_URL}/api/auth/create-account`, {
+  const response = await fetch(`${process.env.BASE_URL}/api/v1/auth/signup`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({email, password}),
   });
+
   const {message, error} = await response.json();
 
   if (error) {
     return json({error}, {status: 401});
   }
 
-  return {message};
+
+  return {message: message};
 }
 
 
@@ -106,8 +109,9 @@ const loginNewUser = async (formData: FormData) => {
   // Create a session cookie with the access token
   const cookieHeader = await sessionCookie.serialize({accessToken});
 
-  return json({session: accessToken}, {
-    headers: {"Set-Cookie": cookieHeader},
+  return json(
+      {session: accessToken},
+      {headers: {"Set-Cookie": cookieHeader},
   });
 
 }
@@ -116,35 +120,27 @@ const baseUrl = process.env.BASE_URL;
 const login = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const response = await fetch(`${baseUrl}/api/auth/signin`, {
-    method: 'POST', headers: {
-      'Content-Type': 'application/json',
-    }, body: JSON.stringify({email, password}),
+
+  // Send login request to backend
+  const response = await fetch(`${process.env.BASE_URL}/api/v1/auth/login`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'include',
+    body: JSON.stringify({email, password}),
   });
 
-  const res: TokenPayload & { error?: string } = await response.json();
-
-  if (res.error) {
-    return json({error: res.error}, {status: 401});
+  // If the login fails, return an error
+  if (!response.ok) {
+    return json({error: 'Invalid login'}, {status: response.status});
   }
 
-  const {accessToken, refreshToken} = res;
 
-  // Set session data
-  const {error} = await supabase.auth.setSession({
-    access_token: accessToken, refresh_token: refreshToken
-  });
+  const cookieHeader = response.headers.get('set-cookie');
 
-  if (error) {
-    return json({error: error.message}, {status: 500});
-  }
-
-  // Create a session cookie with the access token
-  const cookieHeader = await sessionCookie.serialize({accessToken});
-
-  return json({session: accessToken}, {
-    headers: {"Set-Cookie": cookieHeader},
-  });
+  return json(
+      { message: "Login successful" },
+      cookieHeader ? { headers: { "Set-Cookie": cookieHeader } } : {} // ✅ Forward cookie to browser
+  );
 };
 
 const signOut = async (request: any) => {

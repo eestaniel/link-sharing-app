@@ -11,6 +11,7 @@ import {linkMenuList, LinkMenuStyles} from '~/components/links_menu/LinkMenu';
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
 import {Toast} from "~/components/toast/Toast"
+import {parseCookieHeader} from "~/utils/parseCookieHeader";
 
 
 export const action = async ({request}: any) => {
@@ -74,24 +75,25 @@ const saveLinks = async (formData: any, request: any) => {
   return {message: responseBody};
 };
 
+
 export const loader = async ({request}: any) => {
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
+  const cookieHeader = request.headers.get('Cookie') as string
+  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
-  if (!accessToken) {
+  console.log(cookie)
+  if (!cookie.sb_session) {
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 
-  const {links, profile, error} = await getData(accessToken);
-  if (error) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
-  }
-  return json({links, profile});
+  // const {links, profile, error} = await getData(accessToken);
+  // if (error) {
+  //   return redirect("/", {
+  //     headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
+  //   });
+  // }
+  return {links: '', profile: ''};
 };
 
 const Dashboard = () => {
@@ -129,12 +131,12 @@ const Dashboard = () => {
   const location = useLocation();
 
   const [parent, previewLinks, setPreviewLinks] = useDragAndDrop(
-    userLinks,
-    {
-      group: 'links',
-      sortable: true,
+      userLinks,
+      {
+        group: 'links',
+        sortable: true,
 
-    }
+      }
   )
 
   useEffect(() => {
@@ -159,63 +161,63 @@ const Dashboard = () => {
 
   const renderLinksPreviewComponent = useMemo(() => {
     return (
-      <section className={styles.links_preview_container}>
-        <div className={styles.preview_section}>
-          <div className={styles.preview_group}>
-            <div className={styles.header_group}>
-              {userDetails?.url ?
-                <img src={userDetails?.url} alt=""/> :
-                <div className={styles.empty_image}></div>
-              }
+        <section className={styles.links_preview_container}>
+          <div className={styles.preview_section}>
+            <div className={styles.preview_group}>
+              <div className={styles.header_group}>
+                {userDetails?.url ?
+                    <img src={userDetails?.url} alt=""/> :
+                    <div className={styles.empty_image}></div>
+                }
 
-              <div
-                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                {userDetails?.first_name && userDetails?.last_name &&
-                  <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
-                <p>{userDetails?.email}</p>
+                <div
+                    className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
+                  {userDetails?.first_name && userDetails?.last_name &&
+                    <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
+                  <p>{userDetails?.email}</p>
+                </div>
+              </div>
+              <div className={styles.links_group}>
+                <ul ref={parent}>
+                  {previewLinks?.map((link) => (
+                      <li key={link.id}>
+                        <div
+                            className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
+                        >
+                          <div className={styles.group1}>
+                            {LinkMenuIcons[link.platform]}
+                            {linkMenuList[link.platform]}
+                          </div>
+                          {<RightArrowIcon/>}
+                        </div>
+                      </li>
+                  ))}
+                </ul>
               </div>
             </div>
-            <div className={styles.links_group}>
-              <ul ref={parent}>
-                {previewLinks?.map((link) => (
-                  <li key={link.id}>
-                    <div
-                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
-                    >
-                      <div className={styles.group1}>
-                        {LinkMenuIcons[link.platform]}
-                        {linkMenuList[link.platform]}
-                      </div>
-                      {<RightArrowIcon/>}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
     );
   }, [previewLinks, userDetails]);
 
   return (
-    <div
-      className={`${styles.page_container} 
+      <div
+          className={`${styles.page_container} 
       ${location.pathname !== '/dashboard/preview' && styles.center_page}}
       ${location.pathname === '/dashboard/preview' && styles.prev_page}`}
-    >
-      <Navigation/>
-      <div
-        className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
-        <div className={styles.wrapper}>
-          {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
-          <Outlet/>
-          {showToast &&
-            <Toast message={toastMessage}
-                   onDismiss={handleDismissToast}/>}
+      >
+        <Navigation/>
+        <div
+            className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
+          <div className={styles.wrapper}>
+            {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
+            <Outlet/>
+            {showToast &&
+              <Toast message={toastMessage}
+                     onDismiss={handleDismissToast}/>}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

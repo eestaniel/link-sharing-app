@@ -6,7 +6,6 @@ import styles from './Login.module.css';
 import {useFetcher} from "@remix-run/react";
 import {useLinksStore} from "~/store/LinksStore";
 
-
 // Define the validation schema using zod
 const loginSchema = z.object({
   email: z.string().min(1, "Can't be empty").email(),
@@ -72,6 +71,7 @@ const Login = () => {
   }
 
   const handleAnon = () => {
+    console.log('clicked here')
     const formData = new FormData();
     setIsAnon(true);
     formData.append("action", "anon");
@@ -117,8 +117,8 @@ const Login = () => {
 
         <div className={styles.footer_group}>
           <p className={styles.dont_have_account}>Don't have an account?</p>
-          <p className={styles.create_account} onClick={handlePageChange}>Create
-            account</p>
+          <p className={styles.create_account} onClick={handlePageChange}>
+            Create account</p>
         </div>
       </form>
     </div>

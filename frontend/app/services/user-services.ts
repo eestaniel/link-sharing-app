@@ -1,12 +1,13 @@
 
 const baseUrl = process.env.BASE_URL
 
-export const validateAccessToken = async (accessToken: string) => {
-  const res = await fetch(`${baseUrl}/api/auth/validate`, {
-    method: 'POST',
+export const validateAccessToken = async (sb_session: string) => {
+  const res = await fetch(`${baseUrl}/api/v1/auth/validate`, {
+    method: 'get',
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      Cookie: `sb_session=${sb_session}`
     }
+
   });
   const data = await res.json();
 
@@ -14,11 +15,11 @@ export const validateAccessToken = async (accessToken: string) => {
     return {error: data.error};
   }
 
-  return data;
+  return true
 }
 
 export const getData = async (accessToken: string) => {
-  const res = await fetch(`${baseUrl}/api/users/get-preview`, {
+  const res = await fetch(`${baseUrl}/api/v1/users/get-preview`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`

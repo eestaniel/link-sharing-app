@@ -4,16 +4,16 @@ import {
   useLoaderData,
   useLocation
 } from "@remix-run/react";
-import {json, LoaderFunction} from "@remix-run/node";
+import {LoaderFunction} from "@remix-run/node";
 import styles from "../styles/index.module.css";
-import React, {useEffect, useMemo} from "react";
-import {sessionCookie} from "~/utils/sessionCookie";
+import {useEffect, useMemo} from "react";
 import Login from "~/components/pages/login_page/Login";
 import Navigation from "~/components/navigation/Navigation";
 import {useLinksStore} from '~/store/LinksStore';
 import CreateAccount from "~/components/pages/create_account/CreateAccount";
 import {validateAccessToken} from "~/services/user-services"
 import {useNavigation,useNavigate} from "@remix-run/react"
+import {parseCookieHeader} from "~/utils/parseCookieHeader";
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,27 +22,24 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({request}) => {
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken;
 
-  if (accessToken) {
-    const req = await validateAccessToken(accessToken);
-    if (req.error) {
-      // Clear the cookie and redirect to login if token validation fails
-      return redirect("/", {
-        headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-      });
+export const loader: LoaderFunction = async ({request}) => {
+  const cookieHeader = request.headers.get('Cookie') as string
+  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
+
+  if (cookie.sb_session) {
+    const isValid = await validateAccessToken(cookie.sb_session);
+    if (isValid) {
+      return redirect("/dashboar");
     }
-    // Redirect to dashboard if the token is valid
-    return redirect("/dashboard/links");
   }
 
   // check if user confirmed email from supabase, look for hash in url
 
   // If no accessToken, assume the user needs to login
-  return json({homePage: 'login'});
+  return {
+    homePage: 'login',
+  };
 };
 
 
