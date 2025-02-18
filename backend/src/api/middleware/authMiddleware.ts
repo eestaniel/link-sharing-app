@@ -16,7 +16,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     }
 
     // Verify token and attach user data to the request object
-    res.user = jwt.verify(cookie, process.env.JWT_SECRET as string); // Attach user data to request
+    req.user = jwt.verify(cookie, process.env.JWT_SECRET as string); // Attach user data to request
     req.token = cookie;
 
 
