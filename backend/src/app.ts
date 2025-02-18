@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 
 import * as middlewares from './middlewares';
 import authAPI from './api/auth/routes';
+import usersAPI from './api/users/routes';
 import MessageResponse from './interfaces/MessageResponse';
 
 require('dotenv').config();
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/v1/auth/', authAPI);
+app.use('/api/v1/users/', usersAPI);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

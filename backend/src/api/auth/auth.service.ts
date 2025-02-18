@@ -17,7 +17,7 @@ const login = async ({email, password}: loginSignupPayload) => {
 
 
   // save user session to redis
-  setUserRedisSignIn({id: data.user.id, email, token: data.session.access_token});
+  //setUserRedisSignIn({id: data.user.id, email, token: data.session.access_token});
   return data;
 
 
@@ -25,11 +25,11 @@ const login = async ({email, password}: loginSignupPayload) => {
 
 const signup = async ({email, password}: loginSignupPayload) => {
 
+  // Step 1: Create a new user in Supabase
   const {data, error}: {data: any, error: any} = await supabase.auth.signUp({
     email: email,
     password: password,
   })
-
 
 
   if (error) {
@@ -37,9 +37,16 @@ const signup = async ({email, password}: loginSignupPayload) => {
   }
   if (!data) {
     throw new Error('User not created');
-  } else {
-
   }
+
+  // Step 2: Insert profile into the 'profile' table
+  const { error: profileError } = await supabase.from("profile").insert([
+    { id: data.user.id},
+  ]);
+
+  if (profileError) throw profileError;
+
+
   // save user session to redis
   //setUserRedisSignIn({id: data.user.id, email, token: data.session.access_token});
 

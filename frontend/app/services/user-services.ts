@@ -18,11 +18,11 @@ export const validateAccessToken = async (sb_session: string) => {
   return true
 }
 
-export const getData = async (accessToken: string) => {
-  const res = await fetch(`${baseUrl}/api/v1/users/get-preview`, {
+export const getData = async (request: any) => {
+  const res = await fetch(`${baseUrl}/api/v1/users/profile-with-links`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'Cookie': request.headers.get('Cookie')
     }
   });
   const {links, profile, error} = await res.json();

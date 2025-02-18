@@ -26,11 +26,11 @@ export const meta: MetaFunction = () => {
 export const loader: LoaderFunction = async ({request}) => {
   const cookieHeader = request.headers.get('Cookie') as string
   const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-
+  console.log('cookie', cookie);
   if (cookie.sb_session) {
     const isValid = await validateAccessToken(cookie.sb_session);
     if (isValid) {
-      return redirect("/dashboar");
+      return redirect("/dashboard/links");
     }
   }
 

@@ -76,14 +76,30 @@ const createAccount = async (formData: FormData) => {
     body: JSON.stringify({email, password}),
   });
 
-  const {message, error} = await response.json();
-
-  if (error) {
-    return json({error}, {status: 401});
+  // If the create account fails, return an error
+  if (!response.ok) {
+    //return json({error: 'Invalid login'}, {status: response.status});
+    return new Response(
+      JSON.stringify(({error: 'Invalid login'})),
+      {
+        status: response.status,
+      }
+    )
   }
 
+  // If the create account is successful, set the session cookie
+  const cookieHeader = response.headers.get('set-cookie');
 
-  return {message: message};
+
+
+  // Return a success message and set the session cookie
+  return new Response(
+    JSON.stringify(({message: 'User logged in'})),
+    {
+      status: 200,
+      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+    }
+  );
 }
 
 
@@ -125,23 +141,31 @@ const login = async (formData: FormData) => {
   const response = await fetch(`${process.env.BASE_URL}/api/v1/auth/login`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    credentials: 'include',
     body: JSON.stringify({email, password}),
   });
 
   // If the login fails, return an error
   if (!response.ok) {
-    return json({error: 'Invalid login'}, {status: response.status});
+    //return json({error: 'Invalid login'}, {status: response.status});
+    return new Response(
+        JSON.stringify(({error: 'Invalid login'})),
+      {
+        status: response.status,
+      }
+    )
   }
 
-
+  // If the login is successful, set the session cookie
   const cookieHeader = response.headers.get('set-cookie');
 
-  return json(
-      { message: "Login successful" },
-      cookieHeader ? { headers: { "Set-Cookie": cookieHeader } } : {} // ✅ Forward cookie to browser
+  return new Response(
+      JSON.stringify(({message: 'User logged in'})),
+    {
+      status: 200,
+      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+    }
   );
-};
+}
 
 const signOut = async (request: any) => {
   // Get the access token from the session cookie

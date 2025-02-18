@@ -42,13 +42,15 @@ export const loader: LoaderFunction = async ({request}) => {
   const cookieHeader = request.headers.get('Cookie') as string
   const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
-  console.log(cookie)
+
   if (!cookie.sb_session) {
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
+  const {links, profile} = await getData(request);
 
+  //TODO: Implement getData function with updated express backend
   // const {links, profile, error} = await getData(accessToken);
   // console.log('links:a', error);
   // if (error) {

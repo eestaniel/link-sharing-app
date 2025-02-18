@@ -80,7 +80,7 @@ export const loader = async ({request}: any) => {
   const cookieHeader = request.headers.get('Cookie') as string
   const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
-  console.log(cookie)
+
   if (!cookie.sb_session) {
     return redirect("/", {
       headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}

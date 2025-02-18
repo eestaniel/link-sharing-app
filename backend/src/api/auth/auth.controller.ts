@@ -20,7 +20,7 @@ const signup = async (req: Request, res: Response) => {
   try{
     const user = await authService.signup(req.body);
     // set cookie
-    setCookie(res, 'accessToken', user.session.access_token);
+    setCookie(res, 'sb_session', user.session.access_token);
 
     res.status(200).json({ success: 'User signed up' });
 
