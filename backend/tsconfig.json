@@ -14,6 +14,8 @@
     "./*.js",
     "src/**/*.ts",
     "test/**/*.ts",
-    "types/**/*.ts"
+    "types/**/*.ts",
+    "src",
+    "src/express-augmentations.d.ts"
   ],
 }
