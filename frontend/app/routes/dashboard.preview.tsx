@@ -22,25 +22,31 @@ export const loader: LoaderFunction = async ({request}) => {
 
 const DashboardPreview = () => {
   const {
+    dbUserDetails,
+    dbLinks,
+    setDbUserLinks,
+    setDbUserDetails,
     userDetails,
     userLinks,
     setUserLinks,
     setUserDetails,
   } = useLinksStore((state) => ({
+    dbUserDetails: state.dbUserDetails,
+    dbLinks: state.dbLinks,
+    setDbUserLinks: state.setDbUserLinks,
+    setDbUserDetails: state.setDbUserDetails,
     userDetails: state.userDetails,
     userLinks: state.userLinks,
     setUserLinks: state.setUserLinks,
     setUserDetails: state.setUserDetails,
   }));
-  const {links, profile} = useLoaderData() as any;
 
   useEffect(() => {
-    if (links && profile) {
-      setUserLinks(links);
-      setUserDetails(profile);
-
+    if ( dbLinks && dbUserDetails) {
+      setDbUserLinks(dbLinks);
+      setDbUserDetails(dbUserDetails);
     }
-  }, [links, profile]);
+  }, [dbLinks, dbUserDetails]);
 
   const renderLinksContent = () => {
     if (userLinks.length === 0) {
@@ -81,11 +87,11 @@ const DashboardPreview = () => {
 
         <section className={styles.picture_header_container}>
           <div className={styles.picture_container}>
-            <img src={userDetails?.url} alt=""/>
+            <img src={dbUserDetails?.url} alt=""/>
           </div>
           <header className={styles.header_group}>
-            <h1>{userDetails?.first_name} {userDetails?.last_name}</h1>
-            <p>{userDetails?.email}</p>
+            <h1>{dbUserDetails?.first_name} {dbUserDetails?.last_name}</h1>
+            <p>{dbUserDetails?.email}</p>
           </header>
         </section>
         <section className={styles.links_container}>

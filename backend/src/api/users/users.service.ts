@@ -1,6 +1,5 @@
 import {Request} from "express"
 import supabase from "../../config/supabaseClient"
-import { decode } from 'base64-arraybuffer'
 
 const getProfileWithLinks = async (req: Request) => {
 
