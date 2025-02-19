@@ -62,7 +62,7 @@ const CreateAccount = () => {
             Email address:
             <div
                 className={`${styles.input_container} ${errors.email && styles.input_error}`}>
-              <img src="app/assets/images/icon-email.svg" alt="email icon"/>
+              <img src="/assets/images/icon-email.svg" alt="email icon"/>
               <input type="email" {...register('email')}
                      placeholder={'e.g. alex@email.com'}/>
             </div>
@@ -73,7 +73,7 @@ const CreateAccount = () => {
             Create Password:
             <div
                 className={`${styles.input_container} ${errors.password && styles.input_error}`}>
-              <img src="app/assets/images/icon-password.svg"
+              <img src="/assets/images/icon-password.svg"
                    alt="password icon"/>
               <input type="password" {...register('password')}
                      placeholder={'At least 8 characters'}/>
@@ -85,7 +85,7 @@ const CreateAccount = () => {
             Confirm Password:
             <div
                 className={`${styles.input_container} ${errors.password && styles.input_error}`}>
-              <img src="app/assets/images/icon-password.svg"
+              <img src="/assets/images/icon-password.svg"
                    alt="password icon"/>
               <input type="password" {...register('confirmPassword')}
                      placeholder={'At least 8 characters'}/>
