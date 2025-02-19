@@ -1,6 +1,6 @@
 import {Request} from "express"
 import supabase from "../../config/supabaseClient"
-
+import { decode } from 'base64-arraybuffer'
 
 const getProfileWithLinks = async (req: Request) => {
 
@@ -31,6 +31,38 @@ const getProfileWithLinks = async (req: Request) => {
     throw new Error(links_error.message)
   }
 
+  // check if user_id has a picture
+  const { data: imageData, error:imageError } = await supabase
+    .storage
+    .from('pictures')
+    .list(`public/${user_id}/`, {
+      limit: 1,
+      offset: 0,
+      sortBy: { column: 'name', order: 'asc' },
+    })
+
+  if (imageError) {
+    throw new Error(imageError.message)
+  }
+
+  // get url
+  if (imageData?.length > 0) {
+    const { data: imageDataUrl} = await supabase
+      .storage
+      .from('pictures')
+      .createSignedUrl(`public/${user_id}/${imageData[0].name}`, 3600, {
+        transform: {
+          width: 193,
+          height: 193,
+        }
+      })
+
+    if (imageDataUrl) {
+      user_profile[0].url = imageDataUrl.signedUrl
+    }
+
+  }
+
   // create a response object
   return {
     profile: user_profile[0],
@@ -41,6 +73,7 @@ const getProfileWithLinks = async (req: Request) => {
 const updateProfile = async (req: Request) => {
   // Get user_id from the request
   const user_id = req.user.sub || req.user.id
+  console.log('user_id', user_id)
 
   // Get user profile details from supabase
   const {data: sb_user, error: sb_error} = await supabase
@@ -64,20 +97,21 @@ const updateProfile = async (req: Request) => {
     updateData.last_name = req.body.last_name;
   }
 
-  // If no updates are needed, return early
-  if (Object.keys(updateData).length === 0) {
-    return {message: 'No changes detected'};
-  }
 
   // Update only if necessary
-  const {error: updateError} = await supabase
-    .from('profile')
-    .update(updateData)
-    .eq('id', user_id);
+  if (Object.keys(updateData).length > 0) {
 
-  if (updateError) {
-    throw new Error(updateError.message);
+    const {error: updateError} = await supabase
+      .from('profile')
+      .update(updateData)
+      .eq('id', user_id);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
   }
+
+
 
   // check if req.body.email is different than req.user.email
   if (req.body.email !== req.user.email) {
@@ -100,8 +134,42 @@ const updateProfile = async (req: Request) => {
     if (errorEmail) {
       throw new Error(errorEmail.message);
     }
-
   }
+
+
+  // make sure req.file is png or jpeg or jpg and max size 5MB
+  if (req.file) {
+    console.log('req.file', req.file)
+    // validate file extension
+    const validExtensions = ['image/png', 'image/jpeg', 'image/jpg']
+    if (!validExtensions.includes(req.file.mimetype)) {
+      throw new Error('Invalid file type')
+    }
+    // validate dimension
+    if (req.file.size > 5 * 1024 * 1024) {
+      throw new Error('File size too large')
+    }
+    // get the file extension and create a new file name
+    // get last .* if multiple dots
+
+    const fileExtension = req.file.originalname.split('.').pop()
+    const newFileName = `avatar1.${fileExtension}`
+
+    // upload to supabase
+    const {error: fileError } = await supabase
+      .storage
+      .from('pictures')
+      .upload(`public/${user_id}/${newFileName}`, req.file.buffer, {
+        cacheControl: '3600',
+        contentType: req.file.mimetype,
+        upsert: true
+      })
+
+    if (fileError) {
+      throw new Error(fileError.message)
+    }
+  }
+
 
   return {
     message: 'Profile updated',

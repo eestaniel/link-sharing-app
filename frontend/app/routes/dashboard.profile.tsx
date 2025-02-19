@@ -209,6 +209,7 @@ const DashboardProfile = () => {
       const hasNameChanged = value.first_name !== userDetails.first_name
         || value.last_name !== userDetails.last_name
         || value.email !== userDetails.email
+        || value.file !== userDetails.file
       ;
       if (hasNameChanged) {
         setIsFormChanged(true);
@@ -228,10 +229,10 @@ const DashboardProfile = () => {
   }, []);
 
   const renderImage = () => {
-    if (userDetails?.url && !imageData) {
+    if (dbUserDetails?.url && !imageData) {
       return (
         <>
-          <img src={userDetails?.url} alt=""/>
+          <img src={dbUserDetails?.url} alt=""/>
           <span className={styles.layer}>
             <UploadImageIcon/>
             <p>Change Image</p>

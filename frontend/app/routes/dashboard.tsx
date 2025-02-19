@@ -91,6 +91,8 @@ export const loader = async ({request}: never) => {
     return new Response(JSON.stringify({error: 'Failed to fetch data'}), {status: 500});
   }
 
+  console.log('get_data:', get_data);
+
 
   return Response.json({
       data: get_data
@@ -256,7 +258,7 @@ const Dashboard = () => {
         <div className={styles.preview_section}>
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
-              {userDetails?.url ?
+              {dbUserDetails?.url ?
                 <img src={dbUserDetails?.url} alt=""/> :
                 <div className={styles.empty_image}></div>
               }

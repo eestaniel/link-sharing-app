@@ -17,6 +17,7 @@ const getProfileWithLinks = async (req: Request, res: Response) => {
 
 const updateProfile = async (req: Request, res: Response) => {
   try{
+
     const data = await usersService.updateProfile(req) as any;
 
     res.status(200).json(data);
