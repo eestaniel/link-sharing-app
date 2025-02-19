@@ -36,7 +36,6 @@ const signup = async (req: Request, res: Response) => {
       refresh_token: user.session.refresh_token
     }
 
-    console.log('jwtPayload', jwtPayload);
 
     const jwtToken = jwt.sign(jwtPayload, process.env.JWT_SECRET as string, { expiresIn: '1d' });
 
