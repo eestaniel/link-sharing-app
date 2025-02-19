@@ -25,6 +25,7 @@ const Navigation = () => {
 
   const handlePageChange = async (next_page: string) => {
     const formData = new FormData();
+
     setPreviousPage(path);
     formData.append('page', next_page);
     fetcher.submit(formData, {method: 'post'});

@@ -1,11 +1,15 @@
 import express from "express"
-const router = express.Router()
+
 import usersController from "./users.controller"
 import {authMiddleware} from "../middleware/authMiddleware"
+import multer from "multer"
 
+const router = express.Router()
+const upload = multer();
 
 // define routes and map them to the corresponding controller
 router.get('/profile-with-links', authMiddleware, usersController.getProfileWithLinks)
+router.put('/profile', authMiddleware, upload.none(), usersController.updateProfile)
 
 export default router
 

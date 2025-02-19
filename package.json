@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "concurrently --names \"SERVER,CLIENT\" --prefix name \"npm run redis\" \"npm run server\" \"npm run client\"",
+    "start": "concurrently --names \"REDIS,SERVER,CLIENT\" --prefix name \"npm run redis\" \"npm run server\" \"npm run client\"",
     "server": "cd ./backend && npm run dev",
     "client": "cd ./frontend && npm run dev",
     "redis": "node -e \"if (process.platform === 'darwin') require('child_process').execSync('brew services start redis', { stdio: 'inherit' }); else console.log('Skipping Redis start as the OS is not macOS.')\""

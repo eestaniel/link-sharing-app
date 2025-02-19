@@ -1,5 +1,9 @@
 import supabase from '../../config/supabaseClient';
-import {setUserRedisSignIn, clearUserRedis} from "../../utils/redisUtils";
+import {
+  setUserRedisSignIn,
+  clearUserRedis,
+  getUserRefreshToken
+} from "../../utils/redisUtils";
 import {loginSignupPayload} from "../types"
 import {Request} from "express";
 
@@ -16,8 +20,10 @@ const login = async ({email, password}: loginSignupPayload) => {
   }
 
 
+
+
   // save user session to redis
-  //setUserRedisSignIn({id: data.user.id, email, token: data.session.access_token});
+  // setUserRedisSignIn({id: data.user.id, refresh_token: data.session?.refresh_token});
   return data;
 
 
@@ -48,7 +54,7 @@ const signup = async ({email, password}: loginSignupPayload) => {
 
 
   // save user session to redis
-  //setUserRedisSignIn({id: data.user.id, email, token: data.session.access_token});
+  //setUserRedisSignIn({id: data.user.id, refresh_token: data.session?.refresh_token});
 
   return data
 
@@ -56,25 +62,23 @@ const signup = async ({email, password}: loginSignupPayload) => {
 
 const signOut = async (req: Request) => {
 
-  const {user, token} = req
+  // sign out user
+  const refresh_token = req.tokens?.refresh_token
 
 
-
-  if (!user) {
-    throw new Error('User not found')
+  if (refresh_token === null) {
+    throw new Error('User not signed in');
   }
-
-  // clear user session from redis
-  clearUserRedis(user.sub)
-
-  // sign out user from supabase
   // @ts-ignore
-  const {error} = await supabase.auth.signOut(token);
+  const { data, error: error1 } = await supabase.auth.refreshSession({ refresh_token })
+  const { session, user } = data
 
+  const { error } = await supabase.auth.signOut()
 
   if (error) {
     throw new Error(error.message);
   }
+
 
   return {success: 'User signed out'}
 

@@ -9,6 +9,7 @@ import {useFetcher, useLoaderData} from "@remix-run/react";
 import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {getData} from "~/services/user-services";
+import {parseCookieHeader} from "~/utils/parseCookieHeader"
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -20,40 +21,27 @@ const profileSchema = z.object({
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
+
+
 export const loader: LoaderFunction = async ({request}) => {
+  const cookieHeader = request.headers.get('Cookie') as string
+  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
 
-  if (!accessToken) {
+  if (!cookie.sb_session) {
     return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
-    });
-  }
-  const {profile, links, error} = await getData(accessToken);
-
-  if (error) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})},
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
     });
   }
 
-  if (profile) {
-    if (profile.first_name === null || profile.first_name === undefined) {
-      profile.first_name = "";
-    }
-    if (profile.last_name === null || profile.last_name === undefined) {
-      profile.last_name = "";
-    }
-    if (profile.email === null || profile.email === undefined) {
-      profile.email = "";
-    }
-    return {profile, links};
-  }
+  return {}
 }
 
+
+
 const DashboardProfile = () => {
+
+  // Initialize the form with react-hook-form and zodResolver
   const methods = useForm<ProfileFormInputs>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -64,8 +52,12 @@ const DashboardProfile = () => {
     },
   });
 
+
+  // Fetch the data from the loader
   const fetcher = useFetcher();
 
+
+  // Initialize the store and set the user details and links from the store
   const {
     userDetails,
     setUserDetails,
@@ -80,33 +72,44 @@ const DashboardProfile = () => {
     setToastMessage: state.setToastMessage,
   }));
 
+
+  // Initialize the state for form changes and client
   const [isFormChanged, setIsFormChanged] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+
+  // Destructure the methods from react-hook-form
   const {
     handleSubmit,
     register,
     formState: {errors},
     setError,
   } = methods;
+
+  // Create a reference for the file
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize the state for image data and disable button
   const [imageData, setImageData] = useState<{
     url: string;
     file: any
   } | string | null>(null);
-  const {links, profile} = useLoaderData() as any;
   const [disableButton, setDisableButton] = useState(false);
 
-  // Set the user details and links to the store
-  useEffect(() => {
-    if (profile) {
-      setUserDetails(profile);
-      methods.reset(profile);
-    }
-    if (links) {
-      setUserLinks(links);
-    }
 
-  }, [profile]);
+  // Reset the form when userDetails
+  useEffect(() => {
+    if (userDetails) {
+      methods.reset(userDetails);
+    }
+  }, [userDetails]);
+
+
+  // Log the userDetails
+  // useEffect(() => {
+  //   console.log('userDetails', userDetails);
+  // }, []);
+
 
   // Validate email
   const validEmail = (email: string) => {
@@ -199,9 +202,9 @@ const DashboardProfile = () => {
   // Watch for changes in the form
   useEffect(() => {
     const subscription = methods.watch((value) => {
-      const hasNameChanged = value.first_name !== profile.first_name
-        || value.last_name !== profile.last_name
-        || value.email !== profile.email
+      const hasNameChanged = value.first_name !== userDetails.first_name
+        || value.last_name !== userDetails.last_name
+        || value.email !== userDetails.email
       ;
       if (hasNameChanged) {
         setIsFormChanged(true);

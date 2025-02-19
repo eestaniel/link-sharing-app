@@ -4,11 +4,12 @@ import {Request} from "express";
 declare module 'express' {
   export interface Request {
     user?: User;
-    token?: string;
+    tokens?: tokensPayload;
+    jwt?: string;
   }
 
   export interface Response {
-    user?: User;
+    tokens?: User;
     token?: string;
   }
 }
@@ -16,4 +17,9 @@ declare module 'express' {
 export interface loginSignupPayload {
   email: string;
   password: string;
+}
+
+interface tokensPayload {
+  access_token: string;
+  refresh_token: string;
 }

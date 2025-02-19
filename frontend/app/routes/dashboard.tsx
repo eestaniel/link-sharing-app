@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Outlet, useLocation} from "@remix-run/react";
-import {json, redirect} from "@remix-run/node";
+import {Outlet, useLoaderData, useLocation} from "@remix-run/react";
+import {data, redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
 import {sessionCookie} from "~/utils/sessionCookie";
@@ -12,6 +12,9 @@ import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
 import {Toast} from "~/components/toast/Toast"
 import {parseCookieHeader} from "~/utils/parseCookieHeader";
+import {useForm} from "react-hook-form"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {z} from "zod"
 
 
 export const action = async ({request}: any) => {
@@ -87,14 +90,54 @@ export const loader = async ({request}: any) => {
     });
   }
 
-  // const {links, profile, error} = await getData(accessToken);
-  // if (error) {
-  //   return redirect("/", {
-  //     headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-  //   });
-  // }
-  return {links: '', profile: ''};
+  const {data: get_data, headers} = await getData(request);
+  if (!get_data) {
+    return new Response(JSON.stringify({error: 'Failed to fetch data'}), {status: 500});
+  }
+
+
+  return Response.json({
+      data: get_data
+    },
+    {
+      status: 200,
+      headers: headers as HeadersInit,
+      statusText: "OK",
+    }
+  )
+
 };
+
+
+// stop revalidation
+export const shouldRevalidate = () => false;
+
+// Define zod schema for profile details
+const profileSchema = z.object({
+  first_name: z.string().min(1, "Can't be empty"),
+  last_name: z.string().min(1, "Can't be empty"),
+  email: z.string().optional(),
+  file: z.any().optional(),
+});
+
+type ProfileFormInputs = z.infer<typeof profileSchema>;
+
+
+interface Profile {
+  id: string;
+  created_at: string;
+  profile_picture: string | null;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+
+interface LoaderData {
+  links: any[]; // Replace with proper type if needed
+  profile: Profile;
+}
+
 
 const Dashboard = () => {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -131,12 +174,12 @@ const Dashboard = () => {
   const location = useLocation();
 
   const [parent, previewLinks, setPreviewLinks] = useDragAndDrop(
-      userLinks,
-      {
-        group: 'links',
-        sortable: true,
+    userLinks,
+    {
+      group: 'links',
+      sortable: true,
 
-      }
+    }
   )
 
   useEffect(() => {
@@ -155,69 +198,110 @@ const Dashboard = () => {
 
   }, [previewLinks]);
 
+  const loaderData = useLoaderData() as any
+
+  const {setUserDetails} = useLinksStore((state) => ({
+    setUserDetails: state.setUserDetails,
+  }));
+
+  const methods = useForm<ProfileFormInputs>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      file: null,
+    },
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: {errors},
+    setError,
+  } = methods;
+
+  // Set the user details and links to the store
+  useEffect(() => {
+    if (!loaderData.data) {
+      return;
+    }
+    const {profile, links} = loaderData?.data as any;
+
+    if (profile) {
+      setUserDetails(profile);
+    }
+    if (links) {
+      setUserLinks(links);
+    }
+
+
+  }, [loaderData]);
+
+
   const handleDismissToast = () => {
     setShowToast(false);
   };
 
   const renderLinksPreviewComponent = useMemo(() => {
     return (
-        <section className={styles.links_preview_container}>
-          <div className={styles.preview_section}>
-            <div className={styles.preview_group}>
-              <div className={styles.header_group}>
-                {userDetails?.url ?
-                    <img src={userDetails?.url} alt=""/> :
-                    <div className={styles.empty_image}></div>
-                }
+      <section className={styles.links_preview_container}>
+        <div className={styles.preview_section}>
+          <div className={styles.preview_group}>
+            <div className={styles.header_group}>
+              {userDetails?.url ?
+                <img src={userDetails?.url} alt=""/> :
+                <div className={styles.empty_image}></div>
+              }
 
-                <div
-                    className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                  {userDetails?.first_name && userDetails?.last_name &&
-                    <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
-                  <p>{userDetails?.email}</p>
-                </div>
-              </div>
-              <div className={styles.links_group}>
-                <ul ref={parent}>
-                  {previewLinks?.map((link) => (
-                      <li key={link.id}>
-                        <div
-                            className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
-                        >
-                          <div className={styles.group1}>
-                            {LinkMenuIcons[link.platform]}
-                            {linkMenuList[link.platform]}
-                          </div>
-                          {<RightArrowIcon/>}
-                        </div>
-                      </li>
-                  ))}
-                </ul>
+              <div
+                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
+                {userDetails?.first_name && userDetails?.last_name &&
+                  <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
+                <p>{userDetails?.email}</p>
               </div>
             </div>
+            <div className={styles.links_group}>
+              <ul ref={parent}>
+                {previewLinks?.map((link) => (
+                  <li key={link.id}>
+                    <div
+                      className={`${styles.icon_platform_group} ${LinkMenuStyles(link.platform)}`}
+                    >
+                      <div className={styles.group1}>
+                        {LinkMenuIcons[link.platform]}
+                        {linkMenuList[link.platform]}
+                      </div>
+                      {<RightArrowIcon/>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
     );
   }, [previewLinks, userDetails]);
 
   return (
-      <div
-          className={`${styles.page_container} 
+    <div
+      className={`${styles.page_container} 
       ${location.pathname !== '/dashboard/preview' && styles.center_page}}
       ${location.pathname === '/dashboard/preview' && styles.prev_page}`}
-      >
-        <Navigation/>
-        <div
-            className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
-          <div className={styles.wrapper}>
-            {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
-            <Outlet/>
-            {showToast &&
-              <Toast message={toastMessage}
-                     onDismiss={handleDismissToast}/>}
-          </div>
+    >
+      <Navigation/>
+      <div
+        className={`${styles.dashboard_container} ${location.pathname === '/dashboard/preview' && styles.preview_page}`}>
+        <div className={styles.wrapper}>
+          {location.pathname !== '/dashboard/preview' && isDesktop && renderLinksPreviewComponent}
+          <Outlet/>
+          {showToast &&
+            <Toast message={toastMessage}
+                   onDismiss={handleDismissToast}/>}
         </div>
       </div>
+    </div>
   );
 };
 

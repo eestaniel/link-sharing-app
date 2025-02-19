@@ -1,13 +1,24 @@
 import usersService from './users.service';
 import {Request, Response} from 'express';
+import multer from 'multer';
+
+// Configure multer to handle `FormData`
+const upload = multer(); // Memory storage for parsing only, not saving files
 
 
 const getProfileWithLinks = async (req: Request, res: Response) => {
   try{
     const data = await usersService.getProfileWithLinks(req) as any;
+    res.status(200).json(data);
+  } catch (error: any) {
+    res.status(403).json({ error: error.message });
+  }
+}
 
-    console.log(data.user_profile);
-    console.log(data.user_links);
+const updateProfile = async (req: Request, res: Response) => {
+  try{
+    const data = await usersService.updateProfile(req) as any;
+
     res.status(200).json(data);
   } catch (error: any) {
     res.status(403).json({ error: error.message });
@@ -15,5 +26,6 @@ const getProfileWithLinks = async (req: Request, res: Response) => {
 }
 
 export default {
-  getProfileWithLinks
+  getProfileWithLinks,
+  updateProfile,
 }

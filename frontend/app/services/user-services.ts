@@ -27,10 +27,14 @@ export const getData = async (request: any) => {
   });
   const {links, profile, error} = await res.json();
 
+  const cookieHeader = res.headers.get('set-cookie');
   if (error) {
     return {error: error};
   }
-  return {links: links, profile: profile};
+  return {
+    data: {links, profile},
+    headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {}
+  };
 }
 
 export const getProfile = async (accessToken: string) => {
@@ -40,6 +44,7 @@ export const getProfile = async (accessToken: string) => {
       'Authorization': `Bearer ${accessToken}`
     }
   });
+  console.log('res', res);
   const {profile, error} = await res.json();
 
   if (error) {

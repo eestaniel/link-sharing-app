@@ -1,6 +1,7 @@
 import {ActionFunction, json, LoaderFunction, redirect} from "@remix-run/node";
 import {supabase} from "~/services/supabaseClient";
 import {sessionCookie} from "~/utils/sessionCookie";
+import {parseCookieHeader} from "~/utils/parseCookieHeader"
 
 
 export const loader: LoaderFunction = async () => {
@@ -36,6 +37,7 @@ export const action: ActionFunction = async ({request}) => {
 
 const changePage = async (formData: FormData) => {
   const page = formData.get('page') as string;
+  console.log('page', page);
   if (!page) {
     return redirect('/dashboard/links')
   }
@@ -168,39 +170,45 @@ const login = async (formData: FormData) => {
 }
 
 const signOut = async (request: any) => {
-  // Get the access token from the session cookie
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
+  const cookieHeader = request.headers.get('Cookie') as string
+  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
-  if (!accessToken) {
-    return redirect("/");
+
+  if (!cookie.sb_session) {
+    return redirect("/", {
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
+    });
   }
 
-  // Sign out the user from supabase
-  const {error} = await supabase.auth.signOut()
-
-  if (error) {
-    return json({error: error.message}, {status: 500});
-  }
 
   // sign user out from backend
-  const response = await fetch(`${baseUrl}/api/auth/signout`, {
+  const response = await fetch(`${baseUrl}/api/v1/auth/signout`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
+      'Cookie': request.headers.get('Cookie')
+    }
   });
 
-  const res = await response.json();
-  if (res.error) {
-    return json({error: res.error}, {status: 401});
+  if (!response.ok) {
+    //return json({error: 'Invalid login'}, {status: response.status});
+    return new Response(
+      JSON.stringify(({error: 'error signing out'})),
+      {
+        status: response.status,
+        statusText: response.statusText
+      }
+    )
   }
 
-  const newCookieHeader = await sessionCookie.serialize("", {maxAge: 0});
-  return redirect("/", {
-    headers: {"Set-Cookie": newCookieHeader},
-  });
+  // Return a success message and set the sb_session cookie to expire
+  const newCookieHeader = response.headers.get('set-cookie');
+  return new Response(
+    JSON.stringify(({message: 'User signed out'})),
+    {
+      status: 200,
+      headers: newCookieHeader ? {"Set-Cookie": newCookieHeader} : {},
+    }
+  );
 };
 
 const saveLinks = async (formData: FormData, request: any) => {
@@ -233,25 +241,26 @@ const saveLinks = async (formData: FormData, request: any) => {
   return json({message: responseBody});
 }
 
-const saveProfile = async (formData: FormData, request: Request) => {
-  // Get the access token from the session cookie
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
-
-  // if no access token, throw redirect /
-  if (!accessToken) {
-    throw redirect("/");
+const saveProfile = async (formData: FormData, request: any) => {
+  // Get cookie from request
+  const cookieHeader = request.headers.get('Cookie') as string;
+  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
+  
+  // if no session cookie, throw redirect /
+  if (!cookie.sb_session) {
+    return redirect("/", {
+      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
+    });
   }
 
-  const response = await fetch(`${baseUrl}/api/users/save-profile`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
 
+
+  const response = await fetch(`${baseUrl}/api/v1/users/profile`, {
+    method: 'PUT',
+    headers: {
+      'Cookie': request.headers.get('Cookie'),
     },
     body: formData,
-
   });
 
   const responseBody = await response.json();
