@@ -8,32 +8,16 @@ import {sessionCookie} from "~/utils/sessionCookie";
 import {useLoaderData} from "@remix-run/react";
 import {useEffect} from "react";
 import {getData} from "~/services/user-services"
+import {validateCookieSession} from "~/utils/cookie-utils"
 
 
 export const loader: LoaderFunction = async ({request}) => {
-
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
-
-  if (!accessToken) {
-    // remove cookie
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
+  const response = await validateCookieSession(request, '/dashboard');
+  if (response) {
+    return response
   }
 
-  // Verify the access token without fetching user data
-  const {links, profile, error} = await getData(accessToken);
-
-  if (error) {
-    // remove cookie
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
-  }
-
-  return {links, profile};
+  return {}
 };
 
 const DashboardPreview = () => {
