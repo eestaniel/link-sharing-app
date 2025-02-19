@@ -47,7 +47,7 @@ const signup = async ({email, password}: loginSignupPayload) => {
 
   // Step 2: Insert profile into the 'profile' table
   const { error: profileError } = await supabase.from("profile").insert([
-    { id: data.user.id},
+    { id: data.user.id, email: email},
   ]);
 
   if (profileError) throw profileError;

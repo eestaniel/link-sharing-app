@@ -72,7 +72,6 @@ const getProfileWithLinks = async (req: Request) => {
 const updateProfile = async (req: Request) => {
   // Get user_id from the request
   const user_id = req.user.sub || req.user.id
-  console.log('user_id', user_id)
 
   // Get user profile details from supabase
   const {data: sb_user, error: sb_error} = await supabase
@@ -138,7 +137,6 @@ const updateProfile = async (req: Request) => {
 
   // make sure req.file is png or jpeg or jpg and max size 5MB
   if (req.file) {
-    console.log('req.file', req.file)
     // validate file extension
     const validExtensions = ['image/png', 'image/jpeg', 'image/jpg']
     if (!validExtensions.includes(req.file.mimetype)) {
@@ -182,6 +180,7 @@ const upsertLinks = async (req: Request) => {
   const user_id = req.user.sub || req.user.id
   const linksArray = JSON.parse(req.body.links)
 
+
   // delete all links where user_id is equal to the current user_id
   const {error} = await supabase
     .from('links')
@@ -206,7 +205,6 @@ const upsertLinks = async (req: Request) => {
     .select()
 
   if (upsertError) {
-    console.log()
     throw new Error(upsertError.message)
   }
 

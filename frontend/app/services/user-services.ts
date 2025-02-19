@@ -44,7 +44,6 @@ export const getProfile = async (accessToken: string) => {
       'Authorization': `Bearer ${accessToken}`
     }
   });
-  console.log('res', res);
   const {profile, error} = await res.json();
 
   if (error) {

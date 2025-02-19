@@ -7,10 +7,12 @@ import {useFetcher} from "@remix-run/react"
 
 const Navigation = () => {
   const {
+    dbUserDetails,
     currentPage, userDetails,
     setShowToast,
     setToastMessage,
   } = useLinksStore(state => ({
+    dbUserDetails: state.dbUserDetails,
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
     userDetails: state.userDetails,
@@ -45,7 +47,7 @@ const Navigation = () => {
 
   const handleShareLink = async () => {
 
-    const newURL = `${window.location.origin}/share/${userDetails.share_uuid}`;
+    const newURL = `${window.location.origin}/share/${dbUserDetails.share_uuid}`;
     // Fallback to textarea method for mobile support
     if (!navigator.clipboard) {
       const textArea = document.createElement("textarea");

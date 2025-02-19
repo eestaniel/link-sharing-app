@@ -128,7 +128,6 @@ const DashboardProfile = () => {
     formData.append("first_name", data.first_name);
     formData.append("last_name", data.last_name);
 
-    console.log('form data', formData);
     if (data.email) {
       // check if email is valid
       const emailValidation = validEmail(data.email);

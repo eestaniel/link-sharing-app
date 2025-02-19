@@ -11,15 +11,13 @@ export const loader: LoaderFunction = async ({request, params}) => {
 
   const id: string | undefined = params.id
   const baseUrl = process.env.BASE_URL
-  const response = await fetch(`${baseUrl}/api/share/get-share`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({id: id}),
+  const response = await fetch(`${baseUrl}/api/v1/share/public-profile/${id}`, {
+    method: 'get'
   })
 
-  const {profile, links, error} = await response.json()
+  const {profile, links} = await response.json()
+
+
 
   return {profile, links}
 }
@@ -36,6 +34,8 @@ const PublicShareId = () => {
           <a
             key={index}
             href={link.url}
+            target={'_blank'}
+            rel={'noreferrer'}
             className={`${styles.button_container} ${LinkMenuStyles(link.platform)}`}>
             <div
               className={`${styles.icon_label_group} ${LinkMenuStyles(link.platform)}`}>

@@ -37,7 +37,6 @@ export const validateCookieSession = async (request: Request, page: string): Pro
 
   // if login page and session cookie, return redirect /dashboard/links
   if (page === '/' && cookie.sb_session) {
-    console.log('redirecting to dashboard')
     return redirect('/dashboard/links');
   }
 

@@ -38,7 +38,6 @@ export const action: ActionFunction = async ({request}) => {
 
 const changePage = async (formData: FormData) => {
   const page = formData.get('page') as string;
-  console.log('page', page);
   if (!page) {
     return redirect('/dashboard/links')
   }
@@ -246,8 +245,6 @@ const saveProfile = async (formData: FormData, request: any) => {
   if (cookieResponse) {
     return cookieResponse
   }
-
-  console.log('action form data', formData);
   const response = await fetch(`${baseUrl}/api/v1/users/profile`, {
     method: 'PUT',
     headers: {

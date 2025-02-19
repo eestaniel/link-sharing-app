@@ -9,7 +9,7 @@ const upload = multer();
 
 // define routes and map them to the corresponding controller
 router.get('/profile-with-links', authMiddleware, usersController.getProfileWithLinks)
-router.put('/links', authMiddleware, usersController.upsertLinks)
+router.put('/links', authMiddleware, upload.none(), usersController.upsertLinks)
 router.put('/profile', authMiddleware, upload.single('file'), usersController.updateProfile)
 
 export default router

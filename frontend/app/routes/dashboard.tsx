@@ -91,9 +91,6 @@ export const loader = async ({request}: never) => {
     return new Response(JSON.stringify({error: 'Failed to fetch data'}), {status: 500});
   }
 
-  console.log('get_data:', get_data);
-
-
   return Response.json({
       data: get_data
     },

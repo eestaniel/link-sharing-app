@@ -71,7 +71,6 @@ const Login = () => {
   }
 
   const handleAnon = () => {
-    console.log('clicked here')
     const formData = new FormData();
     setIsAnon(true);
     formData.append("action", "anon");
