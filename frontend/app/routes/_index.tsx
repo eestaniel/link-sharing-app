@@ -14,6 +14,9 @@ import CreateAccount from "~/components/pages/create_account/CreateAccount";
 import {validateAccessToken} from "~/services/user-services"
 import {useNavigation,useNavigate} from "@remix-run/react"
 import {parseCookieHeader} from "~/utils/parseCookieHeader";
+import {validateCookieSession} from "~/utils/cookie-utils"
+import {red} from "kleur/colors"
+import {sessionCookie} from "~/utils/sessionCookie"
 
 export const meta: MetaFunction = () => {
   return [
@@ -24,23 +27,12 @@ export const meta: MetaFunction = () => {
 
 
 export const loader: LoaderFunction = async ({request}) => {
-  const cookieHeader = request.headers.get('Cookie') as string
-  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-
-
-  if (cookie.sb_session) {
-    const isValid = await validateAccessToken(cookie.sb_session);
-    if (isValid) {
-      return redirect("/dashboard/links");
-    }
+  const response = await validateCookieSession(request, '/')
+  if (response) {
+    return response
   }
 
-  // check if user confirmed email from supabase, look for hash in url
-
-  // If no accessToken, assume the user needs to login
-  return {
-    homePage: 'login',
-  };
+  return {}
 };
 
 

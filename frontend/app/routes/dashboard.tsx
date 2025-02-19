@@ -15,6 +15,7 @@ import {parseCookieHeader} from "~/utils/parseCookieHeader";
 import {useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {z} from "zod"
+import {validateCookieSession} from "~/utils/cookie-utils"
 
 
 export const action = async ({request}: any) => {
@@ -79,15 +80,10 @@ const saveLinks = async (formData: any, request: any) => {
 };
 
 
-export const loader = async ({request}: any) => {
-  const cookieHeader = request.headers.get('Cookie') as string
-  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-
-
-  if (!cookie.sb_session) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
+export const loader = async ({request}: never) => {
+  const response = await validateCookieSession(request, '/dashboard');
+  if (response) {
+    return response
   }
 
   const {data: get_data, headers} = await getData(request);

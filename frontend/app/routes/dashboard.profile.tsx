@@ -10,6 +10,7 @@ import {LoaderFunction, redirect} from "@remix-run/node";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {getData} from "~/services/user-services";
 import {parseCookieHeader} from "~/utils/parseCookieHeader"
+import {validateCookieSession} from "~/utils/cookie-utils"
 
 // Define zod schema for profile details
 const profileSchema = z.object({
@@ -24,14 +25,9 @@ type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 
 export const loader: LoaderFunction = async ({request}) => {
-  const cookieHeader = request.headers.get('Cookie') as string
-  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-
-
-  if (!cookie.sb_session) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
+  const response = await validateCookieSession(request, '/dashboard');
+  if (response) {
+    return response
   }
 
   return {}

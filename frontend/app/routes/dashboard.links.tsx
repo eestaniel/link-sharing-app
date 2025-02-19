@@ -11,6 +11,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
 import {useDragAndDrop} from "@formkit/drag-and-drop/react"
 import {parseCookieHeader} from "~/utils/parseCookieHeader";
+import {validateCookieSession} from "~/utils/cookie-utils"
 
 // Define the validation schema using zod
 const linkSchema = z.object({
@@ -40,16 +41,11 @@ const generateUUID = () => {
 
 // Define the loader function
 export const loader: LoaderFunction = async ({request}) => {
-  const cookieHeader = request.headers.get('Cookie') as string
-  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-
-  if (!cookie.sb_session) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
+  const response = await validateCookieSession(request, '/dashboard');
+  if (response) {
+    return response
   }
 
-  //const {links, profile} = await getData(request);
   return {};
 };
 
