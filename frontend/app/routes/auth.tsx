@@ -150,7 +150,7 @@ const login = async (formData: FormData) => {
   if (!response.ok) {
     //return json({error: 'Invalid login'}, {status: response.status});
     return new Response(
-        JSON.stringify(({error: 'Invalid login'})),
+        JSON.stringify(({error: `Invalid login, email: ${email}, baseURL: ${baseUrl}`})),
       {
         status: response.status,
       }
