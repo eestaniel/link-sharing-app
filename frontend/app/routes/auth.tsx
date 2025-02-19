@@ -2,6 +2,7 @@ import {ActionFunction, json, LoaderFunction, redirect} from "@remix-run/node";
 import {supabase} from "~/services/supabaseClient";
 import {sessionCookie} from "~/utils/sessionCookie";
 import {parseCookieHeader} from "~/utils/parseCookieHeader"
+import {validateCookieSession} from "~/utils/cookie-utils"
 
 
 export const loader: LoaderFunction = async () => {
@@ -242,17 +243,10 @@ const saveLinks = async (formData: FormData, request: any) => {
 }
 
 const saveProfile = async (formData: FormData, request: any) => {
-  // Get cookie from request
-  const cookieHeader = request.headers.get('Cookie') as string;
-  const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
-  
-  // if no session cookie, throw redirect /
-  if (!cookie.sb_session) {
-    return redirect("/", {
-      headers: {"Set-Cookie": await sessionCookie.serialize("", {maxAge: 0})}
-    });
+  const cookieResponse = await validateCookieSession(request, '/dashboard');
+  if (cookieResponse) {
+    return cookieResponse
   }
-
 
 
   const response = await fetch(`${baseUrl}/api/v1/users/profile`, {
@@ -265,10 +259,16 @@ const saveProfile = async (formData: FormData, request: any) => {
 
   const responseBody = await response.json();
   if (responseBody.error) {
-    return json({error: responseBody.error}, {status: 401});
+    return Response.json({error: responseBody.error}, {status: 500});
   }
 
-  return {message: 'Profile saved'};
+  const cookieHeader = response.headers.get('set-cookie');
+
+  return Response.json({message: responseBody},
+    {
+      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+      status: 200,
+    })
 };
 
 const serializeSession = async (accessToken: string) => {

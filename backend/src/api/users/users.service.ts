@@ -46,7 +46,7 @@ const updateProfile = async (req: Request) => {
   const {data: sb_user, error: sb_error} = await supabase
     .from('profile')
     .select('first_name, last_name')
-    .eq('id', req.user.sub)
+    .eq('id', user_id)
     .single()
 
   if (sb_error) {
