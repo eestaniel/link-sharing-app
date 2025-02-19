@@ -25,7 +25,19 @@ const updateProfile = async (req: Request, res: Response) => {
   }
 }
 
+
+const upsertLinks = async (req: Request, res: Response) => {
+  try{
+    const data = await usersService.upsertLinks(req) as any;
+
+    res.status(200).json(data);
+  } catch (error: any) {
+    res.status(403).json({ error: error.message });
+  }
+}
+
 export default {
   getProfileWithLinks,
   updateProfile,
+  upsertLinks,
 }

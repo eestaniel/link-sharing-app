@@ -17,9 +17,13 @@ interface LinksStore {
   setCurrentPage: (currentPage: string) => void;
   previousPage: string;
   setPreviousPage: (previousPage: string) => void;
+  dbLinks: LinkObject[];  // Array of link objects
+  dbUserDetails: any;
   userDetails: any;
   userLinks: LinkObject[];  // Array of link objects
-  setUserLinks: (links: Link[]) => void;  // Updated to handle setting links
+
+  setDbUserLinks: (links: LinkObject[]) => void;
+  setUserLinks: (links: LinkObject[]) => void;  // Updated to handle setting links
   addLink: (link: LinkObject) => void;
   removeLink: (id: string) => void;  // Updated to handle deletion by ID
   editLinkUrl: (id: string, url: string) => void;  // Updated to handle URL
@@ -27,6 +31,7 @@ interface LinksStore {
   editLinkPlatform: (id: string, platform: string) => void;  // New function to
                                                              // handle platform
                                                              // update by ID
+  setDbUserDetails: (details: any) => void;
   setUserDetails: (details: any) => void;
   showToast: boolean;
   setShowToast: (showToast: boolean) => void;
@@ -39,6 +44,12 @@ export const useLinksStore = create<LinksStore>((set) => ({
   sessionId: '',
   currentPage: '',
   previousPage: '',
+  dbLinks: [],
+  dbUserDetails: {
+    first_name: '',
+    last_name: '',
+    email: ''
+  },
   userLinks: [],
   userDetails: {
     first_name: '',
@@ -53,7 +64,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
   setSessionId: (sessionId) => set({sessionId}),
   setCurrentPage: (currentPage) => set({currentPage}),
   setPreviousPage: (previousPage) => set({previousPage}),
-
+  setDbUserLinks: (links) => set({dbLinks: links}),
   setUserLinks: (links) => set({userLinks: links}),
 
   addLink: (link) => set((state) => ({
@@ -85,7 +96,7 @@ export const useLinksStore = create<LinksStore>((set) => ({
     })
 
   })),
-
+  setDbUserDetails: (details) => set({dbUserDetails: details}),
   setUserDetails: (details) => set({userDetails: details}),
 
   setShowToast: (showToast) => set({showToast}),

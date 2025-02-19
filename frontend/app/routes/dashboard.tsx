@@ -136,6 +136,7 @@ interface LoaderData {
 
 
 const Dashboard = () => {
+
   const [isDesktop, setIsDesktop] = useState(false);
   const handleResize = () => {
     if (window.innerWidth >= 1024) {
@@ -152,15 +153,23 @@ const Dashboard = () => {
   }, []);
 
   const {
+    dbLinks,
+    dbUserDetails,
     userLinks,
     userDetails,
     setUserLinks,
+    setDbUserLinks,
+    setDbUserDetails,
     showToast,
     setShowToast,
     toastMessage,
   } = useLinksStore(state => ({
+    dbLinks: state.dbLinks,
+    dbUserDetails: state.dbUserDetails,
     userLinks: state.userLinks,
     userDetails: state.userDetails,
+    setDbUserLinks: state.setDbUserLinks,
+    setDbUserDetails: state.setDbUserDetails,
     setUserLinks: state.setUserLinks,
     showToast: state.showToast,
     setShowToast: state.setShowToast,
@@ -178,11 +187,13 @@ const Dashboard = () => {
     }
   )
 
+  // Set the preview links based on the userLinks
   useEffect(() => {
+
     if (userLinks && userLinks.length > 0) {
       setPreviewLinks(userLinks);
-    } else if (userLinks) {
-      setPreviewLinks(userLinks);
+    } else if (dbLinks) {
+      setPreviewLinks(dbLinks);
     }
   }, [userLinks]);
 
@@ -225,10 +236,10 @@ const Dashboard = () => {
     const {profile, links} = loaderData?.data as any;
 
     if (profile) {
-      setUserDetails(profile);
+      setDbUserDetails(profile);
     }
     if (links) {
-      setUserLinks(links);
+      setDbUserLinks(links);
     }
 
 
@@ -246,15 +257,15 @@ const Dashboard = () => {
           <div className={styles.preview_group}>
             <div className={styles.header_group}>
               {userDetails?.url ?
-                <img src={userDetails?.url} alt=""/> :
+                <img src={dbUserDetails?.url} alt=""/> :
                 <div className={styles.empty_image}></div>
               }
 
               <div
-                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
-                {userDetails?.first_name && userDetails?.last_name &&
-                  <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
-                <p>{userDetails?.email}</p>
+                className={`${styles.profile_details_group} ${dbUserDetails?.first_name && dbUserDetails?.email && styles.fill_bg_group}`}>
+                {dbUserDetails?.first_name && dbUserDetails?.last_name &&
+                  <h2>{dbUserDetails?.first_name} {dbUserDetails?.last_name}</h2>}
+                <p>{dbUserDetails?.email}</p>
               </div>
             </div>
             <div className={styles.links_group}>

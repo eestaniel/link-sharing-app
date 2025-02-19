@@ -52,16 +52,20 @@ export const loader: LoaderFunction = async ({request}) => {
 // Define the DashboardLinks component
 const DashboardLinks = () => {
 
+
   // Get the userLinks, setUserLinks, addLink, removeLink, editLinkUrl, userDetails,
   const {
     userLinks, setUserLinks, addLink, removeLink, editLinkUrl, userDetails,
-    setUserDetails, setShowToast, setToastMessage,
+    setUserDetails, setShowToast, setToastMessage, dbUserDetails, dbLinks,
+    setDbLinks
   } = useLinksStore(state => ({
+    dbUserDetails: state.dbUserDetails, dbLinks: state.dbLinks,
     userLinks: state.userLinks, setUserLinks: state.setUserLinks,
     addLink: state.addLink, removeLink: state.removeLink,
     editLinkUrl: state.editLinkUrl, userDetails: state.userDetails,
     setUserDetails: state.setUserDetails, setShowToast: state.setShowToast,
     setToastMessage: state.setToastMessage,
+    setDbLinks: state.setDbUserLinks
   }));
 
   // Get the fetcher function
@@ -110,11 +114,11 @@ const DashboardLinks = () => {
       formData.append("action", "save-links");
       formData.append("links", JSON.stringify(data.links));
       fetcher.submit(formData, {method: "post", action: "/auth"});
-
     } catch (error) {
       console.error("Form submission error:", error);
     }
   };
+
 
   // Initialize the form with react-hook-form and zodResolver
   const [isFormChanged, setIsFormChanged] = useState(false);
@@ -127,6 +131,9 @@ const DashboardLinks = () => {
       setShowToast(fetcher.data.message);
       setToastMessage('Your changes have been successfully saved!')
       setDisableButton(false);
+
+      // update dbLinks with userLinks
+      setDbLinks(userLinks);
     }
   }, [fetcher.data]);
 
@@ -139,8 +146,8 @@ const DashboardLinks = () => {
 
   // Check if the form has changed
   useEffect(() => {
-    if (userLinks.length > 0 || userLinks.length > 0) {
-      if (JSON.stringify(userLinks) !== JSON.stringify(userLinks)) {
+    if (userLinks.length > 0 || dbLinks.length > 0) {
+      if (JSON.stringify(userLinks) !== JSON.stringify(dbLinks)) {
         setIsFormChanged(true);
         methods.setValue('links', userLinks)
       } else {
@@ -175,6 +182,13 @@ const DashboardLinks = () => {
       setUserLinks(formList);
     }
   }, [formList]);
+
+  // reset page on load
+  useEffect(() => {
+    if (dbLinks !== userLinks) {
+      setUserLinks([]);
+    }
+  }, []);
 
 
   // Render the links content

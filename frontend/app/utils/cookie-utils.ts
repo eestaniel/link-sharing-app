@@ -48,8 +48,6 @@ export const validateCookieSession = async (request: Request, page: string): Pro
     });
   }
 
-  console.log('is valid')
-
 }
 
 

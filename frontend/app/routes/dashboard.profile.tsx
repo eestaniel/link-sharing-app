@@ -55,13 +55,19 @@ const DashboardProfile = () => {
 
   // Initialize the store and set the user details and links from the store
   const {
+    dbLinks,
+    dbUserDetails,
     userDetails,
+    userLinks,
     setUserDetails,
     setUserLinks,
     setShowToast,
     setToastMessage
   } = useLinksStore((state) => ({
+    dbLinks: state.dbLinks,
+    dbUserDetails: state.dbUserDetails,
     userDetails: state.userDetails,
+    userLinks: state.userLinks,
     setUserDetails: state.setUserDetails,
     setUserLinks: state.setUserLinks,
     setShowToast: state.setShowToast,
@@ -93,12 +99,12 @@ const DashboardProfile = () => {
   const [disableButton, setDisableButton] = useState(false);
 
 
-  // Reset the form when userDetails
+  // Set DB user details to the form on load
   useEffect(() => {
-    if (userDetails) {
-      methods.reset(userDetails);
+    if (dbUserDetails) {
+      methods.reset(dbUserDetails);
     }
-  }, [userDetails]);
+  }, [dbUserDetails]);
 
 
   // Log the userDetails
@@ -121,6 +127,8 @@ const DashboardProfile = () => {
     formData.append("action", "save-profile");
     formData.append("first_name", data.first_name);
     formData.append("last_name", data.last_name);
+
+    console.log('form data', formData);
     if (data.email) {
       // check if email is valid
       const emailValidation = validEmail(data.email);
@@ -211,6 +219,13 @@ const DashboardProfile = () => {
 
     return () => subscription.unsubscribe();
   }, [methods]);
+
+  // reset page on load
+  useEffect(() => {
+    if (dbLinks !== userLinks) {
+      setUserLinks([]);
+    }
+  }, []);
 
   const renderImage = () => {
     if (userDetails?.url && !imageData) {

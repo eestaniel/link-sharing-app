@@ -213,33 +213,32 @@ const signOut = async (request: any) => {
 };
 
 const saveLinks = async (formData: FormData, request: any) => {
-  // Get the access token from the session cookie
-  const cookieHeader = request.headers.get("Cookie");
-  const session = await sessionCookie.parse(cookieHeader);
-  const accessToken = session?.accessToken ?? null;
-
-  // if no access token throw redirect /
-  if (!accessToken) {
-    return redirect("/");
+  const cookieResponse = await validateCookieSession(request, '/dashboard');
+  if (cookieResponse) {
+    return cookieResponse
   }
 
-  const response = await fetch(`${baseUrl}/api/users/save-links`, {
-    method: 'POST',
+  const response = await fetch(`${baseUrl}/api/v1/users/links`, {
+    method: 'PUT',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
+      'Cookie': request.headers.get('Cookie'),
     },
-    body: JSON.stringify({
-      links: JSON.parse(formData.get('links') as string),
-    }),
+    body: formData,
   });
 
-  let responseBody = await response.json();
+  const responseBody = await response.json();
   if (responseBody.error) {
-    return json({error: responseBody.error}, {status: 401});
+    return Response.json({error: responseBody.error}, {status: 500});
   }
 
-  return json({message: responseBody});
+
+  const cookieHeader = response.headers.get('set-cookie');
+  
+  return Response.json({message: responseBody},
+    {
+      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+      status: 200,
+    })
 }
 
 const saveProfile = async (formData: FormData, request: any) => {
@@ -248,7 +247,7 @@ const saveProfile = async (formData: FormData, request: any) => {
     return cookieResponse
   }
 
-
+  console.log('action form data', formData);
   const response = await fetch(`${baseUrl}/api/v1/users/profile`, {
     method: 'PUT',
     headers: {

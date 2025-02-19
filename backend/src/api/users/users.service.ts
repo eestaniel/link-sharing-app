@@ -103,10 +103,52 @@ const updateProfile = async (req: Request) => {
 
   }
 
-  return {message: 'Profile updated', updatedFields: updateData, updatedEmail: updateEmail};
+  return {
+    message: 'Profile updated',
+    updatedFields: updateData,
+    updatedEmail: updateEmail
+  };
+}
+
+
+const upsertLinks = async (req: Request) => {
+  const user_id = req.user.sub || req.user.id
+  const linksArray = JSON.parse(req.body.links)
+
+  // delete all links where user_id is equal to the current user_id
+  const {error} = await supabase
+    .from('links')
+    .delete()
+    .eq('user_id', user_id)
+    .select()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  const {data: upsertData, error: upsertError} = await supabase
+    .from('links')
+    .upsert(
+      linksArray.map((link: any) => ({
+        user_id: user_id,
+        id: link.id,
+        platform: link.platform,
+        url: link.url
+      }))
+    )
+    .select()
+
+  if (upsertError) {
+    console.log()
+    throw new Error(upsertError.message)
+  }
+
+
+  return {message: 'Links saved', upsertData: upsertData}
 }
 
 export default {
   getProfileWithLinks,
   updateProfile,
+  upsertLinks
 }
