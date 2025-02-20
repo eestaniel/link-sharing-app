@@ -35,6 +35,8 @@ export const validateCookieSession = async (request: Request, page: string): Pro
   const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
 
+
+
   // if login page and session cookie, return redirect /dashboard/links
   if (page === '/' && cookie.sb_session) {
     return redirect('/dashboard/links');
