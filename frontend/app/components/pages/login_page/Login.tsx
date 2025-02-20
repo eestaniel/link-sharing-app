@@ -55,6 +55,8 @@ const Login = () => {
 
   useEffect(() => {
     const data = fetcher.data as LoginResponse;
+    // Handle the response from the server
+    // If the response contains an error, show it to the user
     if (data?.error) {
       // add invalid error to formState error password
 
@@ -62,6 +64,10 @@ const Login = () => {
         type: 'manual',
         message: data.error
       })
+    }
+    // reset loading state if fetcher is done
+    if (fetcher.state === 'idle') {
+      setIsLoading(false);
     }
   }, [fetcher]);
 

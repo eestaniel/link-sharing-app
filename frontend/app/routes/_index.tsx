@@ -72,7 +72,7 @@ export default function Index() {
         return <CreateAccount/>;
       default:
         // 'login' is the default page
-        return <Login isLoading={isLoading}/>;
+        return <Login />;
     }
   }, [currentPage, isLoading]);
 
