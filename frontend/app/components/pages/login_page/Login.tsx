@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -115,8 +115,11 @@ const Login = () => {
         </button>
 
         <div className={styles.footer_group}>
-          <p className={styles.dont_have_account}>Don't have an account?</p>
-          <p className={styles.create_account} onClick={handlePageChange}>
+          <p className={styles.dont_have_account}>Don&#39;t have an account?</p>
+          <p className={styles.create_account}
+             onClick={handlePageChange}
+             role={'presentation'}
+          >
             Create account</p>
         </div>
       </form>

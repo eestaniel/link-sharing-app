@@ -1,8 +1,9 @@
 import {
   MetaFunction,
-  redirect, useFetcher,
+  useFetcher,
   useLoaderData,
-  useLocation
+  useLocation,
+  useNavigation
 } from "@remix-run/react";
 import {LoaderFunction} from "@remix-run/node";
 import styles from "../styles/index.module.css";
@@ -11,12 +12,8 @@ import Login from "~/components/pages/login_page/Login";
 import Navigation from "~/components/navigation/Navigation";
 import {useLinksStore} from '~/store/LinksStore';
 import CreateAccount from "~/components/pages/create_account/CreateAccount";
-import {validateAccessToken} from "~/services/user-services"
-import {useNavigation,useNavigate} from "@remix-run/react"
-import {parseCookieHeader} from "~/utils/parseCookieHeader";
 import {validateCookieSession} from "~/utils/cookie-utils"
-import {red} from "kleur/colors"
-import {sessionCookie} from "~/utils/sessionCookie"
+
 
 export const meta: MetaFunction = () => {
   return [
@@ -47,7 +44,6 @@ export default function Index() {
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
   }));
-  const navigate = useNavigate();
   const fetcher = useFetcher();
   // this use effect checks if user has a hash from confirmation email
   useEffect(() => {
@@ -63,7 +59,7 @@ export default function Index() {
     };
 
     processToken();
-  }, []);
+  }, [fetcher, location.hash]);
 
   useEffect(() => {
     // Set the current page to the home page on initial load
@@ -78,7 +74,7 @@ export default function Index() {
         // 'login' is the default page
         return <Login isLoading={isLoading}/>;
     }
-  }, [currentPage]);
+  }, [currentPage, isLoading]);
 
   return (
     <div className={`${styles.main_content} ${path === '/' && styles.home_page} `}>

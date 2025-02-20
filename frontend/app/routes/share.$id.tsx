@@ -7,7 +7,7 @@ import {useLoaderData} from "@remix-run/react"
 import {Key} from "react";
 import {useLocation} from "react-router";
 
-export const loader: LoaderFunction = async ({request, params}) => {
+export const loader: LoaderFunction = async ({params}) => {
 
   const id: string | undefined = params.id
   const baseUrl = process.env.BASE_URL

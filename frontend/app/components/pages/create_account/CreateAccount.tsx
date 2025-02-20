@@ -1,5 +1,5 @@
 import styles from "../login_page/Login.module.css";
-import React, {useEffect, useState} from "react";
+import {useState} from "react";
 import {useForm} from 'react-hook-form';
 import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
@@ -104,6 +104,7 @@ const CreateAccount = () => {
             <p className={styles.dont_have_account}>Already have an
               account?</p>
             <p className={styles.create_account}
+               role={'presentation'}
                onClick={handlePageChange}>Login</p>
           </div>
         </form>

@@ -1,6 +1,5 @@
-import {LoaderFunction, redirect} from "@remix-run/node";
+import {LoaderFunction} from "@remix-run/node";
 import {Form, useFetcher} from "@remix-run/react";
-import {sessionCookie} from "~/utils/sessionCookie";
 import {useEffect, useMemo, useState} from "react";
 import styles from "app/styles/dashboard.links.module.css";
 import {useLinksStore} from "~/store/LinksStore";
@@ -10,7 +9,6 @@ import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {FormProvider, useForm} from 'react-hook-form';
 import {useDragAndDrop} from "@formkit/drag-and-drop/react"
-import {parseCookieHeader} from "~/utils/parseCookieHeader";
 import {validateCookieSession} from "~/utils/cookie-utils"
 
 // Define the validation schema using zod
@@ -32,7 +30,7 @@ const generateUUID = () => {
   if (crypto.randomUUID) {
     return crypto.randomUUID();
   } else {
-    return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, (c) => {
+    return 'xxxx-xxxx-xxxx-xxxx'.replace(/[x]/g, () => {
       const r = (Math.random() * 16) | 0;
       return r.toString(16);
     });
@@ -49,27 +47,30 @@ export const loader: LoaderFunction = async ({request}) => {
   return {};
 };
 
+
+
 // Define the DashboardLinks component
 const DashboardLinks = () => {
 
 
   // Get the userLinks, setUserLinks, addLink, removeLink, editLinkUrl, userDetails,
   const {
-    userLinks, setUserLinks, addLink, removeLink, editLinkUrl, userDetails,
-    setUserDetails, setShowToast, setToastMessage, dbUserDetails, dbLinks,
+    userLinks, setUserLinks, addLink, removeLink,
+    setShowToast, setToastMessage, dbLinks,
     setDbLinks
   } = useLinksStore(state => ({
-    dbUserDetails: state.dbUserDetails, dbLinks: state.dbLinks,
+    dbLinks: state.dbLinks,
     userLinks: state.userLinks, setUserLinks: state.setUserLinks,
     addLink: state.addLink, removeLink: state.removeLink,
-    editLinkUrl: state.editLinkUrl, userDetails: state.userDetails,
-    setUserDetails: state.setUserDetails, setShowToast: state.setShowToast,
+    setShowToast: state.setShowToast,
     setToastMessage: state.setToastMessage,
     setDbLinks: state.setDbUserLinks
   }));
-
+  
+  
+  
   // Get the fetcher function
-  const fetcher = useFetcher() as any;
+  const fetcher = useFetcher() as any
 
   // Log the userLinks
   // useEffect(() => {
@@ -98,7 +99,7 @@ const DashboardLinks = () => {
   // Function to handle removing a link
   const handleRemoveLink = (id: string) => {
     removeLink(id);
-    methods.setValue('links', methods.getValues('links').filter((link: any) => link.id !== id));
+    methods.setValue('links', methods.getValues('links').filter((link: { id: string; }) => link.id !== id));
   };
 
 
@@ -154,7 +155,7 @@ const DashboardLinks = () => {
         setIsFormChanged(false);
       }
     }
-  }, [userLinks]);
+  }, [dbLinks, methods, userLinks]);
 
 
   // Initialize the form with react-hook-form and zodResolver
@@ -173,7 +174,7 @@ const DashboardLinks = () => {
     if (userLinks.length > 0) {
       setFormList(userLinks);
     }
-  }, [userLinks]);
+  }, [setFormList, userLinks]);
 
 
   // Update the userLinks when formList changes
@@ -181,7 +182,7 @@ const DashboardLinks = () => {
     if (formList.length > 0) {
       setUserLinks(formList);
     }
-  }, [formList]);
+  }, [formList, setUserLinks]);
 
   // reset page on load
   useEffect(() => {
@@ -199,7 +200,7 @@ const DashboardLinks = () => {
           <div className={styles.empty_links_content}>
             <EmptyLinksIcon/>
             <div className={styles.text_group}>
-              <h2>Let's get you started</h2>
+              <h2>Let&#39;s get you started</h2>
               <p>Use the “Add new link” button to get started. Once you have
                 more than one link, you can reorder and edit them. We’re here to
                 help you share your profiles with everyone!</p>
@@ -216,6 +217,7 @@ const DashboardLinks = () => {
       ));
     }
   }, [userLinks, formList]);
+
 
   return (
     <FormProvider {...methods}>

@@ -8,14 +8,13 @@ import {useFetcher} from "@remix-run/react"
 const Navigation = () => {
   const {
     dbUserDetails,
-    currentPage, userDetails,
+    currentPage,
     setShowToast,
     setToastMessage,
   } = useLinksStore(state => ({
     dbUserDetails: state.dbUserDetails,
     currentPage: state.currentPage,
     setCurrentPage: state.setCurrentPage,
-    userDetails: state.userDetails,
     setShowToast: state.setShowToast,
     setToastMessage: state.setToastMessage,
   }));
@@ -111,6 +110,7 @@ const Navigation = () => {
               </div>
               <div className={styles.link_group}>
                 <div
+                  role={'presentation'}
                   className={`${styles.icon_container} ${path === '/dashboard/links' ? styles.active : ''}`}
                   onClick={() => handlePageChange('edit-links')}>
                   <svg className={styles.svg_img}
@@ -124,6 +124,7 @@ const Navigation = () => {
                 </div>
                 <div
                   className={`${styles.icon_container} ${path === '/dashboard/profile' ? styles.active : ''}`}
+                  role={'presentation'}
                   onClick={() => handlePageChange('edit-profile')}>
                   <svg className={styles.svg_img}
                        xmlns="http://www.w3.org/2000/svg"
@@ -136,6 +137,7 @@ const Navigation = () => {
                 </div>
               </div>
               <div className={styles.preview_icon_container}
+                   role={'presentation'}
                    onClick={() => handlePageChange('preview-links')}>
                 {isMobile ? (
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

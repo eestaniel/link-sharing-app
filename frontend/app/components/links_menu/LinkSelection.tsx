@@ -6,7 +6,7 @@ import {
   LinkMenuPlaceholder
 } from "~/components/links_menu/LinkMenu";
 import {Controller, useFormContext} from "react-hook-form";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useState} from "react";
 import {useLinksStore} from "~/store/LinksStore"
 import Dropdown from "./dropdown/Dropdown"
 
@@ -19,7 +19,7 @@ interface LinkSelectionProps {
 }
 
 
-const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
+const LinkSelection = ({index, object, onRemove}: LinkSelectionProps) => {
   const {control, formState: {errors}, setValue} = useFormContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [platform, setPlatform] = useState<LinkKey>(object.platform as LinkKey);
@@ -51,15 +51,7 @@ const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
     setIsDropdownOpen(false);
   };
 
-  const ScrollToView = () => {
-    const scrollRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      scrollRef.current?.scrollIntoView({behavior: "smooth"})
-    }, []);
-
-    return <div ref={scrollRef} className={styles.scroll_to_view}/>;
-  }
 
   return (
     <div className={styles.form_container}>
@@ -73,6 +65,7 @@ const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
         </div>
         {/* <ScrollToView/> */}
         <p className={styles.remove_text}
+            role={'presentation'}
            onClick={handleRemoveElement}>Remove</p>
       </div>
 
@@ -80,6 +73,7 @@ const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
       <div className={styles.form_group}>
         <p className={styles.form_label}>Platform</p>
         <div className={styles.input_container}
+             role={'presentation'}
              onClick={handleOpenDropdown}
         >
           <Controller
@@ -127,8 +121,7 @@ const LinkSelection = ({index, object, onRemove, key}: LinkSelectionProps) => {
                 placeholder={`${LinkMenuPlaceholder(platform)}`}
               />)}
           />
-          {// @ts-ignore
-            errors.links?.[index]?.url && (// @ts-ignore
+          {errors.links?.[index]?.url && (
               <p
                 className={styles.error_text}>{errors.links[index].url.message}</p>)}
           <div className={styles.svg_container}>

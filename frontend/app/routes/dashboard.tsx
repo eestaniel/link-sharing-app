@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {Outlet, useLoaderData, useLocation} from "@remix-run/react";
-import {data, redirect} from "@remix-run/node";
+import {redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
 import {sessionCookie} from "~/utils/sessionCookie";
@@ -11,10 +11,6 @@ import {linkMenuList, LinkMenuStyles} from '~/components/links_menu/LinkMenu';
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons"
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs"
 import {Toast} from "~/components/toast/Toast"
-import {parseCookieHeader} from "~/utils/parseCookieHeader";
-import {useForm} from "react-hook-form"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {z} from "zod"
 import {validateCookieSession} from "~/utils/cookie-utils"
 
 
@@ -114,31 +110,6 @@ export const loader = async ({request}: never) => {
 // stop revalidation
 export const shouldRevalidate = () => false;
 
-// Define zod schema for profile details
-const profileSchema = z.object({
-  first_name: z.string().min(1, "Can't be empty"),
-  last_name: z.string().min(1, "Can't be empty"),
-  email: z.string().optional(),
-  file: z.any().optional(),
-});
-
-type ProfileFormInputs = z.infer<typeof profileSchema>;
-
-
-interface Profile {
-  id: string;
-  created_at: string;
-  profile_picture: string | null;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
-
-interface LoaderData {
-  links: any[]; // Replace with proper type if needed
-  profile: Profile;
-}
 
 
 const Dashboard = () => {
@@ -213,26 +184,6 @@ const Dashboard = () => {
 
   const loaderData = useLoaderData() as any
 
-  const {setUserDetails} = useLinksStore((state) => ({
-    setUserDetails: state.setUserDetails,
-  }));
-
-  const methods = useForm<ProfileFormInputs>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      file: null,
-    },
-  });
-
-  const {
-    handleSubmit,
-    register,
-    formState: {errors},
-    setError,
-  } = methods;
 
   // Set the user details and links to the store
   useEffect(() => {

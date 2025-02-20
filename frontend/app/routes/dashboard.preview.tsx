@@ -3,11 +3,8 @@ import {useLinksStore} from "~/store/LinksStore";
 import {linkMenuList, LinkMenuStyles} from "~/components/links_menu/LinkMenu";
 import {LinkMenuIcons} from "~/components/links_menu/LinkMenuIcons";
 import {RightArrowIcon} from "~/assets/svgs/IconSVGs";
-import {LoaderFunction, redirect} from "@remix-run/node";
-import {sessionCookie} from "~/utils/sessionCookie";
-import {useLoaderData} from "@remix-run/react";
+import {LoaderFunction} from "@remix-run/node";
 import {useEffect} from "react";
-import {getData} from "~/services/user-services"
 import {validateCookieSession} from "~/utils/cookie-utils"
 
 
@@ -26,19 +23,13 @@ const DashboardPreview = () => {
     dbLinks,
     setDbUserLinks,
     setDbUserDetails,
-    userDetails,
     userLinks,
-    setUserLinks,
-    setUserDetails,
   } = useLinksStore((state) => ({
     dbUserDetails: state.dbUserDetails,
     dbLinks: state.dbLinks,
     setDbUserLinks: state.setDbUserLinks,
     setDbUserDetails: state.setDbUserDetails,
-    userDetails: state.userDetails,
     userLinks: state.userLinks,
-    setUserLinks: state.setUserLinks,
-    setUserDetails: state.setUserDetails,
   }));
 
   useEffect(() => {

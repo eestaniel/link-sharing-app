@@ -5,11 +5,8 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {UploadImageIcon} from "~/assets/svgs/IconSVGs";
 import {useLinksStore} from "~/store/LinksStore";
 import {useEffect, useRef, useState} from "react";
-import {useFetcher, useLoaderData} from "@remix-run/react";
-import {LoaderFunction, redirect} from "@remix-run/node";
-import {sessionCookie} from "~/utils/sessionCookie";
-import {getData} from "~/services/user-services";
-import {parseCookieHeader} from "~/utils/parseCookieHeader"
+import {useFetcher} from "@remix-run/react";
+import {LoaderFunction} from "@remix-run/node";
 import {validateCookieSession} from "~/utils/cookie-utils"
 
 // Define zod schema for profile details
@@ -50,7 +47,7 @@ const DashboardProfile = () => {
 
 
   // Fetch the data from the loader
-  const fetcher = useFetcher();
+  const fetcher = useFetcher() as any
 
 
   // Initialize the store and set the user details and links from the store
@@ -106,11 +103,6 @@ const DashboardProfile = () => {
     }
   }, [dbUserDetails]);
 
-
-  // Log the userDetails
-  // useEffect(() => {
-  //   console.log('userDetails', userDetails);
-  // }, []);
 
 
   // Validate email
@@ -277,6 +269,7 @@ const DashboardProfile = () => {
                   <div className={styles.picture_group}>
                     <div
                       className={styles.picture_svg_container}
+                      role={'presentation'}
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <input

@@ -1,5 +1,4 @@
 import {create} from 'zustand';
-import {Jsonify} from "@remix-run/server-runtime/dist/jsonify"
 
 
 interface LinkObject {

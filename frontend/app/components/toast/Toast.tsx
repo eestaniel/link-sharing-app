@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import styles from './Toast.module.css'; // Assume basic CSS for styling
 import {useLinksStore} from "~/store/LinksStore"
 

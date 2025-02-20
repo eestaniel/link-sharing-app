@@ -105,10 +105,6 @@ const createAccount = async (formData: FormData) => {
 }
 
 
-interface TokenPayload {
-  accessToken: string;
-  refreshToken: string;
-}
 
 
 const loginNewUser = async (formData: FormData) => {
@@ -169,7 +165,7 @@ const login = async (formData: FormData) => {
   );
 }
 
-const signOut = async (request: any) => {
+const signOut = async (request: Request) => {
   const cookieHeader = request.headers.get('Cookie') as string
   const cookie = parseCookieHeader(cookieHeader) as { [key: string]: string };
 
@@ -185,7 +181,7 @@ const signOut = async (request: any) => {
   const response = await fetch(`${baseUrl}/api/v1/auth/signout`, {
     method: 'POST',
     headers: {
-      'Cookie': request.headers.get('Cookie')
+      'Cookie': request.headers.get('Cookie') as string,
     }
   });
 
@@ -211,7 +207,7 @@ const signOut = async (request: any) => {
   );
 };
 
-const saveLinks = async (formData: FormData, request: any) => {
+const saveLinks = async (formData: FormData, request: Request) => {
   const cookieResponse = await validateCookieSession(request, '/dashboard');
   if (cookieResponse) {
     return cookieResponse
@@ -220,7 +216,7 @@ const saveLinks = async (formData: FormData, request: any) => {
   const response = await fetch(`${baseUrl}/api/v1/users/links`, {
     method: 'PUT',
     headers: {
-      'Cookie': request.headers.get('Cookie'),
+      'Cookie': request.headers.get('Cookie') as string,
     },
     body: formData,
   });
@@ -240,7 +236,7 @@ const saveLinks = async (formData: FormData, request: any) => {
     })
 }
 
-const saveProfile = async (formData: FormData, request: any) => {
+const saveProfile = async (formData: FormData, request: Request) => {
   const cookieResponse = await validateCookieSession(request, '/dashboard');
   if (cookieResponse) {
     return cookieResponse
@@ -248,7 +244,7 @@ const saveProfile = async (formData: FormData, request: any) => {
   const response = await fetch(`${baseUrl}/api/v1/users/profile`, {
     method: 'PUT',
     headers: {
-      'Cookie': request.headers.get('Cookie'),
+      'Cookie': request.headers.get('Cookie') as string,
     },
     body: formData,
   });

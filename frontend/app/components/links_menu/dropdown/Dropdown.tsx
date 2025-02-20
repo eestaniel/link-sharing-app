@@ -1,7 +1,7 @@
 import styles from "./Dropdown.module.css";
 import { LinkKey, linkMenuList } from "../LinkMenu";
 import { LinkMenuIcons } from "../LinkMenuIcons";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 interface DropdownProps {
   handleItemSelection: (key: LinkKey) => void;
@@ -39,6 +39,7 @@ const Dropdown = ({ handleItemSelection, handleClose }: DropdownProps) => {
         {Object.entries(linkMenuList).map(([key, label]) => (
           <div
             className={styles.link_menu_item}
+            role={"presentation"}
             key={key}
             onClick={() => handleItemSelection(key as LinkKey)}
           >
