@@ -9,6 +9,7 @@ import {Request} from "express";
 
 const login = async ({email, password}: loginSignupPayload) => {
 
+
   const {data, error} = await supabase.auth.signInWithPassword({
     email: email,
     password: password

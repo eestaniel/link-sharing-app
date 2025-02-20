@@ -7,7 +7,7 @@ export const getPublicProfile = async (req: Request, res: Response) => {
     const data = await shareService.getPublicProfile(req) as any;
     res.status(200).json(data);
   } catch (error: any) {
-    res.status(403).json({ error: error.message });
+    res.status(403).json({ error: `${error.message}, ${process.env.SUPABASE_URL}` });
   }
 }
 
