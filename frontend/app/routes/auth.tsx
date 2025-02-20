@@ -142,27 +142,20 @@ const login = async (formData: FormData) => {
     body: JSON.stringify({email, password}),
   });
 
+  const cookieHeader = response.headers.get('set-cookie');
   // If the login fails, return an error
   if (!response.ok) {
     //return json({error: 'Invalid login'}, {status: response.status});
-    return new Response(
-        JSON.stringify(({error: 'Invalid login'})),
-      {
-        status: response.status,
-      }
-    )
+    return json({error: 'Invalid login'}, {
+      status: response.status,
+      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+    });
   }
 
-  // If the login is successful, set the session cookie
-  const cookieHeader = response.headers.get('set-cookie');
-
-  return new Response(
-      JSON.stringify(({message: 'User logged in'})),
-    {
-      status: 200,
-      headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
-    }
-  );
+  return json({message: 'User logged in'},{
+    headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
+    status: 200,
+  })
 }
 
 const signOut = async (request: Request) => {
@@ -187,24 +180,16 @@ const signOut = async (request: Request) => {
 
   if (!response.ok) {
     //return json({error: 'Invalid login'}, {status: response.status});
-    return new Response(
-      JSON.stringify(({error: 'error signing out'})),
-      {
-        status: response.status,
-        statusText: response.statusText
-      }
-    )
+    return json({error: 'Invalid login'}, {status: response.status});
   }
 
   // Return a success message and set the sb_session cookie to expire
   const newCookieHeader = response.headers.get('set-cookie');
-  return new Response(
-    JSON.stringify(({message: 'User signed out'})),
+  return json({message: 'User logged out'},
     {
       status: 200,
       headers: newCookieHeader ? {"Set-Cookie": newCookieHeader} : {},
-    }
-  );
+    });
 };
 
 const saveLinks = async (formData: FormData, request: Request) => {
