@@ -57,14 +57,20 @@ const DashboardLinks = () => {
   const {
     userLinks, setUserLinks, addLink, removeLink,
     setShowToast, setToastMessage, dbLinks,
-    setDbLinks
+    setDbLinks,
+    userDetails,
+    setUserDetails,
+    dbUserDetails
   } = useLinksStore(state => ({
     dbLinks: state.dbLinks,
     userLinks: state.userLinks, setUserLinks: state.setUserLinks,
     addLink: state.addLink, removeLink: state.removeLink,
     setShowToast: state.setShowToast,
     setToastMessage: state.setToastMessage,
-    setDbLinks: state.setDbUserLinks
+    setDbLinks: state.setDbUserLinks,
+    userDetails: state.userDetails,
+    setUserDetails: state.setUserDetails,
+    dbUserDetails: state.dbUserDetails
   }));
   
   
@@ -72,10 +78,7 @@ const DashboardLinks = () => {
   // Get the fetcher function
   const fetcher = useFetcher() as any
 
-  // Log the userLinks
-  // useEffect(() => {
-  //   console.log('userDetails:', userLinks);
-  // }, []);
+
 
 
   // Initialize the form using react-hook-form
@@ -123,26 +126,20 @@ const DashboardLinks = () => {
 
   // Initialize the form with react-hook-form and zodResolver
   const [isFormChanged, setIsFormChanged] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
 
   // Show toast message when data is saved
   useEffect(() => {
-    if (fetcher.data?.message) {
+    if (fetcher.data?.message?.message === 'Links saved') {
+      // check if message === Links saved
       setShowToast(fetcher.data.message);
       setToastMessage('Your changes have been successfully saved!')
       setDisableButton(false);
-
       // update dbLinks with userLinks
       setDbLinks(userLinks);
     }
-  }, [fetcher.data]);
+  }, [fetcher?.data]);
 
-  // Set isClient to true when the component mounts
-  useEffect(() => {
-    setIsClient(true);
-
-  }, []);
 
 
   // Check if the form has changed
@@ -169,6 +166,7 @@ const DashboardLinks = () => {
   )
 
 
+
   // Update the formList when userLinks changes
   useEffect(() => {
     if (userLinks.length > 0) {
@@ -188,6 +186,11 @@ const DashboardLinks = () => {
   useEffect(() => {
     if (dbLinks !== userLinks) {
       setUserLinks([]);
+    }
+
+    if (userDetails !== dbUserDetails) {
+      setUserDetails(dbUserDetails);
+
     }
   }, []);
 
@@ -244,7 +247,7 @@ const DashboardLinks = () => {
           </div>
           <footer>
             <button type="submit" className={styles.save_button}
-                    disabled={(!isFormChanged && isClient) || disableButton}>
+                    disabled={(!isFormChanged) || disableButton}>
               {disableButton ? "Saving..." : "Save"}
             </button>
           </footer>

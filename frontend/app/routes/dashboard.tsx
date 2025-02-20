@@ -134,8 +134,9 @@ const Dashboard = () => {
     dbUserDetails,
     userLinks,
     userDetails,
-    setUserLinks,
     setDbUserLinks,
+    setUserDetails,
+    setUserLinks,
     setDbUserDetails,
     showToast,
     setShowToast,
@@ -146,8 +147,9 @@ const Dashboard = () => {
     userLinks: state.userLinks,
     userDetails: state.userDetails,
     setDbUserLinks: state.setDbUserLinks,
-    setDbUserDetails: state.setDbUserDetails,
+    setUserDetails: state.setUserDetails,
     setUserLinks: state.setUserLinks,
+    setDbUserDetails: state.setDbUserDetails,
     showToast: state.showToast,
     setShowToast: state.setShowToast,
     toastMessage: state.toastMessage,
@@ -190,17 +192,20 @@ const Dashboard = () => {
     if (!loaderData.data) {
       return;
     }
-    const {profile, links} = loaderData?.data as any;
+    const {profile, links} = loaderData?.data as { profile: { [key: string]: string }, links: [] };
 
     if (profile) {
       setDbUserDetails(profile);
+      setUserDetails(profile)
     }
     if (links) {
       setDbUserLinks(links);
+      setUserLinks(links)
     }
 
 
-  }, [loaderData]);
+  }, [loaderData, setDbUserDetails, setDbUserLinks]);
+
 
 
   const handleDismissToast = () => {
@@ -219,10 +224,10 @@ const Dashboard = () => {
               }
 
               <div
-                className={`${styles.profile_details_group} ${dbUserDetails?.first_name && dbUserDetails?.email && styles.fill_bg_group}`}>
-                {dbUserDetails?.first_name && dbUserDetails?.last_name &&
-                  <h2>{dbUserDetails?.first_name} {dbUserDetails?.last_name}</h2>}
-                <p>{dbUserDetails?.email}</p>
+                className={`${styles.profile_details_group} ${userDetails?.first_name && userDetails?.email && styles.fill_bg_group}`}>
+                {userDetails?.first_name && userDetails?.last_name &&
+                  <h2>{userDetails?.first_name} {userDetails?.last_name}</h2>}
+                <p>{userDetails?.email}</p>
               </div>
             </div>
             <div className={styles.links_group}>

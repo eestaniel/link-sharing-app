@@ -20,7 +20,6 @@ const profileSchema = z.object({
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 
-
 export const loader: LoaderFunction = async ({request}) => {
   const response = await validateCookieSession(request, '/dashboard');
   if (response) {
@@ -29,7 +28,6 @@ export const loader: LoaderFunction = async ({request}) => {
 
   return {}
 }
-
 
 
 const DashboardProfile = () => {
@@ -41,7 +39,6 @@ const DashboardProfile = () => {
       first_name: "",
       last_name: "",
       email: "",
-      file: null,
     },
   });
 
@@ -54,27 +51,26 @@ const DashboardProfile = () => {
   const {
     dbLinks,
     dbUserDetails,
-    userDetails,
     userLinks,
     setUserDetails,
     setUserLinks,
     setShowToast,
-    setToastMessage
+    setToastMessage,
+    setDbUserDetails,
   } = useLinksStore((state) => ({
     dbLinks: state.dbLinks,
     dbUserDetails: state.dbUserDetails,
-    userDetails: state.userDetails,
     userLinks: state.userLinks,
     setUserDetails: state.setUserDetails,
     setUserLinks: state.setUserLinks,
     setShowToast: state.setShowToast,
     setToastMessage: state.setToastMessage,
+    setDbUserDetails: state.setDbUserDetails,
   }));
 
 
   // Initialize the state for form changes and client
   const [isFormChanged, setIsFormChanged] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
 
   // Destructure the methods from react-hook-form
@@ -96,29 +92,25 @@ const DashboardProfile = () => {
   const [disableButton, setDisableButton] = useState(false);
 
 
-  // Set DB user details to the form on load
-  useEffect(() => {
-    if (dbUserDetails) {
-      methods.reset(dbUserDetails);
-    }
-  }, [dbUserDetails]);
-
-
-
   // Validate email
   const validEmail = (email: string) => {
     return z.string().email().safeParse(email);
   }
 
+
+
   // Save the form data
   const handleSaveForm = async (data: ProfileFormInputs) => {
     setDisableButton(true);
+
 
     // check if email is empty
     const formData = new FormData();
     formData.append("action", "save-profile");
     formData.append("first_name", data.first_name);
     formData.append("last_name", data.last_name);
+
+    console.log('data.email', data.email)
 
     if (data.email) {
       // check if email is valid
@@ -147,19 +139,20 @@ const DashboardProfile = () => {
     setUserDetails(data);
   };
 
+
+
   // Show toast message when data is saved
   useEffect(() => {
-    if (fetcher.data?.message) {
+    if (fetcher.data?.message?.message === 'Profile updated') {
       setShowToast(fetcher.data.message);
       setToastMessage('Your changes have been successfully saved!')
       setDisableButton(false);
+      // update dbUserDetails with userDetails
+      setDbUserDetails(methods.getValues());
     }
   }, [fetcher.data]);
 
-  // Set isClient to true
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+
 
   const handleSignOut = async () => {
     setUserDetails({
@@ -173,6 +166,8 @@ const DashboardProfile = () => {
     formData.append('action', 'logout');
     fetcher.submit(formData, {method: 'post', action: '/auth'});
   };
+
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file: any = event.target.files?.[0];
@@ -194,30 +189,37 @@ const DashboardProfile = () => {
     }
   };
 
+
+
   // Watch for changes in the form
   useEffect(() => {
     const subscription = methods.watch((value) => {
-      const hasNameChanged = value.first_name !== userDetails.first_name
-        || value.last_name !== userDetails.last_name
-        || value.email !== userDetails.email
-        || value.file !== userDetails.file
-      ;
-      if (hasNameChanged) {
-        setIsFormChanged(true);
-      } else {
-        setIsFormChanged(false);
-      }
+      const hasNameChanged = value.first_name !== dbUserDetails.first_name
+        || value.last_name !== dbUserDetails.last_name
+        || value.email !== dbUserDetails.email
+        || value.file
+
+      setIsFormChanged(hasNameChanged);
+      setUserDetails(value);
     });
 
-    return () => subscription.unsubscribe();
-  }, [methods]);
 
-  // reset page on load
+    return () => subscription.unsubscribe();
+  }, [dbUserDetails, methods]);
+
+
+  // reset form on load
   useEffect(() => {
+    // reset form
     if (dbLinks !== userLinks) {
+      // reset preview links
       setUserLinks([]);
     }
-  }, []);
+
+    if (dbUserDetails) {
+      methods.reset(dbUserDetails);
+    }
+  }, [dbLinks, dbUserDetails, methods]);
 
   const renderImage = () => {
     if (dbUserDetails?.url && !imageData) {
@@ -318,8 +320,9 @@ const DashboardProfile = () => {
       </div>
       <footer className={styles.footer_container}>
         <div className={styles.button_group}>
-          <button type="submit" onClick={handleSubmit(handleSaveForm)}
-                  disabled={(!isFormChanged && isClient) || disableButton}>
+          <button type="submit"
+                  onClick={handleSubmit(handleSaveForm)}
+                  disabled={(!isFormChanged) || disableButton}>
             {disableButton ? "Saving..." : "Save"}
           </button>
           <button type="submit" onClick={handleSignOut}

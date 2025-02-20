@@ -16,8 +16,6 @@ const getProfileWithLinks = async (req: Request) => {
     throw new Error(`Error fetching user profile: ${profile_error.message}, req: ${req}`)
   }
 
-  // append email to user_profile
-  user_profile[0].email = req.user.email
 
   // Get user links
   const {data: user_links, error: links_error} = await supabase
@@ -76,7 +74,7 @@ const updateProfile = async (req: Request) => {
   // Get user profile details from supabase
   const {data: sb_user, error: sb_error} = await supabase
     .from('profile')
-    .select('first_name, last_name')
+    .select('first_name, last_name, email')
     .eq('id', user_id)
     .single()
 
@@ -85,7 +83,7 @@ const updateProfile = async (req: Request) => {
   }
 
   // Prepare an update object only for changed fields
-  const updateData: Partial<{ first_name: string; last_name: string }> = {};
+  const updateData: Partial<{ first_name: string; last_name: string; email: string }> = {};
 
   // Check if first_name and last_name are different from the current values
   if (req.body.first_name && req.body.first_name !== sb_user.first_name) {
@@ -93,6 +91,9 @@ const updateProfile = async (req: Request) => {
   }
   if (req.body.last_name && req.body.last_name !== sb_user.last_name) {
     updateData.last_name = req.body.last_name;
+  }
+  if (req.body.email && req.body.email !== sb_user.email) {
+    updateData.email = req.body.email;
   }
 
 
@@ -106,31 +107,6 @@ const updateProfile = async (req: Request) => {
 
     if (updateError) {
       throw new Error(updateError.message);
-    }
-  }
-
-
-
-  // check if req.body.email is different than req.user.email
-  if (req.body.email !== req.user.email) {
-    console.log('email is different')
-  }
-
-  // Check if email is different from the current value
-  const updateEmail: Partial<{ email: string }> = {};
-  if (req.body.email !== req.user.email) {
-    updateEmail.email = req.body.email;
-  }
-
-  // Update email if necessary
-  if (Object.keys(updateEmail).length > 0) {
-    const {
-      data: userEmail,
-      error: errorEmail
-    } = await supabase.auth.updateUser(updateEmail);
-
-    if (errorEmail) {
-      throw new Error(errorEmail.message);
     }
   }
 
@@ -171,7 +147,6 @@ const updateProfile = async (req: Request) => {
   return {
     message: 'Profile updated',
     updatedFields: updateData,
-    updatedEmail: updateEmail
   };
 }
 
