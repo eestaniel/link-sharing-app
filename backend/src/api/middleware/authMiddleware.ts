@@ -20,9 +20,9 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   try {
     // Get token from cookie and check if it exists
     const cookie = req.cookies.sb_session;
-    if (!cookie) {
-      return res.status(401).json({message: "Unauthorized"});
-    }
+    // if (!cookie) {
+    //   return res.status(401).json({message: "Unauthorized"});
+    // }
 
 
 

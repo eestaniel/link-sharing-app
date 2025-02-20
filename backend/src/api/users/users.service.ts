@@ -4,7 +4,6 @@ import supabase from "../../config/supabaseClient"
 const getProfileWithLinks = async (req: Request) => {
 
   const user_id = req?.user?.sub || req?.user?.id
-  console.log('user_id', user_id)
 
   // Get user profile
   const {data: user_profile, error: profile_error} = await supabase
