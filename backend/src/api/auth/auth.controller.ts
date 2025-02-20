@@ -67,7 +67,7 @@ const protectedRoute = async (req: Request, res: Response) => {
   try{
 
     // get user from redis
-    res.status(200).json({ message: 'protected route' });
+    res.status(200).json({ message: `protected route, req.user: ${req.user}` });
   } catch (error: any) {
     res.status(403).json({ error: error.message });
   }
