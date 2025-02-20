@@ -11,7 +11,7 @@ const getProfileWithLinks = async (req: Request, res: Response) => {
     const data = await usersService.getProfileWithLinks(req) as any;
     res.status(200).json(data);
   } catch (error: any) {
-    res.status(403).json({ error: error.message });
+    res.status(403).json({ error: `Error fetching user profile: ${error.message}` });
   }
 }
 

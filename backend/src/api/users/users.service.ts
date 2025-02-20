@@ -4,6 +4,7 @@ import supabase from "../../config/supabaseClient"
 const getProfileWithLinks = async (req: Request) => {
 
   const user_id = req?.user?.sub || req?.user?.id
+  console.log('user_id', user_id)
 
   // Get user profile
   const {data: user_profile, error: profile_error} = await supabase
@@ -13,7 +14,7 @@ const getProfileWithLinks = async (req: Request) => {
 
   if (profile_error) {
 
-    throw new Error(profile_error.message)
+    throw new Error(`Error fetching user profile: ${profile_error.message}`)
   }
 
   // append email to user_profile
@@ -27,7 +28,7 @@ const getProfileWithLinks = async (req: Request) => {
 
   if (links_error) {
 
-    throw new Error(links_error.message)
+    throw new Error(`Error fetching user links: ${links_error.message}`)
   }
 
   // check if user_id has a picture
@@ -41,7 +42,7 @@ const getProfileWithLinks = async (req: Request) => {
     })
 
   if (imageError) {
-    throw new Error(imageError.message)
+    throw new Error(`Error fetching user image: ${imageError.message}`)
   }
 
   // get url
