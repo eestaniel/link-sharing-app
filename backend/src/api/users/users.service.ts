@@ -14,7 +14,7 @@ const getProfileWithLinks = async (req: Request) => {
 
   if (profile_error) {
 
-    throw new Error(`Error fetching user profile: ${profile_error.message}, user_id: ${user_id}`)
+    throw new Error(`Error fetching user profile: ${profile_error.message}, req: ${req}`)
   }
 
   // append email to user_profile
