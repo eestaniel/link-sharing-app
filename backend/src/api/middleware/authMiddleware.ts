@@ -28,7 +28,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
 
     let tokens: TokensPayload;
-    let user: User;
+    let user;
     try {
       tokens = jwt.verify(cookie, process.env.JWT_SECRET as string) as TokensPayload;
       user = jwt.verify(tokens.access_token, process.env.JWT_SECRET as string) as User;
