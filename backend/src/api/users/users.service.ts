@@ -3,7 +3,7 @@ import supabase from "../../config/supabaseClient"
 
 const getProfileWithLinks = async (req: Request) => {
 
-  const user_id = req.user.sub || req.user.id
+  const user_id = req?.user?.sub || req?.user?.id
 
   // Get user profile
   const {data: user_profile, error: profile_error} = await supabase
@@ -71,7 +71,7 @@ const getProfileWithLinks = async (req: Request) => {
 
 const updateProfile = async (req: Request) => {
   // Get user_id from the request
-  const user_id = req.user.sub || req.user.id
+  const user_id = req?.user?.sub || req?.user?.id
 
   // Get user profile details from supabase
   const {data: sb_user, error: sb_error} = await supabase
@@ -177,7 +177,7 @@ const updateProfile = async (req: Request) => {
 
 
 const upsertLinks = async (req: Request) => {
-  const user_id = req.user.sub || req.user.id
+  const user_id = req?.user?.sub || req?.user?.id
   const linksArray = JSON.parse(req.body.links)
 
 
