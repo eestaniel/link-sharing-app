@@ -88,7 +88,14 @@ export const loader = async ({request}: never) => {
 
   const {data: get_data, headers} = await getData(request);
   if (!get_data) {
-    return new Response(JSON.stringify({error: 'Failed to fetch data'}), {status: 500});
+    Response.json({
+      links: [],
+      profile: {},
+      message: "No data found"
+    },
+      {
+        status: 200,
+      })
   }
 
   return Response.json({
