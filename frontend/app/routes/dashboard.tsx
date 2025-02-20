@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Outlet, useLoaderData, useLocation} from "@remix-run/react";
-import {redirect} from "@remix-run/node";
+import {json, redirect} from "@remix-run/node";
 import Navigation from "~/components/navigation/Navigation";
 import styles from '../styles/Dashboard.module.css';
 import {sessionCookie} from "~/utils/sessionCookie";
@@ -84,7 +84,7 @@ export const loader = async ({request}: never) => {
 
   const {data: get_data, headers} = await getData(request);
   if (!get_data) {
-    Response.json({
+    json({
       links: [],
       profile: {},
       message: "No data found"
@@ -94,7 +94,7 @@ export const loader = async ({request}: never) => {
       })
   }
 
-  return Response.json({
+  return json({
       data: get_data
     },
     {

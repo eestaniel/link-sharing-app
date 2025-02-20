@@ -208,13 +208,13 @@ const saveLinks = async (formData: FormData, request: Request) => {
 
   const responseBody = await response.json();
   if (responseBody.error) {
-    return Response.json({error: responseBody.error}, {status: 500});
+    return json({error: responseBody.error}, {status: 500})
   }
 
 
   const cookieHeader = response.headers.get('set-cookie');
   
-  return Response.json({message: responseBody},
+  return json({message: responseBody},
     {
       headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
       status: 200,
@@ -236,12 +236,12 @@ const saveProfile = async (formData: FormData, request: Request) => {
 
   const responseBody = await response.json();
   if (responseBody.error) {
-    return Response.json({error: responseBody.error}, {status: 500});
+    return json({error: responseBody.error}, {status: 500});
   }
 
   const cookieHeader = response.headers.get('set-cookie');
 
-  return Response.json({message: responseBody},
+  return json({message: responseBody},
     {
       headers: cookieHeader ? {"Set-Cookie": cookieHeader} : {},
       status: 200,
